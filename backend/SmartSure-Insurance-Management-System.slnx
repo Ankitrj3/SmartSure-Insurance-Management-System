@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="gateway/SmartSure.Gateway/SmartSure.Gateway.csproj" />
   <Project Path="services/SmartSure.IdentityService/SmartSure.IdentityService.csproj" Id="65be69cb-ef8f-4f43-a454-d720eb4acd56" />
+  <Project Path="test/SmartSure.IdentityService.Tests/SmartSure.IdentityService.Tests.csproj" />
 </Solution>
