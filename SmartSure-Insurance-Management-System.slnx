@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="GatewayService/GatewayService.csproj" />
-  <Project Path="IdentityService/IdentityService.csproj" Id="65be69cb-ef8f-4f43-a454-d720eb4acd56" />
-</Solution>

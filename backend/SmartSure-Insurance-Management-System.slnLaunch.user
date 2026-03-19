@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "gateway\\SmartSure.Gateway\\SmartSure.Gateway.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "services\\SmartSure.IdentityService\\SmartSure.IdentityService.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
