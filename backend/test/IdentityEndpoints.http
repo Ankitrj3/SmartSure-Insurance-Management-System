@@ -1,0 +1,76 @@
+@host = https://localhost:7092
+@token = YOUR_TOKEN_HERE
+
+### Register
+POST {{host}}/auth/register
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "email": "test@smartsure.com",
+    "password": "Password123!",
+    "confirmPassword": "Password123!"
+}
+
+### Login
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "test@smartsure.com",
+    "password": "Password123!"
+}
+
+### Refresh Token
+POST {{host}}/auth/refresh
+Content-Type: application/json
+
+{
+    "refreshToken": "YOUR_REFRESH_TOKEN_HERE"
+}
+
+### Get Profile
+GET {{host}}/auth/me
+Authorization: Bearer {{token}}
+
+### Update Profile
+PUT {{host}}/auth/me
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "username": "testuser_updated",
+    "email": "test_updated@smartsure.com"
+}
+
+### Change Password
+PUT {{host}}/auth/change-password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "oldPassword": "Password123!",
+    "newPassword": "NewPassword123!",
+    "confirmPassword": "NewPassword123!"
+}
+
+### Logout
+POST {{host}}/auth/logout
+Authorization: Bearer {{token}}
+
+### Admin: Get All Users
+GET {{host}}/api/users
+Authorization: Bearer {{token}}
+
+### Admin: Assign Role
+PUT {{host}}/api/users/USER_GUID_HERE/roles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "roleId": "ROLE_GUID_HERE"
+}
+
+### Admin: Delete User
+DELETE {{host}}/api/users/USER_GUID_HERE
+Authorization: Bearer {{token}}

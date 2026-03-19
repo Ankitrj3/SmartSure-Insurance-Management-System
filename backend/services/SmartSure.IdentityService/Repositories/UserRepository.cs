@@ -48,5 +48,15 @@ namespace IdentityService.Repositories
         {
             _context.Users.Remove(user);
         }
+
+        public async Task<Role> GetRoleByIdAsync(Guid roleId)
+        {
+            return await _context.Roles.FindAsync(roleId);
+        }
+
+        public async Task AddUserRoleAsync(UserRole userRole)
+        {
+            await _context.UserRoles.AddAsync(userRole);
+        }
     }
 }

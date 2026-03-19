@@ -10,5 +10,7 @@ namespace IdentityService.Repositories
         Task AddAsync(User user);
         Task SaveChangesAsync();
         void Delete(User user);
+        Task<Role> GetRoleByIdAsync(Guid roleId);
+        Task AddUserRoleAsync(UserRole userRole);
     }
 }

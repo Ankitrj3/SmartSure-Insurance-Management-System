@@ -4,6 +4,7 @@ using IdentityService.Helpers;
 using IdentityService.Models;
 using IdentityService.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace IdentityService.Services
 {
@@ -12,14 +13,14 @@ namespace IdentityService.Services
         private readonly IUserRepository _repo;
         private readonly TokenService _tokenService;
         private readonly IConfiguration _config;
-        private readonly IdentityDbContext _context;
+        private readonly IMemoryCache _cache;
 
-        public AuthService(IUserRepository repo, TokenService tokenService, IConfiguration config, IdentityDbContext context)
+        public AuthService(IUserRepository repo, TokenService tokenService, IConfiguration config, IMemoryCache cache)
         {
             _repo = repo;
             _tokenService = tokenService;
             _config = config;
-            _context = context;
+            _cache = cache;
         }
 
         public async Task ChangePassword(string userId, ChangePasswordDTO dto)
@@ -59,8 +60,44 @@ namespace IdentityService.Services
             var audience = new List<string> { _config["Jwt:Audience"] ?? _config["Jwt:Issuer"] };
             
             var token = _tokenService.BuildToken(_config["Jwt:Key"], _config["Jwt:Issuer"], audience, user.UserId.ToString(), roles);
+            var refreshToken = _tokenService.GenerateRefreshToken();
 
-            return new TokenResponseDTO { Token = token };
+            // Cache refresh token for 24 hours (No DB storage as requested)
+            _cache.Set($"refreshToken_{refreshToken}", user.UserId.ToString(), TimeSpan.FromHours(24));
+
+            return new TokenResponseDTO 
+            { 
+                Token = token,
+                RefreshToken = refreshToken
+            };
+        }
+
+        public async Task<TokenResponseDTO> Refresh(string refreshToken)
+        {
+            if (!_cache.TryGetValue($"refreshToken_{refreshToken}", out string userIdStr))
+            {
+                throw new Exception("Invalid or expired refresh token");
+            }
+
+            var userId = Guid.Parse(userIdStr);
+            var user = await _repo.GetByIdAsync(userId);
+            if (user == null) throw new Exception("User not found");
+
+            var roles = user.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string>();
+            var audience = new List<string> { _config["Jwt:Audience"] ?? _config["Jwt:Issuer"] };
+
+            var newToken = _tokenService.BuildToken(_config["Jwt:Key"], _config["Jwt:Issuer"], audience, user.UserId.ToString(), roles);
+            var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+            // Revoke old token and cache new one
+            _cache.Remove($"refreshToken_{refreshToken}");
+            _cache.Set($"refreshToken_{newRefreshToken}", user.UserId.ToString(), TimeSpan.FromHours(24));
+
+            return new TokenResponseDTO
+            {
+                Token = newToken,
+                RefreshToken = newRefreshToken
+            };
         }
 
         public async Task<string> Register(RegisterDTO dto)

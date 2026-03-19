@@ -9,5 +9,6 @@ namespace IdentityService.Services
         Task<UserDTO> GetProfile(string userId);
         Task UpdateProfile(string userId, UpdateUserDTO dto);
         Task ChangePassword(string userId, ChangePasswordDTO dto);
+        Task<TokenResponseDTO> Refresh(string refreshToken);
     }
 }

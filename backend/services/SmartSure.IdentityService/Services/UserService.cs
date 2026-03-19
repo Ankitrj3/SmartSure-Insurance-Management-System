@@ -1,4 +1,3 @@
-using IdentityService.Data;
 using IdentityService.DTOs;
 using IdentityService.Models;
 using IdentityService.Repositories;
@@ -8,12 +7,10 @@ namespace IdentityService.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _repo;
-        private readonly IdentityDbContext _context;
 
-        public UserService(IUserRepository repo, IdentityDbContext context)
+        public UserService(IUserRepository repo)
         {
             _repo = repo;
-            _context = context;
         }
 
         public async Task AssignRole(Guid userId, Guid roleId)
@@ -21,12 +18,12 @@ namespace IdentityService.Services
             var user = await _repo.GetByIdAsync(userId);
             if (user == null) throw new Exception("User not found");
 
-            var role = await _context.Roles.FindAsync(roleId);
+            var role = await _repo.GetRoleByIdAsync(roleId);
             if (role == null) throw new Exception("Role not found");
 
             var userRole = new UserRole { UserId = userId, RoleId = roleId };
-            _context.UserRoles.Add(userRole);
-            await _context.SaveChangesAsync();
+            await _repo.AddUserRoleAsync(userRole);
+            await _repo.SaveChangesAsync();
         }
 
         public async Task DeleteUser(Guid userId)

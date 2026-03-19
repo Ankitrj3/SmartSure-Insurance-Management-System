@@ -107,5 +107,19 @@ namespace IdentityService.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshRequestDTO dto)
+        {
+            try
+            {
+                var result = await _authService.Refresh(dto.RefreshToken);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+        }
     }
 }
