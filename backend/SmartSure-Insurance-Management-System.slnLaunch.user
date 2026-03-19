@@ -7,6 +7,10 @@
         "Action": "Start"
       },
       {
+        "Path": "services\\SmartSure.PolicyService\\SmartSure.PolicyService.csproj",
+        "Action": "Start"
+      },
+      {
         "Path": "gateway\\SmartSure.Gateway\\SmartSure.Gateway.csproj",
         "Action": "Start"
       }
