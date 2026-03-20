@@ -18,16 +18,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     // Important: SwaggerForOcelotUI must be BEFORE UseOcelot
-    app.UseSwaggerForOcelotUI(opt =>
-    {
-        opt.PathToSwaggerGenerator = "/swagger/v1/swagger.json";
-    });
+    app.UseSwaggerForOcelotUI();
 }
 
 app.UseHttpsRedirection();
 
-// Gateway health check
-app.MapGet("/", () => Results.Ok(new { message = "SmartSure API Gateway is healthy", status = "Active" }));
 
 // Use Ocelot middleware (last)
 await app.UseOcelot();
