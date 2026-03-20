@@ -6,6 +6,7 @@ using SmartSure.PolicyService.Repositories;
 using SmartSure.PolicyService.Services;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using MassTransit;
 
 DotNetEnv.Env.Load();
 
@@ -15,6 +16,22 @@ builder.Configuration.AddEnvironmentVariables();
 // Database
 builder.Services.AddDbContext<PolicyDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultPolicyConnection")));
+
+// MassTransit / RabbitMQ
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<SmartSure.PolicyService.Consumers.UserRegisteredConsumer>();
+
+    x.UsingRabbitMq((ctx, cfg) =>
+    {
+        cfg.Host(builder.Configuration["RabbitMQ:Host"]!, "/", h =>
+        {
+            h.Username(builder.Configuration["RabbitMQ:Username"]!);
+            h.Password(builder.Configuration["RabbitMQ:Password"]!);
+        });
+        cfg.ConfigureEndpoints(ctx);
+    });
+});
 
 // Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not found in configuration");
@@ -81,6 +98,10 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
+
+    // Fix duplicate operationId errors from absolute route overrides
+    c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+    c.CustomSchemaIds(type => type.FullName);
 });
 
 var app = builder.Build();
@@ -96,5 +117,12 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Auto-migrate database
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<PolicyDbContext>();
+    await db.Database.MigrateAsync();
+}
 
 app.Run();

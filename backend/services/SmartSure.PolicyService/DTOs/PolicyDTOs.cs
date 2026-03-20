@@ -32,6 +32,8 @@ namespace SmartSure.PolicyService.DTOs
 
     public class CreateHomeDetailDTO
     {
+        public Guid PolicyId { get; set; }
+
         [Required(ErrorMessage = "Address is required")]
         [StringLength(500)]
         public string Address { get; set; }
@@ -50,6 +52,8 @@ namespace SmartSure.PolicyService.DTOs
 
     public class CreateVehicleDetailDTO
     {
+        public Guid PolicyId { get; set; }
+
         [Required(ErrorMessage = "RegistrationNumber is required")]
         [StringLength(50)]
         public string RegistrationNumber { get; set; }

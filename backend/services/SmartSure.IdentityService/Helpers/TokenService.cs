@@ -23,7 +23,6 @@ namespace IdentityService.Helpers
                 claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
             }
 
-            claims.AddRange(audience.Select(aud => new Claim(JwtRegisteredClaimNames.Aud, aud)));
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
@@ -31,7 +30,7 @@ namespace IdentityService.Helpers
 
             var tokenDescriptor = new JwtSecurityToken(
                 issuer,
-                issuer,
+                audience.FirstOrDefault(), // Pass the intended audience instead of duplicating the issuer
                 claims,
                 expires: DateTime.Now.Add(ExpiryDuration),
                 signingCredentials: credentials

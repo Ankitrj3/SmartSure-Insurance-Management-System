@@ -6,8 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MMLib.SwaggerForOcelot" Version="9.0.0" />
+    <PackageReference Include="MMLib.SwaggerForOcelot" Version="5.2.0" />
     <PackageReference Include="Ocelot" Version="24.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\SmartSure.Shared.Contracts\SmartSure.Shared.Contracts.csproj" />
   </ItemGroup>
 </Project>

@@ -17,14 +17,14 @@ namespace SmartSure.PolicyService.Controllers
             _service = service;
         }
 
-        [HttpGet("policy/{policyId}")]
+        [HttpGet("/policies/{policyId}/payments")]
         public async Task<IActionResult> GetPayments(Guid policyId)
         {
             var payments = await _service.GetByPolicyIdAsync(policyId);
             return Ok(payments);
         }
 
-        [HttpGet("{paymentId}")]
+        [HttpGet("/payments/{paymentId}")] // To keep the GetPayment by ID working if it's called
         public async Task<IActionResult> GetPayment(Guid paymentId)
         {
             var payment = await _service.GetByIdAsync(paymentId);
@@ -32,9 +32,10 @@ namespace SmartSure.PolicyService.Controllers
             return Ok(payment);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> RecordPayment(RecordPaymentDTO dto)
+        [HttpPost("/policies/{policyId}/payments")]
+        public async Task<IActionResult> RecordPayment(Guid policyId, [FromBody] RecordPaymentDTO dto)
         {
+            dto.PolicyId = policyId;
             var payment = await _service.RecordPaymentAsync(dto);
             return CreatedAtAction(nameof(GetPayment), new { paymentId = payment.PaymentId }, payment);
         }

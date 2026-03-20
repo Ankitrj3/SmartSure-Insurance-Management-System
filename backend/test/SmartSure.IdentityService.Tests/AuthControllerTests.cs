@@ -12,12 +12,14 @@ namespace SmartSure.IdentityService.Tests
     public class AuthControllerTests
     {
         private readonly Mock<IAuthService> _mockAuthService;
+        private readonly Mock<IGoogleAuthService> _mockGoogleAuthService;
         private readonly AuthController _controller;
 
         public AuthControllerTests()
         {
             _mockAuthService = new Mock<IAuthService>();
-            _controller = new AuthController(_mockAuthService.Object);
+            _mockGoogleAuthService = new Mock<IGoogleAuthService>();
+            _controller = new AuthController(_mockAuthService.Object, _mockGoogleAuthService.Object);
         }
 
         [Fact]

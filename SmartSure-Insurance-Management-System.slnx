@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/backend/" />
+  <Folder Name="/backend/gateway/">
+    <Project Path="backend/gateway/SmartSure.Gateway/SmartSure.Gateway.csproj" />
+  </Folder>
+  <Folder Name="/backend/services/">
+    <Project Path="backend/services/SmartSure.IdentityService/SmartSure.IdentityService.csproj" />
+    <Project Path="backend/services/SmartSure.PolicyService/SmartSure.PolicyService.csproj" />
+    <Project Path="backend/services/SmartSure.ClaimsService/SmartSure.ClaimsService.csproj" />
+    <Project Path="backend/services/SmartSure.AdminService/SmartSure.AdminService.csproj" />
+  </Folder>
+  <Folder Name="/backend/shared/">
+    <Project Path="backend/shared/SmartSure.Shared.Contracts/SmartSure.Shared.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/backend/test/">
+    <Project Path="backend/test/SmartSure.IdentityService.Tests/SmartSure.IdentityService.Tests.csproj" />
+    <Project Path="backend/test/SmartSure.PolicyService.Tests/SmartSure.PolicyService.Tests.csproj" />
+  </Folder>
+</Solution>

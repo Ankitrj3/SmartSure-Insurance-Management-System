@@ -1,27 +1,56 @@
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using MMLib.SwaggerForOcelot.DependencyInjection;
+using SmartSure.Shared.Contracts.Extensions;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Serilog
+builder.AddSerilogLogging("SmartSure.Gateway");
 
 // Add Ocelot configuration file
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
 // Add HttpClient and Ocelot with Swagger aggregation
 builder.Services.AddHttpClient();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddOcelot(builder.Configuration);
 builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp", builder =>
+    {
+        builder.WithOrigins("http://localhost:4200", "https://localhost:4200", "https://localhost:9000")
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials(); // needed if using cookies or certain auth flows
+    });
+});
+
 var app = builder.Build();
+
+// Global Exception Handler
+app.UseGlobalExceptionHandler();
+app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    // Important: SwaggerForOcelotUI must be BEFORE UseOcelot
-    app.UseSwaggerForOcelotUI();
+    app.UseSwagger();
+    // SwaggerForOcelotUI aggregates all downstream service docs into one UI
+    app.UseSwaggerForOcelotUI(options =>
+    {
+        options.PathToSwaggerGenerator = "/swagger/docs";
+        options.DocumentTitle = "SmartSure API Gateway";
+    });
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAngularApp");
 
 
 // Use Ocelot middleware (last)

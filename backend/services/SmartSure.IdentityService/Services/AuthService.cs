@@ -5,6 +5,8 @@ using IdentityService.Models;
 using IdentityService.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using MassTransit;
+using SmartSure.Shared.Contracts.Events;
 
 namespace IdentityService.Services
 {
@@ -14,13 +16,15 @@ namespace IdentityService.Services
         private readonly TokenService _tokenService;
         private readonly IConfiguration _config;
         private readonly IMemoryCache _cache;
+        private readonly IBus _bus;
 
-        public AuthService(IUserRepository repo, TokenService tokenService, IConfiguration config, IMemoryCache cache)
+        public AuthService(IUserRepository repo, TokenService tokenService, IConfiguration config, IMemoryCache cache, IBus bus)
         {
             _repo = repo;
             _tokenService = tokenService;
             _config = config;
             _cache = cache;
+            _bus = bus;
         }
 
         public async Task ChangePassword(string userId, ChangePasswordDTO dto)
@@ -122,6 +126,15 @@ namespace IdentityService.Services
 
             await _repo.AddAsync(user);
             await _repo.SaveChangesAsync();
+
+            await _bus.Publish(new UserRegisteredEvent(
+                user.UserId,
+                user.Email,
+                user.FullName,
+                user.PhoneNumber,
+                DateTime.UtcNow,
+                false
+            ));
 
             return "Registration successful";
         }

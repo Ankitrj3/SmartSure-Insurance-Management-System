@@ -1,4 +1,5 @@
 using IdentityService.Data;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -13,11 +14,29 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 
-// Add Dependency Injection
+// Internal Services
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<IdentityService.Repositories.IUserRepository, IdentityService.Repositories.UserRepository>();
 builder.Services.AddScoped<IdentityService.Services.IAuthService, IdentityService.Services.AuthService>();
 builder.Services.AddScoped<IdentityService.Services.IUserService, IdentityService.Services.UserService>();
+builder.Services.AddScoped<IdentityService.Services.IEmailService, IdentityService.Services.EmailService>();
+builder.Services.AddScoped<IdentityService.Services.IOtpService, IdentityService.Services.OtpService>();
+builder.Services.AddScoped<IdentityService.Services.IGoogleAuthService, IdentityService.Services.GoogleAuthService>();
 builder.Services.AddSingleton<IdentityService.Helpers.TokenService>();
+
+// RabbitMQ configuration
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((ctx, cfg) =>
+    {
+        cfg.Host(builder.Configuration["RabbitMQ:Host"]!, "/", h =>
+        {
+            h.Username(builder.Configuration["RabbitMQ:Username"]!);
+            h.Password(builder.Configuration["RabbitMQ:Password"]!);
+        });
+        cfg.ConfigureEndpoints(ctx);
+    });
+});
 
 builder.Services.AddDbContext<IdentityDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

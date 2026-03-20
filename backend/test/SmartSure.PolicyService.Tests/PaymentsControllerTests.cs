@@ -34,11 +34,12 @@ namespace SmartSure.PolicyService.Tests
         [Fact]
         public async Task RecordPayment_ReturnsCreatedAt()
         {
+            var policyId = Guid.NewGuid();
             var dto = new RecordPaymentDTO { Amount = 100, PaymentMethod = "Card" };
             var response = new PaymentDTO { PaymentId = Guid.NewGuid(), Amount = 100 };
             _mockService.Setup(s => s.RecordPaymentAsync(dto)).ReturnsAsync(response);
 
-            var result = await _controller.RecordPayment(dto);
+            var result = await _controller.RecordPayment(policyId, dto);
 
             var createdResult = Assert.IsType<CreatedAtActionResult>(result);
             Assert.Equal(response, createdResult.Value);

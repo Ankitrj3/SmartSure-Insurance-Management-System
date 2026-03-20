@@ -99,9 +99,9 @@ namespace SmartSure.PolicyService.Tests
         public async Task SaveHomeDetail_ReturnsOk()
         {
             var policyId = Guid.NewGuid();
-            var dto = new CreateHomeDetailDTO { Address = "Updated home addr" };
+            var dto = new CreateHomeDetailDTO { PolicyId = policyId, Address = "Updated home addr" };
 
-            var result = await _controller.SaveHomeDetail(policyId, dto);
+            var result = await _controller.SaveHomeDetail(dto);
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Contains("successfully", okResult.Value?.ToString() ?? "");
@@ -111,9 +111,9 @@ namespace SmartSure.PolicyService.Tests
         public async Task SaveVehicleDetail_ReturnsOk()
         {
             var policyId = Guid.NewGuid();
-            var dto = new CreateVehicleDetailDTO { RegistrationNumber = "ABC-123" };
+            var dto = new CreateVehicleDetailDTO { PolicyId = policyId, RegistrationNumber = "ABC-123" };
 
-            var result = await _controller.SaveVehicleDetail(policyId, dto);
+            var result = await _controller.SaveVehicleDetail(dto);
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Contains("successfully", okResult.Value?.ToString() ?? "");

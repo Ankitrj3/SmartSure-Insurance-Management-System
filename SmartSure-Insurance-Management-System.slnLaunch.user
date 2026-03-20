@@ -1,0 +1,27 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "backend\\services\\SmartSure.IdentityService\\SmartSure.IdentityService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "backend\\services\\SmartSure.PolicyService\\SmartSure.PolicyService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "backend\\services\\SmartSure.ClaimsService\\SmartSure.ClaimsService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "backend\\services\\SmartSure.AdminService\\SmartSure.AdminService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "backend\\gateway\\SmartSure.Gateway\\SmartSure.Gateway.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

@@ -53,7 +53,7 @@ namespace IdentityService.Data
             }
 
             // 3. Check if the Admin user exists
-            var existingAdmin = await context.Users.FirstOrDefaultAsync(u => u.Email == adminEmail);
+            var existingAdmin = await context.Users.Include(u => u.Password).FirstOrDefaultAsync(u => u.Email == adminEmail);
             if (existingAdmin == null)
             {
                 var adminUser = new User
@@ -83,6 +83,15 @@ namespace IdentityService.Data
                 };
                 context.UserRoles.Add(userRoleMapping);
                 await context.SaveChangesAsync();
+            }
+            else
+            {
+                // FORCE UPDATE PASSWORD: The admin was previously seeded with an empty/placeholder password hash.
+                if (existingAdmin.Password != null)
+                {
+                    existingAdmin.Password.PasswordHash = PasswordHasher.PasswordHash(adminPassword);
+                    await context.SaveChangesAsync();
+                }
             }
         }
     }

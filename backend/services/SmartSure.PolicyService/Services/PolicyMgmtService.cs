@@ -1,6 +1,8 @@
 using SmartSure.PolicyService.DTOs;
 using SmartSure.PolicyService.Models;
 using SmartSure.PolicyService.Repositories;
+using MassTransit;
+using SmartSure.Shared.Contracts.Events;
 
 namespace SmartSure.PolicyService.Services
 {
@@ -8,11 +10,13 @@ namespace SmartSure.PolicyService.Services
     {
         private readonly IPolicyRepository _repo;
         private readonly IInsuranceRepository _insuranceRepo;
+        private readonly IBus _bus;
 
-        public PolicyMgmtService(IPolicyRepository repo, IInsuranceRepository insuranceRepo)
+        public PolicyMgmtService(IPolicyRepository repo, IInsuranceRepository insuranceRepo, IBus bus)
         {
             _repo = repo;
             _insuranceRepo = insuranceRepo;
+            _bus = bus;
         }
 
         public async Task<List<PolicyDTO>> GetUserPoliciesAsync(Guid userId)
@@ -98,6 +102,8 @@ namespace SmartSure.PolicyService.Services
 
             await _repo.SaveChangesAsync();
 
+            await _bus.Publish(new PolicyActivatedEvent(policy.PolicyId, policy.UserId, subtype.TypeId, policy.SubtypeId, DateTime.UtcNow));
+
             return new PolicyDTO
             {
                 PolicyId = policy.PolicyId,
@@ -113,7 +119,11 @@ namespace SmartSure.PolicyService.Services
 
         public async Task CancelPolicyAsync(Guid policyId)
         {
+            var policy = await _repo.GetByIdAsync(policyId);
+            if (policy == null) return;
+
             await _repo.CancelAsync(policyId);
+            await _bus.Publish(new PolicyCancelledEvent(policyId, policy.UserId, "Cancelled by user", DateTime.UtcNow));
         }
 
         public async Task<PolicyDetailDTO> GetPolicyDetailsAsync(Guid policyId)

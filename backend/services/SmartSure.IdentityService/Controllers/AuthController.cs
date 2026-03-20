@@ -11,10 +11,33 @@ namespace IdentityService.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IGoogleAuthService _googleAuthService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IGoogleAuthService googleAuthService)
         {
             _authService = authService;
+            _googleAuthService = googleAuthService;
+        }
+
+        [HttpGet("google")]
+        public IActionResult GoogleLogin()
+        {
+            var url = _googleAuthService.GetGoogleLoginUrl();
+            return Redirect(url);
+        }
+
+        [HttpGet("google/callback")]
+        public async Task<IActionResult> GoogleCallback([FromQuery] string code)
+        {
+            try
+            {
+                var token = await _googleAuthService.ProcessGoogleCallbackAsync(code);
+                return Ok(new { Token = token });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost("register")]

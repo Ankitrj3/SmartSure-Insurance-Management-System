@@ -1,7 +1,7 @@
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamPathTemplate": "/auth/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -9,13 +9,13 @@
           "Port": 7092
         }
       ],
-      "UpstreamPathTemplate": "/identity/{everything}",
+      "UpstreamPathTemplate": "/auth/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Options" ],
       "SwaggerKey": "identity",
       "DangerousAcceptAnyServerCertificateValidator": true
     },
     {
-      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamPathTemplate": "/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -23,25 +23,44 @@
           "Port": 7210
         }
       ],
-      "UpstreamPathTemplate": "/policy/{everything}",
+      "UpstreamPathTemplate": "/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Options" ],
       "SwaggerKey": "policy",
+      "DangerousAcceptAnyServerCertificateValidator": true
+    },
+    {
+      "DownstreamPathTemplate": "/claims/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7265
+        }
+      ],
+      "UpstreamPathTemplate": "/claims/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Options" ],
+      "SwaggerKey": "claims",
+      "DangerousAcceptAnyServerCertificateValidator": true
+    },
+    {
+      "DownstreamPathTemplate": "/admin/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7232
+        }
+      ],
+      "UpstreamPathTemplate": "/admin/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Options" ],
+      "SwaggerKey": "admin",
       "DangerousAcceptAnyServerCertificateValidator": true
     }
   ],
   "SwaggerEndPoints": [
     {
-      "Key": "all",
-      "Config": [
-        {
-          "Name": "All SmartSure Services",
-          "Version": "v1"
-        }
-      ]
-    },
-    {
       "Key": "identity",
-      "TransformByOcelotConfig": true,
+      "TransformByOcelotConfig": false,
       "DangerousAcceptAnyServerCertificateValidator": true,
       "Config": [
         {
@@ -53,7 +72,7 @@
     },
     {
       "Key": "policy",
-      "TransformByOcelotConfig": true,
+      "TransformByOcelotConfig": false,
       "DangerousAcceptAnyServerCertificateValidator": true,
       "Config": [
         {
@@ -62,17 +81,28 @@
           "Url": "https://localhost:7210/swagger/v1/swagger.json"
         }
       ]
-    }
-  ],
-  "AggregateDocs": [
+    },
     {
-      "Key": "all",
+      "Key": "claims",
+      "TransformByOcelotConfig": false,
+      "DangerousAcceptAnyServerCertificateValidator": true,
       "Config": [
         {
-          "SwaggerKey": "identity"
-        },
+          "Name": "Claims Service API",
+          "Version": "v1",
+          "Url": "https://localhost:7265/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "admin",
+      "TransformByOcelotConfig": false,
+      "DangerousAcceptAnyServerCertificateValidator": true,
+      "Config": [
         {
-          "SwaggerKey": "policy"
+          "Name": "Admin Service API",
+          "Version": "v1",
+          "Url": "https://localhost:7232/swagger/v1/swagger.json"
         }
       ]
     }

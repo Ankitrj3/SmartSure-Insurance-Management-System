@@ -17,14 +17,14 @@ namespace SmartSure.PolicyService.Controllers
             _service = service;
         }
 
-        [HttpGet("types")]
+        [HttpGet("/insurance-types")]
         public async Task<IActionResult> GetTypes()
         {
             var types = await _service.GetAllTypesAsync();
             return Ok(types);
         }
 
-        [HttpGet("types/{typeId}")]
+        [HttpGet("/insurance-types/{typeId}")]
         public async Task<IActionResult> GetType(Guid typeId)
         {
             var type = await _service.GetTypeByIdAsync(typeId);
@@ -32,35 +32,39 @@ namespace SmartSure.PolicyService.Controllers
             return Ok(type);
         }
 
-        [HttpPost("types")]
+        [Authorize(Roles = "Admin")]
+        [HttpPost("/insurance-types")]
         public async Task<IActionResult> CreateType(CreateInsuranceTypeDTO dto)
         {
             var type = await _service.CreateTypeAsync(dto);
             return CreatedAtAction(nameof(GetType), new { typeId = type.TypeId }, type);
         }
 
-        [HttpPut("types/{typeId}")]
+        [Authorize(Roles = "Admin")]
+        [HttpPut("/insurance-types/{typeId}")]
         public async Task<IActionResult> UpdateType(Guid typeId, UpdateInsuranceTypeDTO dto)
         {
             await _service.UpdateTypeAsync(typeId, dto);
             return Ok(new { message = "Insurance type updated successfully" });
         }
 
-        [HttpGet("types/{typeId}/subtypes")]
+        [HttpGet("/insurance-types/{typeId}/subtypes")]
         public async Task<IActionResult> GetSubtypes(Guid typeId)
         {
             var subtypes = await _service.GetSubtypesByTypeIdAsync(typeId);
             return Ok(subtypes);
         }
 
-        [HttpPost("subtypes")]
+        [Authorize(Roles = "Admin")]
+        [HttpPost("/insurance-subtypes")]
         public async Task<IActionResult> CreateSubtype(CreateInsuranceSubtypeDTO dto)
         {
             var subtype = await _service.CreateSubtypeAsync(dto);
             return Ok(subtype);
         }
 
-        [HttpPut("subtypes/{subtypeId}")]
+        [Authorize(Roles = "Admin")]
+        [HttpPut("/insurance-subtypes/{subtypeId}")]
         public async Task<IActionResult> UpdateSubtype(Guid subtypeId, UpdateInsuranceSubtypeDTO dto)
         {
             await _service.UpdateSubtypeAsync(subtypeId, dto);
