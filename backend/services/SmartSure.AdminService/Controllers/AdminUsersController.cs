@@ -8,33 +8,95 @@ namespace SmartSure.AdminService.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminUsersController : ControllerBase
     {
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
         private readonly ILogger<AdminUsersController> _logger;
 
-        public AdminUsersController(ILogger<AdminUsersController> logger)
+        public AdminUsersController(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<AdminUsersController> logger)
         {
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
             _logger = logger;
         }
 
+        private string GetAccessToken() => Request.Headers["Authorization"].ToString();
+
         [HttpGet]
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
-            // In production, this would call Identity Service via HTTP or shared DB
-            _logger.LogInformation("Admin requested user list");
-            return Ok(new { message = "User list would be fetched from Identity Service" });
+            _logger.LogInformation("Admin requesting user list from Identity Service");
+            
+            var client = _httpClientFactory.CreateClient("IdentityClient");
+            client.DefaultRequestHeaders.Add("Authorization", GetAccessToken());
+
+            var gatewayUrl = _configuration["Gateway:Url"] ?? "https://localhost:9000";
+            
+            try
+            {
+                var response = await client.GetAsync($"{gatewayUrl}/auth/users");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    return Content(content, "application/json");
+                }
+                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calling Identity Service");
+                return StatusCode(500, new { message = "Error communicating with Identity Service" });
+            }
         }
 
         [HttpGet("{userId}")]
-        public IActionResult GetUser(Guid userId)
+        public async Task<IActionResult> GetUser(Guid userId)
         {
-            _logger.LogInformation("Admin requested user detail for {UserId}", userId);
-            return Ok(new { message = $"User detail for {userId} would be fetched from Identity Service" });
+            _logger.LogInformation("Admin requesting user detail for {UserId}", userId);
+            
+            var client = _httpClientFactory.CreateClient("IdentityClient");
+            client.DefaultRequestHeaders.Add("Authorization", GetAccessToken());
+            var gatewayUrl = _configuration["Gateway:Url"] ?? "https://localhost:9000";
+
+            try
+            {
+                var response = await client.GetAsync($"{gatewayUrl}/auth/users/{userId}"); // Assuming this endpoint exists or should map
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    return Content(content, "application/json");
+                }
+                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calling Identity Service");
+                return StatusCode(500, new { message = "Error communicating with Identity Service" });
+            }
         }
 
         [HttpDelete("{userId}")]
-        public IActionResult DeactivateUser(Guid userId)
+        public async Task<IActionResult> DeactivateUser(Guid userId)
         {
-            _logger.LogInformation("Admin deactivated user {UserId}", userId);
-            return Ok(new { message = $"User {userId} deactivated" });
+            _logger.LogInformation("Admin deleting user {UserId}", userId);
+            
+            var client = _httpClientFactory.CreateClient("IdentityClient");
+            client.DefaultRequestHeaders.Add("Authorization", GetAccessToken());
+            var gatewayUrl = _configuration["Gateway:Url"] ?? "https://localhost:9000";
+
+            try
+            {
+                var response = await client.DeleteAsync($"{gatewayUrl}/auth/users/{userId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    return Ok(new { message = "User deleted successfully" });
+                }
+                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calling Identity Service");
+                return StatusCode(500, new { message = "Error communicating with Identity Service" });
+            }
         }
     }
 }
