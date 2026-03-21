@@ -54,6 +54,20 @@ namespace IdentityService.Controllers
             }
         }
 
+        [HttpPost("verify-register-otp")]
+        public async Task<IActionResult> VerifyRegistrationOtp([FromBody] VerifyOtpDTO dto)
+        {
+            try
+            {
+                var result = await _authService.VerifyRegistrationOtp(dto);
+                return Ok(new { message = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {

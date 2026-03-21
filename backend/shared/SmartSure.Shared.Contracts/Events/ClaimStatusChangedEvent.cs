@@ -5,5 +5,6 @@ public record ClaimStatusChangedEvent(
     string OldStatus,
     string NewStatus,
     string ChangedBy,
-    DateTime ChangedAt
+    DateTime ChangedAt,
+    Guid UserId = default
 );

@@ -27,6 +27,8 @@ builder.Services.AddSingleton<IdentityService.Helpers.TokenService>();
 // RabbitMQ configuration
 builder.Services.AddMassTransit(x =>
 {
+    x.AddConsumer<IdentityService.Consumers.ClaimStatusChangedConsumer>();
+
     x.UsingRabbitMq((ctx, cfg) =>
     {
         cfg.Host(builder.Configuration["RabbitMQ:Host"]!, "/", h =>

@@ -4,5 +4,7 @@ public record ClaimApprovedEvent(
     Guid ClaimId,
     Guid AdminId,
     string Notes,
-    DateTime ApprovedAt
+    DateTime ApprovedAt,
+    string UserEmail = "",
+    string UserName = ""
 );

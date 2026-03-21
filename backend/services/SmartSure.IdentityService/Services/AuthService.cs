@@ -17,14 +17,16 @@ namespace IdentityService.Services
         private readonly IConfiguration _config;
         private readonly IMemoryCache _cache;
         private readonly IBus _bus;
+        private readonly IEmailService _emailService;
 
-        public AuthService(IUserRepository repo, TokenService tokenService, IConfiguration config, IMemoryCache cache, IBus bus)
+        public AuthService(IUserRepository repo, TokenService tokenService, IConfiguration config, IMemoryCache cache, IBus bus, IEmailService emailService)
         {
             _repo = repo;
             _tokenService = tokenService;
             _config = config;
             _cache = cache;
             _bus = bus;
+            _emailService = emailService;
         }
 
         public async Task ChangePassword(string userId, ChangePasswordDTO dto)
@@ -109,17 +111,52 @@ namespace IdentityService.Services
             var existingUser = await _repo.GetByEmailAsync(dto.Email);
             if (existingUser != null) throw new Exception("Email already exists");
 
+            // Generate a 6-digit OTP
+            var random = new Random();
+            string otp = random.Next(100000, 999999).ToString();
+
+            // Cache the OTP and DTO
+            _cache.Set($"RegistrationOtp_{dto.Email}", otp, TimeSpan.FromMinutes(10));
+            _cache.Set($"RegistrationData_{dto.Email}", dto, TimeSpan.FromMinutes(10));
+
+            // Send Email
+            string subject = "SmartSure - Verify Your Registration";
+            string body = $"Hello {dto.FullName},<br/><br/>Your 6-digit verification code is: <b>{otp}</b>.<br/>This code will expire in 10 minutes.";
+            await _emailService.SendEmailAsync(dto.Email, subject, body);
+
+            return "OTP sent successfully. Please check your email to verify and complete registration.";
+        }
+
+        public async Task<string> VerifyRegistrationOtp(VerifyOtpDTO dto)
+        {
+            if (!_cache.TryGetValue($"RegistrationOtp_{dto.Email}", out string cachedOtp))
+            {
+                throw new Exception("OTP expired or invalid");
+            }
+
+            if (cachedOtp != dto.Otp)
+            {
+                throw new Exception("Incorrect OTP");
+            }
+
+            if (!_cache.TryGetValue($"RegistrationData_{dto.Email}", out RegisterDTO regDto))
+            {
+                throw new Exception("Registration data not found or expired. Please register again.");
+            }
+
+            // Create user
             var user = new User
             {
                 UserId = Guid.NewGuid(),
-                FullName = dto.FullName,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
-                Address = "", 
+                FullName = regDto.FullName,
+                Email = regDto.Email,
+                PhoneNumber = regDto.PhoneNumber,
+                Address = "",
+                IsEmailVerified = true,
                 Password = new Password
                 {
                     PassId = Guid.NewGuid(),
-                    PasswordHash = PasswordHasher.PasswordHash(dto.Password)
+                    PasswordHash = PasswordHasher.PasswordHash(regDto.Password)
                 }
             };
             user.Password.UserId = user.UserId;
@@ -136,7 +173,16 @@ namespace IdentityService.Services
                 false
             ));
 
-            return "Registration successful";
+            // Remove from cache
+            _cache.Remove($"RegistrationOtp_{dto.Email}");
+            _cache.Remove($"RegistrationData_{dto.Email}");
+
+            // Send Welcome Email
+            string subject = "Welcome to SmartSure Registration Successful";
+            string body = $"Hello {user.FullName},<br/><br/>Your registration was successful! Welcome to SmartSure Insurance.<br/>You can now log in and start using our services.";
+            await _emailService.SendEmailAsync(user.Email, subject, body);
+
+            return "Registration successful and verified";
         }
 
         public async Task UpdateProfile(string userId, UpdateUserDTO dto)

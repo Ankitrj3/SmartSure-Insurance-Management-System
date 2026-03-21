@@ -137,7 +137,7 @@ namespace SmartSure.ClaimsService.Services
                 claimId, claim.PolicyId, claim.UserId, claim.Description, DateTime.UtcNow));
 
             await _bus.Publish(new ClaimStatusChangedEvent(
-                claimId, oldStatus, ClaimStatus.Submitted, userId.ToString(), DateTime.UtcNow));
+                claimId, oldStatus, ClaimStatus.Submitted, userId.ToString(), DateTime.UtcNow, claim.UserId));
 
             _logger.LogInformation("Claim {ClaimId} submitted", claimId);
         }
@@ -185,7 +185,7 @@ namespace SmartSure.ClaimsService.Services
             await _context.SaveChangesAsync();
 
             await _bus.Publish(new ClaimStatusChangedEvent(
-                claimId, oldStatus, newStatus, changedBy, DateTime.UtcNow));
+                claimId, oldStatus, newStatus, changedBy, DateTime.UtcNow, claim.UserId));
 
             _logger.LogInformation("Claim {ClaimId} status changed from {Old} to {New}", claimId, oldStatus, newStatus);
         }

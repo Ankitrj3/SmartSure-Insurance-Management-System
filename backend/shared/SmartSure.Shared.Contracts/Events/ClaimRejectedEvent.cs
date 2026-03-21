@@ -4,5 +4,7 @@ public record ClaimRejectedEvent(
     Guid ClaimId,
     Guid AdminId,
     string Reason,
-    DateTime RejectedAt
+    DateTime RejectedAt,
+    string UserEmail = "",
+    string UserName = ""
 );
