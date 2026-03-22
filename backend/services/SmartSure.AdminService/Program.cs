@@ -14,15 +14,27 @@ DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
+// CORS – allow Angular frontend and the API Gateway to call this service
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowGateway", policy =>
+        policy.WithOrigins(
+                "http://localhost:4200",
+                "https://localhost:4200",
+                "http://localhost:5057",
+                "https://localhost:9000"
+              )
+              .AllowAnyHeader()
+              .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+              .AllowCredentials());
+});
+
 // Serilog
 builder.AddSerilogLogging("AdminService");
 
-// Cross-service calls
-builder.Services.AddHttpClient("IdentityClient")
-    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-    {
-        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-    });
+// Cross-service calls (HTTP – no TLS bypass needed for local dev)
+builder.Services.AddHttpClient("IdentityClient");
+builder.Services.AddHttpClient();
 
 // Database
 builder.Services.AddDbContext<AdminDbContext>(options =>
@@ -37,15 +49,7 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<SmartSure.AdminService.Consumers.ClaimSubmittedConsumer>();
     x.AddConsumer<SmartSure.AdminService.Consumers.ClaimStatusChangedConsumer>();
 
-    x.UsingRabbitMq((ctx, cfg) =>
-    {
-        cfg.Host(builder.Configuration["RabbitMQ:Host"]!, "/", h =>
-        {
-            h.Username(builder.Configuration["RabbitMQ:Username"]!);
-            h.Password(builder.Configuration["RabbitMQ:Password"]!);
-        });
-        cfg.ConfigureEndpoints(ctx);
-    });
+    x.UsingInMemory((ctx, cfg) => { cfg.ConfigureEndpoints(ctx); });
 });
 
 // Authentication
@@ -125,7 +129,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Disabled – gateway calls this service via HTTP
+app.UseCors("AllowGateway");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -138,3 +143,4 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+

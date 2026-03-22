@@ -48,10 +48,25 @@ namespace SmartSure.PolicyService.Controllers
             return Ok(new { message = "Insurance type updated successfully" });
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("/insurance-types/{typeId}")]
+        public async Task<IActionResult> DeleteType(Guid typeId)
+        {
+            await _service.DeleteTypeAsync(typeId);
+            return Ok(new { message = "Insurance type deleted successfully" });
+        }
+
         [HttpGet("/insurance-types/{typeId}/subtypes")]
-        public async Task<IActionResult> GetSubtypes(Guid typeId)
+        public async Task<IActionResult> GetSubtypesByTypeId(Guid typeId)
         {
             var subtypes = await _service.GetSubtypesByTypeIdAsync(typeId);
+            return Ok(subtypes);
+        }
+
+        [HttpGet("/insurance-subtypes")]
+        public async Task<IActionResult> GetAllSubtypes()
+        {
+            var subtypes = await _service.GetAllSubtypesAsync();
             return Ok(subtypes);
         }
 
@@ -69,6 +84,14 @@ namespace SmartSure.PolicyService.Controllers
         {
             await _service.UpdateSubtypeAsync(subtypeId, dto);
             return Ok(new { message = "Insurance subtype updated successfully" });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("/insurance-subtypes/{subtypeId}")]
+        public async Task<IActionResult> DeleteSubtype(Guid subtypeId)
+        {
+            await _service.DeleteSubtypeAsync(subtypeId);
+            return Ok(new { message = "Insurance subtype deleted successfully" });
         }
     }
 }

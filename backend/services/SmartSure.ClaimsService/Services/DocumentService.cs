@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using SmartSure.ClaimsService.Data;
 using SmartSure.ClaimsService.DTOs;
 using SmartSure.ClaimsService.Models;
+using CG.Web.MegaApiClient;
+using Microsoft.AspNetCore.Http;
 
 namespace SmartSure.ClaimsService.Services
 {
@@ -9,32 +11,54 @@ namespace SmartSure.ClaimsService.Services
     {
         private readonly ClaimsDbContext _context;
         private readonly ILogger<DocumentService> _logger;
+        private readonly IConfiguration _config;
 
-        public DocumentService(ClaimsDbContext context, ILogger<DocumentService> logger)
+        public DocumentService(ClaimsDbContext context, ILogger<DocumentService> logger, IConfiguration config)
         {
             _context = context;
             _logger = logger;
+            _config = config;
         }
 
-        public async Task<DocumentResponseDTO> AddDocumentAsync(Guid claimId, DocumentUploadDTO dto)
+        public async Task<DocumentResponseDTO> AddDocumentAsync(Guid claimId, IFormFile file)
         {
             var claim = await _context.Claims.FindAsync(claimId);
             if (claim == null) throw new KeyNotFoundException("Claim not found.");
 
+            string megaEmail = _config["Mega:Email"];
+            string megaPassword = _config["Mega:Password"];
+            
+            if (string.IsNullOrEmpty(megaEmail) || string.IsNullOrEmpty(megaPassword))
+                throw new InvalidOperationException("MEGA.nz credentials are not configured in appsettings.");
+
+            var megaClient = new MegaApiClient();
+            megaClient.Login(megaEmail, megaPassword);
+
+            // Fetch the root folder
+            var nodes = megaClient.GetNodes();
+            var root = nodes.Single(n => n.Type == NodeType.Root);
+            
+            // Upload the file directly from the stream into MEGA
+            using var stream = file.OpenReadStream();
+            var uploadedNode = await megaClient.UploadAsync(stream, file.FileName, root);
+
+            // Get the public download link for the file
+            var downloadLink = megaClient.GetDownloadLink(uploadedNode);
+            megaClient.Logout();
+
             var document = new ClaimDocument
             {
-                DocumentId = Guid.NewGuid(),
                 ClaimId = claimId,
-                FileName = dto.FileName,
-                FileUrl = dto.FileUrl,     // Mega.nz URL
-                ContentType = dto.ContentType,
-                FileSize = dto.FileSize
+                FileName = file.FileName,
+                FileUrl = downloadLink.ToString(), // Mega.nz URL
+                ContentType = file.ContentType,
+                FileSize = file.Length
             };
 
             _context.ClaimDocuments.Add(document);
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Document {FileName} added to claim {ClaimId}. URL: {FileUrl}", dto.FileName, claimId, dto.FileUrl);
+            _logger.LogInformation("Document {FileName} uploaded to Mega.nz for claim {ClaimId}. URL: {FileUrl}", file.FileName, claimId, document.FileUrl);
 
             return new DocumentResponseDTO
             {

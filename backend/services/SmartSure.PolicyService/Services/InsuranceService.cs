@@ -66,6 +66,25 @@ namespace SmartSure.PolicyService.Services
             await _repo.SaveChangesAsync();
         }
 
+        public async Task DeleteTypeAsync(Guid typeId)
+        {
+            await _repo.DeleteTypeAsync(typeId);
+            await _repo.SaveChangesAsync();
+        }
+
+        public async Task<List<InsuranceSubtypeDTO>> GetAllSubtypesAsync()
+        {
+            var subtypes = await _repo.GetAllSubtypesAsync();
+            return subtypes.Select(s => new InsuranceSubtypeDTO
+            {
+                SubtypeId = s.SubtypeId,
+                TypeId = s.TypeId,
+                Name = s.Name,
+                Description = s.Description,
+                BasePremium = s.BasePremium
+            }).ToList();
+        }
+
         public async Task<List<InsuranceSubtypeDTO>> GetSubtypesByTypeIdAsync(Guid typeId)
         {
             var subtypes = await _repo.GetSubtypesByTypeIdAsync(typeId);
@@ -111,6 +130,12 @@ namespace SmartSure.PolicyService.Services
             subtype.BasePremium = dto.BasePremium;
 
             await _repo.UpdateSubtypeAsync(subtype);
+            await _repo.SaveChangesAsync();
+        }
+
+        public async Task DeleteSubtypeAsync(Guid subtypeId)
+        {
+            await _repo.DeleteSubtypeAsync(subtypeId);
             await _repo.SaveChangesAsync();
         }
     }

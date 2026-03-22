@@ -14,6 +14,21 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 
+// CORS – allow Angular frontend and the API Gateway to call this service
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowGateway", policy =>
+        policy.WithOrigins(
+                "http://localhost:4200",
+                "https://localhost:4200",
+                "http://localhost:5057",
+                "https://localhost:9000"
+              )
+              .AllowAnyHeader()
+              .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+              .AllowCredentials());
+});
+
 // Internal Services
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IdentityService.Repositories.IUserRepository, IdentityService.Repositories.UserRepository>();
@@ -29,15 +44,7 @@ builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<IdentityService.Consumers.ClaimStatusChangedConsumer>();
 
-    x.UsingRabbitMq((ctx, cfg) =>
-    {
-        cfg.Host(builder.Configuration["RabbitMQ:Host"]!, "/", h =>
-        {
-            h.Username(builder.Configuration["RabbitMQ:Username"]!);
-            h.Password(builder.Configuration["RabbitMQ:Password"]!);
-        });
-        cfg.ConfigureEndpoints(ctx);
-    });
+    x.UsingInMemory((ctx, cfg) => { cfg.ConfigureEndpoints(ctx); });
 });
 
 builder.Services.AddDbContext<IdentityDbContext>(options =>
@@ -99,8 +106,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
+// app.UseHttpsRedirection(); // Disabled – gateway calls this service via HTTP
+app.UseCors("AllowGateway");
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -109,3 +116,4 @@ app.MapControllers();
 await AdminSeeder.SeedAdminAsync(app.Services, builder.Configuration);
 
 app.Run();
+

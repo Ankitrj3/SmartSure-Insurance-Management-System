@@ -30,6 +30,10 @@ public class GlobalExceptionHandlerMiddleware
 
     private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
+        _logger.LogError(exception,
+            "Exception caught by global handler | Path: {Path} | Method: {Method} | Message: {Message} | StackTrace: {StackTrace}",
+            context.Request.Path, context.Request.Method, exception.Message, exception.StackTrace);
+
         var (statusCode, message) = exception switch
         {
             KeyNotFoundException => (HttpStatusCode.NotFound, exception.Message),
@@ -39,9 +43,12 @@ public class GlobalExceptionHandlerMiddleware
             _ => (HttpStatusCode.InternalServerError, "An unexpected error occurred.")
         };
 
-        _logger.LogError(exception,
-            "Exception caught by global handler | StatusCode: {StatusCode} | Path: {Path} | Method: {Method} | Message: {Message}",
-            (int)statusCode, context.Request.Path, context.Request.Method, exception.Message);
+        // In development, include full exception details
+        var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+        if (isDevelopment && statusCode == HttpStatusCode.InternalServerError)
+        {
+            message = $"{exception.GetType().Name}: {exception.Message}";
+        }
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)statusCode;

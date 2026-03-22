@@ -25,6 +25,6 @@ namespace SmartSure.PolicyService.DTOs
         [Required]
         public string PaymentMethod { get; set; }
 
-        public string TransactionReference { get; set; }
+        public string? TransactionReference { get; set; }
     }
 }

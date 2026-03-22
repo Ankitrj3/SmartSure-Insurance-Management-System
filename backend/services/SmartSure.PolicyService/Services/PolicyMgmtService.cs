@@ -35,6 +35,22 @@ namespace SmartSure.PolicyService.Services
             }).ToList();
         }
 
+        public async Task<List<PolicyDTO>> GetAllPoliciesAsync()
+        {
+            var policies = await _repo.GetAllAsync();
+            return policies.Select(p => new PolicyDTO
+            {
+                PolicyId = p.PolicyId,
+                UserId = p.UserId,
+                SubtypeId = p.SubtypeId,
+                SubtypeName = p.Subtype?.Name,
+                StartDate = p.StartDate,
+                EndDate = p.EndDate,
+                PremiumAmount = p.PremiumAmount,
+                Status = p.Status
+            }).ToList();
+        }
+
         public async Task<PolicyDTO> GetPolicyByIdAsync(Guid policyId)
         {
             var p = await _repo.GetByIdAsync(policyId);

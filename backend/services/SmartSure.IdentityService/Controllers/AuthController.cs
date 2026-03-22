@@ -32,11 +32,12 @@ namespace IdentityService.Controllers
             try
             {
                 var token = await _googleAuthService.ProcessGoogleCallbackAsync(code);
-                return Ok(new { Token = token });
+                // Return a redirect to the Angular frontend completely formatted with the valid JWT!
+                return Redirect($"http://localhost:4200/auth/google/callback?token={token}");
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return Redirect($"http://localhost:4200/auth/google/callback?error={ex.Message}");
             }
         }
 
@@ -108,6 +109,8 @@ namespace IdentityService.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+
+
 
         [Authorize]
         [HttpPut("me")]

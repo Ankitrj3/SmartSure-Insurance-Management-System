@@ -5,6 +5,7 @@ namespace SmartSure.PolicyService.Services
     public interface IPolicyMgmtService
     {
         Task<List<PolicyDTO>> GetUserPoliciesAsync(Guid userId);
+        Task<List<PolicyDTO>> GetAllPoliciesAsync();
         Task<PolicyDTO> GetPolicyByIdAsync(Guid policyId);
         Task<PolicyDTO> CreatePolicyAsync(Guid userId, CreatePolicyDTO dto);
         Task CancelPolicyAsync(Guid policyId);

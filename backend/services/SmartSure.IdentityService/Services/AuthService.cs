@@ -54,6 +54,17 @@ namespace IdentityService.Services
             };
         }
 
+        public async Task<List<UserDTO>> GetAllUsers()
+        {
+            var users = await _repo.GetAllAsync();
+            return users.Select(user => new UserDTO
+            {
+                UserId = user.UserId,
+                Email = user.Email,
+                FullName = user.FullName
+            }).ToList();
+        }
+
         public async Task<TokenResponseDTO> Login(LoginDTO dto)
         {
             var user = await _repo.GetByEmailAsync(dto.Email);
@@ -74,7 +85,8 @@ namespace IdentityService.Services
             return new TokenResponseDTO 
             { 
                 Token = token,
-                RefreshToken = refreshToken
+                RefreshToken = refreshToken,
+                Role = roles.FirstOrDefault() ?? "Customer"
             };
         }
 
@@ -102,7 +114,8 @@ namespace IdentityService.Services
             return new TokenResponseDTO
             {
                 Token = newToken,
-                RefreshToken = newRefreshToken
+                RefreshToken = newRefreshToken,
+                Role = roles.FirstOrDefault() ?? "Customer"
             };
         }
 

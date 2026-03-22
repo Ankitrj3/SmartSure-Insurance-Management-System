@@ -36,7 +36,6 @@ namespace SmartSure.ClaimsService.Services
             // Add initial status history
             claim.StatusHistory.Add(new ClaimStatusHistory
             {
-                Id = Guid.NewGuid(),
                 ClaimId = claim.ClaimId,
                 OldStatus = "",
                 NewStatus = ClaimStatus.Draft,
@@ -67,6 +66,16 @@ namespace SmartSure.ClaimsService.Services
             var claims = await _context.Claims
                 .Include(c => c.Documents)
                 .Where(c => c.UserId == userId)
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+
+            return claims.Select(MapToDto).ToList();
+        }
+
+        public async Task<List<ClaimResponseDTO>> GetAllClaimsAsync()
+        {
+            var claims = await _context.Claims
+                .Include(c => c.Documents)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
 
@@ -122,7 +131,6 @@ namespace SmartSure.ClaimsService.Services
 
             claim.StatusHistory.Add(new ClaimStatusHistory
             {
-                Id = Guid.NewGuid(),
                 ClaimId = claimId,
                 OldStatus = oldStatus,
                 NewStatus = ClaimStatus.Submitted,
@@ -160,6 +168,54 @@ namespace SmartSure.ClaimsService.Services
             }).ToList();
         }
 
+        public async Task ApproveClaimAsync(Guid claimId, decimal approvedAmount, string? notes, string adminId)
+        {
+            var claim = await _context.Claims.Include(c => c.StatusHistory).FirstOrDefaultAsync(c => c.ClaimId == claimId);
+            if (claim == null) throw new KeyNotFoundException("Claim not found.");
+
+            claim.Status = ClaimStatus.Approved;
+            claim.ApprovedAmount = approvedAmount;
+            claim.UpdatedAt = DateTime.UtcNow;
+
+            claim.StatusHistory.Add(new ClaimStatusHistory
+            {
+                ClaimId = claimId,
+                OldStatus = ClaimStatus.Submitted,
+                NewStatus = ClaimStatus.Approved,
+                ChangedBy = adminId,
+                Notes = notes ?? "Approved by administrator"
+            });
+
+            await _context.SaveChangesAsync();
+            
+            await _bus.Publish(new ClaimStatusChangedEvent(
+                claimId, ClaimStatus.Submitted, ClaimStatus.Approved, adminId, DateTime.UtcNow, claim.UserId));
+        }
+
+        public async Task RejectClaimAsync(Guid claimId, string reason, string adminId)
+        {
+            var claim = await _context.Claims.Include(c => c.StatusHistory).FirstOrDefaultAsync(c => c.ClaimId == claimId);
+            if (claim == null) throw new KeyNotFoundException("Claim not found.");
+
+            claim.Status = ClaimStatus.Rejected;
+            claim.RejectionReason = reason;
+            claim.UpdatedAt = DateTime.UtcNow;
+
+            claim.StatusHistory.Add(new ClaimStatusHistory
+            {
+                ClaimId = claimId,
+                OldStatus = ClaimStatus.Submitted,
+                NewStatus = ClaimStatus.Rejected,
+                ChangedBy = adminId,
+                Notes = reason
+            });
+
+            await _context.SaveChangesAsync();
+            
+            await _bus.Publish(new ClaimStatusChangedEvent(
+                claimId, ClaimStatus.Submitted, ClaimStatus.Rejected, adminId, DateTime.UtcNow, claim.UserId));
+        }
+
         public async Task TransitionStatusAsync(Guid claimId, string newStatus, string changedBy, string? notes = null)
         {
             var claim = await _context.Claims
@@ -174,7 +230,6 @@ namespace SmartSure.ClaimsService.Services
 
             claim.StatusHistory.Add(new ClaimStatusHistory
             {
-                Id = Guid.NewGuid(),
                 ClaimId = claimId,
                 OldStatus = oldStatus,
                 NewStatus = newStatus,

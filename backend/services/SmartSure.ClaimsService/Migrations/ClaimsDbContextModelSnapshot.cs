@@ -67,7 +67,7 @@ namespace SmartSure.ClaimsService.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Claims");
+                    b.ToTable("Claims", (string)null);
                 });
 
             modelBuilder.Entity("SmartSure.ClaimsService.Models.ClaimDocument", b =>
@@ -104,7 +104,7 @@ namespace SmartSure.ClaimsService.Migrations
 
                     b.HasIndex("ClaimId");
 
-                    b.ToTable("ClaimDocuments");
+                    b.ToTable("ClaimDocuments", (string)null);
                 });
 
             modelBuilder.Entity("SmartSure.ClaimsService.Models.ClaimStatusHistory", b =>
@@ -141,7 +141,7 @@ namespace SmartSure.ClaimsService.Migrations
 
                     b.HasIndex("ClaimId");
 
-                    b.ToTable("ClaimStatusHistory");
+                    b.ToTable("ClaimStatusHistory", (string)null);
                 });
 
             modelBuilder.Entity("SmartSure.ClaimsService.Models.ClaimDocument", b =>

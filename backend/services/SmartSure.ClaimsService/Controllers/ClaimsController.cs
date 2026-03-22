@@ -29,6 +29,14 @@ namespace SmartSure.ClaimsService.Controllers
             return Ok(claims);
         }
 
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllClaims()
+        {
+            var claims = await _claimService.GetAllClaimsAsync();
+            return Ok(claims);
+        }
+
         [HttpGet("{claimId}")]
         public async Task<IActionResult> GetClaim(Guid claimId)
         {
@@ -65,6 +73,24 @@ namespace SmartSure.ClaimsService.Controllers
         {
             var history = await _claimService.GetClaimHistoryAsync(claimId);
             return Ok(history);
+        }
+
+        [HttpPut("{claimId}/approve")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ApproveClaim(Guid claimId, [FromBody] ApproveClaimDTO dto)
+        {
+            var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Admin";
+            await _claimService.ApproveClaimAsync(claimId, dto.ApprovedAmount, dto.Notes, adminId);
+            return Ok(new { message = "Claim approved successfully" });
+        }
+
+        [HttpPut("{claimId}/reject")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RejectClaim(Guid claimId, [FromBody] RejectClaimDTO dto)
+        {
+            var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Admin";
+            await _claimService.RejectClaimAsync(claimId, dto.Reason, adminId);
+            return Ok(new { message = "Claim rejected successfully" });
         }
 
         [HttpGet("by-policy/{policyId}")]

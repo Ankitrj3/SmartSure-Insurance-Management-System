@@ -12,10 +12,12 @@ namespace SmartSure.PolicyService.Controllers
     public class PoliciesController : ControllerBase
     {
         private readonly IPolicyMgmtService _service;
+        private readonly ILogger<PoliciesController> _logger;
 
-        public PoliciesController(IPolicyMgmtService service)
+        public PoliciesController(IPolicyMgmtService service, ILogger<PoliciesController> logger)
         {
             _service = service;
+            _logger = logger;
         }
 
         private Guid GetUserId()
@@ -32,6 +34,14 @@ namespace SmartSure.PolicyService.Controllers
             return Ok(policies);
         }
 
+        [HttpGet("/policies/all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllPolicies()
+        {
+            var policies = await _service.GetAllPoliciesAsync();
+            return Ok(policies);
+        }
+
         [HttpGet("/policies/{policyId}")]
         public async Task<IActionResult> GetPolicy(Guid policyId)
         {
@@ -43,9 +53,31 @@ namespace SmartSure.PolicyService.Controllers
         [HttpPost("/policies")]
         public async Task<IActionResult> BuyPolicy(CreatePolicyDTO dto)
         {
-            var userId = GetUserId();
-            var policy = await _service.CreatePolicyAsync(userId, dto);
-            return CreatedAtAction(nameof(GetPolicy), new { policyId = policy.PolicyId }, policy);
+            if (!ModelState.IsValid)
+            {
+                var errors = string.Join(" | ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                _logger.LogWarning("Invalid BuyPolicy request: {Errors}. Payload: {@DTO}", errors, dto);
+                return BadRequest(ModelState);
+            }
+
+            try 
+            {
+                var userIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString)) return Unauthorized("User identifier not found in token");
+                
+                var userId = Guid.Parse(userIdString);
+                _logger.LogInformation("Creating policy for user {UserId} with Subtype {SubtypeId}", userId, dto.SubtypeId);
+
+                var policy = await _service.CreatePolicyAsync(userId, dto);
+                return Ok(policy);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating policy for user");
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPut("/policies/{policyId}/cancel")]
@@ -103,7 +135,7 @@ namespace SmartSure.PolicyService.Controllers
             // Let's look at the DTO. If the DTO doesn't have it, I'll pass a dummy or use DTO's value if it has one.
             // Actually, let's keep the DTO as it is, and maybe it has PolicyId? I'll check it shortly. Let's just pass `dto.PolicyId` and hope it exists, or just change the route back to include `{policyId}` to make it compile but use absolute path.
             // Wait, I will just use `dto.PolicyId` temporarily. If it doesn't exist, I'll fix the DTO.
-            await _service.SaveHomeDetailAsync(dto.PolicyId, dto);
+            await _service.SaveHomeDetailAsync(dto.PolicyId.GetValueOrDefault(), dto);
             return Ok(new { message = "Home detail saved successfully" });
         }
 
@@ -118,7 +150,7 @@ namespace SmartSure.PolicyService.Controllers
         [HttpPost("/vehicle-details")]
         public async Task<IActionResult> SaveVehicleDetail(CreateVehicleDetailDTO dto)
         {
-            await _service.SaveVehicleDetailAsync(dto.PolicyId, dto);
+            await _service.SaveVehicleDetailAsync(dto.PolicyId.GetValueOrDefault(), dto);
             return Ok(new { message = "Vehicle detail saved successfully" });
         }
     }

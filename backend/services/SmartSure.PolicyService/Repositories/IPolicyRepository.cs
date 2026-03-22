@@ -5,6 +5,7 @@ namespace SmartSure.PolicyService.Repositories
     public interface IPolicyRepository
     {
         Task<List<Policy>> GetByUserIdAsync(Guid userId);
+        Task<List<Policy>> GetAllAsync();
         Task<Policy> GetByIdAsync(Guid policyId);
         Task AddAsync(Policy policy);
         Task UpdateAsync(Policy policy);
@@ -22,3 +23,4 @@ namespace SmartSure.PolicyService.Repositories
         Task SaveChangesAsync();
     }
 }
+

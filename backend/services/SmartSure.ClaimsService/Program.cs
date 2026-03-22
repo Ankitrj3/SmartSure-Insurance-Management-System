@@ -12,6 +12,21 @@ using Serilog;
 DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+// CORS – allow Angular frontend and the API Gateway to call this service
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowGateway", policy =>
+        policy.WithOrigins(
+                "http://localhost:4200",
+                "https://localhost:4200",
+                "http://localhost:5057",
+                "https://localhost:9000"
+              )
+              .AllowAnyHeader()
+              .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+              .AllowCredentials());
+});
 builder.Configuration.AddEnvironmentVariables();
 
 // Serilog
@@ -28,15 +43,7 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<SmartSure.ClaimsService.Consumers.ClaimApprovedConsumer>();
     x.AddConsumer<SmartSure.ClaimsService.Consumers.ClaimRejectedConsumer>();
 
-    x.UsingRabbitMq((ctx, cfg) =>
-    {
-        cfg.Host(builder.Configuration["RabbitMQ:Host"]!, "/", h =>
-        {
-            h.Username(builder.Configuration["RabbitMQ:Username"]!);
-            h.Password(builder.Configuration["RabbitMQ:Password"]!);
-        });
-        cfg.ConfigureEndpoints(ctx);
-    });
+    x.UsingInMemory((ctx, cfg) => { cfg.ConfigureEndpoints(ctx); });
 });
 
 // Authentication
@@ -112,16 +119,38 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Disabled – gateway calls this service via HTTP
+app.UseCors("AllowGateway");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Auto-migrate database
+// Auto-migrate database and fix schema
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ClaimsDbContext>();
     await db.Database.MigrateAsync();
+
+    // Idempotent schema fix: ensure all columns exist in the database
+    // This handles the case where migrations were recorded but columns were not actually created
+    var schemaSql = @"
+        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Claims') AND name = 'ApprovedAmount')
+            ALTER TABLE [Claims] ADD [ApprovedAmount] decimal(18,2) NULL;
+        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Claims') AND name = 'CreatedAt')
+            ALTER TABLE [Claims] ADD [CreatedAt] datetime2 NOT NULL DEFAULT GETUTCDATE();
+        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Claims') AND name = 'RejectionReason')
+            ALTER TABLE [Claims] ADD [RejectionReason] nvarchar(max) NULL;
+        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Claims') AND name = 'UpdatedAt')
+            ALTER TABLE [Claims] ADD [UpdatedAt] datetime2 NOT NULL DEFAULT GETUTCDATE();
+        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('ClaimDocuments') AND name = 'ContentType')
+            ALTER TABLE [ClaimDocuments] ADD [ContentType] nvarchar(100) NOT NULL DEFAULT '';
+        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('ClaimDocuments') AND name = 'FileSize')
+            ALTER TABLE [ClaimDocuments] ADD [FileSize] bigint NOT NULL DEFAULT 0;
+        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('ClaimDocuments') AND name = 'UploadedAt')
+            ALTER TABLE [ClaimDocuments] ADD [UploadedAt] datetime2 NOT NULL DEFAULT GETUTCDATE();
+    ";
+    await db.Database.ExecuteSqlRawAsync(schemaSql);
 }
 
 app.Run();
+

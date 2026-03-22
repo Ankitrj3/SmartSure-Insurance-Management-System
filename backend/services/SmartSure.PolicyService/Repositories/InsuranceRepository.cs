@@ -23,6 +23,11 @@ namespace SmartSure.PolicyService.Repositories
             return await _context.InsuranceTypes.FindAsync(typeId);
         }
 
+        public async Task<List<InsuranceSubtype>> GetAllSubtypesAsync()
+        {
+            return await _context.InsuranceSubtypes.ToListAsync();
+        }
+
         public async Task<List<InsuranceSubtype>> GetSubtypesByTypeIdAsync(Guid typeId)
         {
             return await _context.InsuranceSubtypes.Where(s => s.TypeId == typeId).ToListAsync();
@@ -43,6 +48,12 @@ namespace SmartSure.PolicyService.Repositories
             _context.InsuranceTypes.Update(type);
         }
 
+        public async Task DeleteTypeAsync(Guid typeId)
+        {
+            var type = await _context.InsuranceTypes.FindAsync(typeId);
+            if (type != null) _context.InsuranceTypes.Remove(type);
+        }
+
         public async Task AddSubtypeAsync(InsuranceSubtype subtype)
         {
             await _context.InsuranceSubtypes.AddAsync(subtype);
@@ -51,6 +62,12 @@ namespace SmartSure.PolicyService.Repositories
         public async Task UpdateSubtypeAsync(InsuranceSubtype subtype)
         {
             _context.InsuranceSubtypes.Update(subtype);
+        }
+
+        public async Task DeleteSubtypeAsync(Guid subtypeId)
+        {
+            var subtype = await _context.InsuranceSubtypes.FindAsync(subtypeId);
+            if (subtype != null) _context.InsuranceSubtypes.Remove(subtype);
         }
 
         public async Task SaveChangesAsync()

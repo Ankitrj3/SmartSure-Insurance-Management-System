@@ -29,7 +29,7 @@ namespace SmartSure.AdminService.Controllers
             var client = _httpClientFactory.CreateClient("IdentityClient");
             client.DefaultRequestHeaders.Add("Authorization", GetAccessToken());
 
-            var gatewayUrl = _configuration["Gateway:Url"] ?? "https://localhost:9000";
+            var gatewayUrl = _configuration["Gateway:Url"] ?? "http://localhost:5057";
             
             try
             {
@@ -55,7 +55,7 @@ namespace SmartSure.AdminService.Controllers
             
             var client = _httpClientFactory.CreateClient("IdentityClient");
             client.DefaultRequestHeaders.Add("Authorization", GetAccessToken());
-            var gatewayUrl = _configuration["Gateway:Url"] ?? "https://localhost:9000";
+            var gatewayUrl = _configuration["Gateway:Url"] ?? "http://localhost:5057";
 
             try
             {
@@ -81,7 +81,7 @@ namespace SmartSure.AdminService.Controllers
             
             var client = _httpClientFactory.CreateClient("IdentityClient");
             client.DefaultRequestHeaders.Add("Authorization", GetAccessToken());
-            var gatewayUrl = _configuration["Gateway:Url"] ?? "https://localhost:9000";
+            var gatewayUrl = _configuration["Gateway:Url"] ?? "http://localhost:5057";
 
             try
             {

@@ -21,6 +21,13 @@ namespace SmartSure.PolicyService.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Policy>> GetAllAsync()
+        {
+            return await _context.Policies
+                .Include(p => p.Subtype)
+                .ToListAsync();
+        }
+
         public async Task<Policy> GetByIdAsync(Guid policyId)
         {
             return await _context.Policies

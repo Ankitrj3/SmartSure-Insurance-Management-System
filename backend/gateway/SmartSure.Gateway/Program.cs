@@ -21,12 +21,17 @@ builder.Services.AddSwaggerForOcelot(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngularApp", builder =>
+    options.AddPolicy("AllowAngularApp", policy =>
     {
-        builder.WithOrigins("http://localhost:4200", "https://localhost:4200", "https://localhost:9000")
-               .AllowAnyHeader()
-               .AllowAnyMethod()
-               .AllowCredentials(); // needed if using cookies or certain auth flows
+        policy.WithOrigins(
+                "http://localhost:4200",
+                "https://localhost:4200",
+                "http://localhost:5057",
+                "https://localhost:9000"
+              )
+              .AllowAnyHeader()
+              .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+              .AllowCredentials();
     });
 });
 
@@ -48,7 +53,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Commented out to prevent CORS preflight redirect errors with HTTP locally
 
 app.UseCors("AllowAngularApp");
 

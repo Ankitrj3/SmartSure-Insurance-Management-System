@@ -1,113 +1,130 @@
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/auth/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/auth/google/callback",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7092
+          "Port": 5168
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/auth/google/callback",
+      "UpstreamHttpMethod": [ "Get", "Post", "Options" ]
+    },
+    {
+      "DownstreamPathTemplate": "/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5168
         }
       ],
       "UpstreamPathTemplate": "/auth/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Options" ],
-      "SwaggerKey": "identity",
-      "DangerousAcceptAnyServerCertificateValidator": true
-    },
-    {
-      "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7210
-        }
-      ],
-      "UpstreamPathTemplate": "/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Options" ],
-      "SwaggerKey": "policy",
-      "DangerousAcceptAnyServerCertificateValidator": true
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Patch", "Options" ],
+      "SwaggerKey": "identity"
     },
     {
       "DownstreamPathTemplate": "/claims/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7265
+          "Port": 5265
         }
       ],
       "UpstreamPathTemplate": "/claims/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Options" ],
-      "SwaggerKey": "claims",
-      "DangerousAcceptAnyServerCertificateValidator": true
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Patch", "Options" ],
+      "SwaggerKey": "claims"
     },
     {
-      "DownstreamPathTemplate": "/admin/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/claims",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7232
+          "Port": 5265
+        }
+      ],
+      "UpstreamPathTemplate": "/claims",
+      "UpstreamHttpMethod": [ "Get", "Post", "Options" ],
+      "SwaggerKey": "claims"
+    },
+    {
+      "DownstreamPathTemplate": "/admin/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5232
         }
       ],
       "UpstreamPathTemplate": "/admin/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Options" ],
-      "SwaggerKey": "admin",
-      "DangerousAcceptAnyServerCertificateValidator": true
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Patch", "Options" ],
+      "SwaggerKey": "admin"
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5014
+        }
+      ],
+      "UpstreamPathTemplate": "/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Patch", "Options" ],
+      "SwaggerKey": "policy"
     }
   ],
   "SwaggerEndPoints": [
     {
       "Key": "identity",
       "TransformByOcelotConfig": false,
-      "DangerousAcceptAnyServerCertificateValidator": true,
       "Config": [
         {
           "Name": "Identity Service API",
           "Version": "v1",
-          "Url": "https://localhost:7092/swagger/v1/swagger.json"
+          "Url": "http://localhost:5168/swagger/v1/swagger.json"
         }
       ]
     },
     {
       "Key": "policy",
       "TransformByOcelotConfig": false,
-      "DangerousAcceptAnyServerCertificateValidator": true,
       "Config": [
         {
           "Name": "Policy Service API",
           "Version": "v1",
-          "Url": "https://localhost:7210/swagger/v1/swagger.json"
+          "Url": "http://localhost:5014/swagger/v1/swagger.json"
         }
       ]
     },
     {
       "Key": "claims",
       "TransformByOcelotConfig": false,
-      "DangerousAcceptAnyServerCertificateValidator": true,
       "Config": [
         {
           "Name": "Claims Service API",
           "Version": "v1",
-          "Url": "https://localhost:7265/swagger/v1/swagger.json"
+          "Url": "http://localhost:5265/swagger/v1/swagger.json"
         }
       ]
     },
     {
       "Key": "admin",
       "TransformByOcelotConfig": false,
-      "DangerousAcceptAnyServerCertificateValidator": true,
       "Config": [
         {
           "Name": "Admin Service API",
           "Version": "v1",
-          "Url": "https://localhost:7232/swagger/v1/swagger.json"
+          "Url": "http://localhost:5232/swagger/v1/swagger.json"
         }
       ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:9000"
+    "BaseUrl": "http://localhost:5057"
   }
 }

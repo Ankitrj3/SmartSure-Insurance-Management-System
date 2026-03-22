@@ -76,4 +76,16 @@ namespace SmartSure.ClaimsService.DTOs
         public string ChangedBy { get; set; } = "";
         public DateTime ChangedAt { get; set; }
     }
+
+    public class ApproveClaimDTO
+    {
+        public decimal ApprovedAmount { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    public class RejectClaimDTO
+    {
+        [Required]
+        public string Reason { get; set; } = "";
+    }
 }

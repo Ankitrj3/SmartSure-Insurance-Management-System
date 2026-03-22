@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SmartSure.ClaimsService.DTOs;
 using SmartSure.ClaimsService.Services;
 
 namespace SmartSure.ClaimsService.Controllers
@@ -25,9 +24,13 @@ namespace SmartSure.ClaimsService.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadDocument(Guid claimId, [FromBody] DocumentUploadDTO dto)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadDocument(Guid claimId, IFormFile file)
         {
-            var document = await _documentService.AddDocumentAsync(claimId, dto);
+            if (file == null || file.Length == 0)
+                return BadRequest(new { message = "No file provided." });
+
+            var document = await _documentService.AddDocumentAsync(claimId, file);
             return CreatedAtAction(nameof(GetDocuments), new { claimId }, document);
         }
 

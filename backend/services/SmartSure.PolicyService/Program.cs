@@ -13,6 +13,21 @@ DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
+// CORS – allow Angular frontend and the API Gateway to call this service
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowGateway", policy =>
+        policy.WithOrigins(
+                "http://localhost:4200",
+                "https://localhost:4200",
+                "http://localhost:5057",
+                "https://localhost:9000"
+              )
+              .AllowAnyHeader()
+              .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+              .AllowCredentials());
+});
+
 // Database
 builder.Services.AddDbContext<PolicyDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultPolicyConnection")));
@@ -22,15 +37,7 @@ builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<SmartSure.PolicyService.Consumers.UserRegisteredConsumer>();
 
-    x.UsingRabbitMq((ctx, cfg) =>
-    {
-        cfg.Host(builder.Configuration["RabbitMQ:Host"]!, "/", h =>
-        {
-            h.Username(builder.Configuration["RabbitMQ:Username"]!);
-            h.Password(builder.Configuration["RabbitMQ:Password"]!);
-        });
-        cfg.ConfigureEndpoints(ctx);
-    });
+    x.UsingInMemory((ctx, cfg) => { cfg.ConfigureEndpoints(ctx); });
 });
 
 // Authentication
@@ -114,7 +121,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Disabled – gateway calls this service via HTTP
+app.UseCors("AllowGateway");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -127,3 +135,4 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+

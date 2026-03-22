@@ -7,11 +7,11 @@ namespace SmartSure.PolicyService.DTOs
         public Guid PolicyId { get; set; }
         public Guid UserId { get; set; }
         public Guid SubtypeId { get; set; }
-        public string SubtypeName { get; set; }
+        public string? SubtypeName { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public decimal PremiumAmount { get; set; }
-        public string Status { get; set; }
+        public string? Status { get; set; }
     }
 
     public class CreatePolicyDTO
@@ -24,15 +24,15 @@ namespace SmartSure.PolicyService.DTOs
         public int Duration { get; set; }
 
         // Home detail fields (wizard can submit if it's a home policy)
-        public CreateHomeDetailDTO HomeDetail { get; set; }
+        public CreateHomeDetailDTO? HomeDetail { get; set; }
 
         // Vehicle detail fields (wizard can submit if it's a vehicle policy)
-        public CreateVehicleDetailDTO VehicleDetail { get; set; }
+        public CreateVehicleDetailDTO? VehicleDetail { get; set; }
     }
 
     public class CreateHomeDetailDTO
     {
-        public Guid PolicyId { get; set; }
+        public Guid? PolicyId { get; set; }
 
         [Required(ErrorMessage = "Address is required")]
         [StringLength(500)]
@@ -47,12 +47,12 @@ namespace SmartSure.PolicyService.DTOs
         [Range(0, double.MaxValue)]
         public decimal EstimatedValue { get; set; }
 
-        public string SecurityFeatures { get; set; }
+        public string? SecurityFeatures { get; set; }
     }
 
     public class CreateVehicleDetailDTO
     {
-        public Guid PolicyId { get; set; }
+        public Guid? PolicyId { get; set; }
 
         [Required(ErrorMessage = "RegistrationNumber is required")]
         [StringLength(50)]
@@ -80,16 +80,16 @@ namespace SmartSure.PolicyService.DTOs
     public class PolicyDetailDTO
     {
         public Guid PolicyId { get; set; }
-        public string TermsAndConditions { get; set; }
-        public string Inclusions { get; set; }
-        public string Exclusions { get; set; }
+        public string? TermsAndConditions { get; set; }
+        public string? Inclusions { get; set; }
+        public string? Exclusions { get; set; }
     }
 
     public class SavePolicyDetailDTO
     {
         [Required]
         public string TermsAndConditions { get; set; }
-        public string Inclusions { get; set; }
-        public string Exclusions { get; set; }
+        public string? Inclusions { get; set; }
+        public string? Exclusions { get; set; }
     }
 }
