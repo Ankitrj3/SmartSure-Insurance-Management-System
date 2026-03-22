@@ -1,0 +1,62 @@
+﻿<div class="auth-container">
+  <div class="glass-panel auth-card">
+    <div class="auth-header">
+      <h2>Welcome Back</h2>
+      <p>Log in to manage your policies and claims.</p>
+    </div>
+
+    <!-- Error Message -->
+    @if (errorMessage) {
+      <div class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+    }
+
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          class="input-base" 
+          [(ngModel)]="credentials.email" 
+          required 
+          placeholder="your@email.com">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          class="input-base" 
+          [(ngModel)]="credentials.password" 
+          required 
+          placeholder="Enter your password">
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="!loginForm.valid || isLoading" style="width: 100%; margin-top: 16px;">
+        @if (isLoading) {
+          <span>Logging in...</span>
+        } @else {
+          <span>Sign In</span>
+        }
+      </button>
+    </form>
+
+    <div class="divider">
+      <span>OR</span>
+    </div>
+
+    <button type="button" class="btn-secondary google-btn" style="width: 100%;" (click)="loginWithGoogle()">
+      <img src="https://lh3.googleusercontent.com/COxitqgJr1sJnIDe8-jiKhxDx1FrYbtRHKJ9z_hELisAlapwE9LUPh6fcXIfb5vwpbMl4xl9H9TRFPc5NOO8Sb3VSgIBrfRYvW6cUA" alt="Google logo" class="google-logo">
+      Continue with Google
+    </button>
+
+    <div class="auth-footer">
+      <p>Don't have an account? <a routerLink="/register">Register here</a></p>
+    </div>
+  </div>
+</div>

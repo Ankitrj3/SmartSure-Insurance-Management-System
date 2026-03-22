@@ -1,0 +1,568 @@
+<div class="admin-layout">
+
+  <!-- Header / Sub-Navigation for Dashboard -->
+  <header class="admin-header" style="justify-content: flex-start; padding: 0.75rem 2rem;">
+    <nav class="admin-nav" style="width: 100%;">
+      <button class="nav-btn" [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">Dashboard</button>
+      <button class="nav-btn" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">Users</button>
+      <button class="nav-btn" [class.active]="activeTab === 'policies'" (click)="activeTab = 'policies'">Policies & Plans</button>
+      <button class="nav-btn" [class.active]="activeTab === 'reports'" (click)="activeTab = 'reports'">Reports & Audit</button>
+      <button class="nav-btn" [class.active]="activeTab === 'claims'" (click)="activeTab = 'claims'">
+        Claims <span class="claim-count" *ngIf="stats.pendingClaims > 0">{{ stats.pendingClaims }}</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="admin-content">
+
+    <!-- Loading State -->
+    <div *ngIf="loading" style="text-align: center; margin-top: 5rem;">
+      <p style="color: #666; font-size: 1.1rem; font-weight: 500;">Loading System Data...</p>
+    </div>
+
+    <div *ngIf="!loading">
+
+      <!-- ========================================== -->
+      <!-- TAB: DASHBOARD OVERVIEW -->
+      <!-- ========================================== -->
+      <div *ngIf="activeTab === 'overview'">
+        
+        <div class="dashboard-grid">
+          <!-- Stat Cards -->
+          <div class="glass-panel stat-card">
+            <h3>Registered Users</h3>
+            <p class="stat-value">{{ stats.totalUsers }}</p>
+          </div>
+          <div class="glass-panel stat-card">
+            <h3>Total Policies</h3>
+            <p class="stat-value">{{ stats.totalPolicies }}</p>
+          </div>
+          <div class="glass-panel stat-card">
+            <h3>Pending Claims</h3>
+            <p class="stat-value">{{ stats.pendingClaims }}</p>
+          </div>
+          <div class="glass-panel stat-card">
+            <h3>Total Revenue Collected</h3>
+            <p class="stat-value">₹{{ stats.totalRevenue | number:'1.0-0' }}</p>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Recent Claims Widget -->
+          <div class="glass-panel">
+            <div class="section-header">
+              <h3>Recent Claim Activity</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Claim ID</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let c of recentClaims">
+                    <td><code class="claim-id">{{ c.claimId | slice:0:8 }}…</code></td>
+                    <td><span class="status-badge" [ngClass]="getStatusClass(c.status)">{{ c.status }}</span></td>
+                    <td><button class="btn btn-outline btn-sm" (click)="activeTab = 'claims'">View</button></td>
+                  </tr>
+                  <tr *ngIf="recentClaims.length === 0">
+                    <td colspan="3" class="empty-td">No recent claims.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Active Policies Widget -->
+          <div class="glass-panel">
+            <div class="section-header">
+              <h3>Recent Policies</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Policy ID</th>
+                    <th>Premium</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let p of recentPolicies">
+                    <td><code class="claim-id">{{ p.policyId | slice:0:8 }}…</code></td>
+                    <td>₹{{ p.premiumAmount }}</td>
+                    <td><span class="status-badge" [ngClass]="p.status === 'Active' ? 'status-approved' : 'status-rejected'">{{ p.status }}</span></td>
+                  </tr>
+                  <tr *ngIf="recentPolicies.length === 0">
+                    <td colspan="3" class="empty-td">No active policies.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- TAB: USER DIRECTORY -->
+      <!-- ========================================== -->
+      <div *ngIf="activeTab === 'users'">
+        <section class="glass-panel full-width">
+          <div class="section-header">
+            <h3>User Directory</h3>
+            <span class="claim-count">{{ allUsers.length }} users</span>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone No.</th>
+                  <th>System Role</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of allUsers">
+                  <td><code class="claim-id">{{ user.id || user.userId | slice:0:8 }}…</code></td>
+                  <td><strong>{{ user.fullName || user.firstName + ' ' + user.lastName }}</strong></td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.phoneNumber || 'Not provided' }}</td>
+                  <td><span class="status-badge" [ngClass]="user.role === 'Admin' ? 'status-approved' : 'status-submitted'">{{ user.role || 'User' }}</span></td>
+                  <td>
+                    <button class="btn btn-outline btn-sm" (click)="assignAdminRole(user.id || user.userId)" *ngIf="user.role !== 'Admin'" style="margin-right: 0.5rem; border-color: #4caf50; color: #4caf50;">Promote to Admin</button>
+                    <button class="btn btn-danger btn-sm" (click)="deactivateUser(user.id || user.userId)" [disabled]="user.role === 'Admin'">Deactivate</button>
+                  </td>
+                </tr>
+                <tr *ngIf="allUsers.length === 0">
+                  <td colspan="6" class="empty-td">No users found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- TAB: POLICIES & PLANS -->
+      <!-- ========================================== -->
+      <div *ngIf="activeTab === 'policies'">
+        
+        <section class="glass-panel full-width">
+          <div class="section-header">
+            <h3>Master Insurance Offerings</h3>
+            <div class="table-actions">
+              <button class="btn btn-outline btn-sm" (click)="openCreatePlanModal('type')">Create Master Type</button>
+              <button class="btn btn-primary btn-sm" (click)="openCreatePlanModal('subtype')">Create New Plan</button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Type ID</th>
+                  <th>Category Name</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let t of insuranceTypesList">
+                  <td><code class="claim-id">{{ t.insuranceTypeId || t.typeId || t.id | slice:0:8 }}…</code></td>
+                  <td><strong>{{ t.name }}</strong></td>
+                  <td>{{ t.description || 'No description provided' }}</td>
+                  <td><span class="status-badge status-approved">Active</span></td>
+                  <td>
+                    <button class="btn btn-danger btn-sm" (click)="removeInsuranceType(t.insuranceTypeId || t.typeId || t.id)">Delete</button>
+                  </td>
+                </tr>
+                <tr *ngIf="insuranceTypesList.length === 0">
+                  <td colspan="4" class="empty-td">No master insurance types created yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="glass-panel full-width">
+          <div class="section-header">
+            <h3>Specific Coverage Plans</h3>
+            <span class="claim-count">{{ insuranceSubtypesList.length }} plans</span>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Plan ID</th>
+                  <th>Parent Category</th>
+                  <th>Plan Name</th>
+                  <th>Coverage Details</th>
+                  <th>Base Premium</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let s of insuranceSubtypesList">
+                  <td><code class="claim-id">{{ s.subtypeId || s.id | slice:0:8 }}…</code></td>
+                  <td><strong>{{ s.typeName }}</strong></td>
+                  <td><strong>{{ s.name }}</strong></td>
+                  <td>{{ s.description || 'No description provided' }}</td>
+                  <td>₹{{ s.basePremium }}</td>
+                  <td><span class="status-badge status-approved">Active</span></td>
+                  <td>
+                    <button class="btn btn-danger btn-sm" (click)="removeInsuranceSubtype(s.subtypeId || s.id)">Delete Plan</button>
+                  </td>
+                </tr>
+                <tr *ngIf="insuranceSubtypesList.length === 0">
+                  <td colspan="6" class="empty-td">No specific coverage plans configured yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="glass-panel full-width">
+          <div class="section-header">
+            <h3>Users' Purchased Policies</h3>
+            <span class="claim-count">{{ allPolicies.length }} policies</span>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Policy ID</th>
+                  <th>User ID</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th>Premium</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of allPolicies">
+                  <td><code class="claim-id">{{ p.policyId | slice:0:8 }}…</code></td>
+                  <td><code class="claim-id">{{ p.userId | slice:0:8 }}…</code></td>
+                  <td>{{ formatDate(p.startDate) }}</td>
+                  <td>{{ formatDate(p.endDate) }}</td>
+                  <td>₹{{ p.premiumAmount }}</td>
+                  <td><span class="status-badge" [ngClass]="p.status === 'Active' ? 'status-approved' : 'status-rejected'">{{ p.status }}</span></td>
+                  <td>
+                    <button class="btn btn-danger btn-sm" (click)="cancelPolicy(p.policyId, $event)" *ngIf="p.status === 'Active'">Revoke</button>
+                  </td>
+                </tr>
+                <tr *ngIf="allPolicies.length === 0">
+                  <td colspan="7" class="empty-td">No policies found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- TAB: CLAIMS MANAGEMENT -->
+      <!-- ========================================== -->
+      <div *ngIf="activeTab === 'claims'">
+        <section class="glass-panel full-width">
+          <div class="section-header">
+            <h3>Claim Evaluation Queue</h3>
+            <span class="claim-count">{{ allClaims.length }} claims</span>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Claim ID</th>
+                  <th>Policy ID</th>
+                  <th>Date Filed</th>
+                  <th>Claim Amount</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let claim of allClaims">
+                  <td><code class="claim-id">{{ claim.claimId | slice:0:8 }}…</code></td>
+                  <td><code class="claim-id">{{ claim.policyId | slice:0:8 }}…</code></td>
+                  <td>{{ formatDate(claim.incidentDate || claim.dateFiled) }}</td>
+                  <td><strong>₹{{ claim.claimAmount }}</strong></td>
+                  <td><span class="status-badge" [ngClass]="getStatusClass(claim.status)">{{ claim.status }}</span></td>
+                  <td>
+                    <button class="btn btn-primary btn-sm" (click)="openReviewModal(claim)">Evaluate</button>
+                  </td>
+                </tr>
+                <tr *ngIf="allClaims.length === 0">
+                  <td colspan="6" class="empty-td">No claims have been submitted.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- TAB: REPORTS & AUDIT -->
+      <!-- ========================================== -->
+      <div *ngIf="activeTab === 'reports'">
+        <section class="glass-panel full-width" style="margin-bottom: 2rem;">
+          <div class="section-header">
+            <h3>Generate Insight Report</h3>
+          </div>
+          <div style="display: flex; gap: 1rem; align-items: flex-end;">
+            <div class="form-group" style="flex: 1; margin: 0;">
+              <label>Report Title</label>
+              <input type="text" [(ngModel)]="reportTitle" class="form-control" placeholder="e.g. Q1 Financial Performance" />
+            </div>
+            <div class="form-group" style="flex: 1; margin: 0;">
+              <label>Report Scope Type</label>
+              <select [(ngModel)]="reportType" class="form-control">
+                <option value="Financial">Financial Metrics</option>
+                <option value="Operational">Operational Statistics</option>
+                <option value="Claims">Claims Analysis</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" (click)="generateReport()" [disabled]="actionProcessing" style="height: 42px;">
+              {{ actionProcessing ? 'Compiling...' : 'Generate System Report' }}
+            </button>
+          </div>
+          
+          <div class="table-responsive" style="margin-top: 2rem;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Report ID</th>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th>Generated By</th>
+                  <th>Created At</th>
+                  <th>Format</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of reports">
+                  <td><code class="claim-id">{{ r.reportId | slice:0:8 }}…</code></td>
+                  <td><strong>{{ r.title }}</strong></td>
+                  <td>{{ r.reportType }}</td>
+                  <td>System Admin</td>
+                  <td>{{ formatDate(r.generatedAt) }}</td>
+                  <td><span class="status-badge" style="background:#e8eaf6; color:#3f51b5;">{{ r.format }}</span></td>
+                </tr>
+                <tr *ngIf="reports.length === 0">
+                  <td colspan="6" class="empty-td">No reports have been generated.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="glass-panel full-width">
+          <div class="section-header">
+            <h3>System Audit Trail</h3>
+            <span class="claim-count">{{ auditLogs.length }} captured events</span>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Event ID</th>
+                  <th>Timestamp</th>
+                  <th>Action Source / IP</th>
+                  <th>Action Performed</th>
+                  <th>Impacted Resource</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let log of auditLogs">
+                  <td><code class="claim-id">{{ log.id || log.logId | slice:0:8 }}…</code></td>
+                  <td>{{ formatDate(log.timestamp) }}</td>
+                  <td>{{ log.userId || 'System' }} / {{ log.ipAddress }}</td>
+                  <td><strong>{{ log.action }}</strong></td>
+                  <td>{{ log.resourceName || log.resourceId || 'Global' }}</td>
+                </tr>
+                <tr *ngIf="auditLogs.length === 0">
+                  <td colspan="5" class="empty-td">No audit events found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ========================================== -->
+<!-- MODALS -->
+<!-- ========================================== -->
+
+<!-- Claim Review Modal -->
+<div class="modal-overlay" *ngIf="showReviewModal" (click)="closeReviewModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h2>Review Claim Submission</h2>
+        <p class="modal-sub">Evaluate documentation and issue a structured decision.</p>
+      </div>
+      <button class="close-btn" (click)="closeReviewModal()"></button>
+    </div>
+
+    <!-- Claim Summary Info -->
+    <div style="background: #fafdfa; padding: 1rem; border-radius: 6px; border: 1px solid #e0f2e1; margin-bottom: 1.5rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div>
+          <span style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">Requested Amount</span>
+          <strong style="font-size: 1.1rem; color: #1b5e20;">₹{{ selectedClaim?.claimAmount }}</strong>
+        </div>
+        <div>
+          <span style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">Incident Description</span>
+          <span style="font-size: 0.95rem; color: #333;">{{ selectedClaim?.description || 'No description provided' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="form-group" *ngIf="selectedClaimDocuments.length > 0">
+      <label>Supporting Evidences</label>
+      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <div *ngFor="let doc of selectedClaimDocuments" style="display: flex; flex-direction: column; align-items: center; padding: 1.5rem; border: 1px dashed #4caf50; background: #e8f5e9; border-radius: 6px;">
+          <span style="font-size: 0.95rem; color: #2e7d32; margin-bottom: 0.75rem; font-weight: 600;">Secure document is ready for download.</span>
+          <a [href]="doc.fileUrl || '#'" target="_blank" class="btn btn-primary" style="padding: 0.6rem 2rem; border-radius: 8px; text-decoration: none;">Download to Review</a>
+        </div>
+      </div>
+    </div>
+    <div class="form-group" *ngIf="loadingDocuments">
+      <p style="color: #666; font-size: 0.9rem; font-style: italic;">Loading securely deposited items...</p>
+    </div>
+
+    <!-- Core Form Actions -->
+    <div class="action-form" *ngIf="canReview(selectedClaim?.status)">
+      <div class="form-group">
+        <label>Select Determination Action</label>
+        <div style="display: flex; gap: 1rem;">
+          <label style="flex:1; border: 2px solid transparent; padding: 1rem; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s;" 
+                 [style.borderColor]="reviewAction === 'approve' ? '#4caf50' : '#e0f2e1'" 
+                 [style.backgroundColor]="reviewAction === 'approve' ? '#e8f5e9' : '#fafdfa'"
+                 (click)="setReviewAction('approve')">
+            <h4 style="margin: 0 0 0.5rem; color:#1b5e20;">Approve</h4>
+            <span style="font-size:0.8rem; color:#666;">Authorize compensation</span>
+          </label>
+          
+          <label style="flex:1; border: 2px solid transparent; padding: 1rem; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s;" 
+                 [style.borderColor]="reviewAction === 'reject' ? '#f44336' : '#e0f2e1'"
+                 [style.backgroundColor]="reviewAction === 'reject' ? '#ffebee' : '#fafdfa'"
+                 (click)="setReviewAction('reject')">
+            <h4 style="margin: 0 0 0.5rem; color:#b71c1c;">Reject</h4>
+            <span style="font-size:0.8rem; color:#666;">Decline payout</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Approve Fields -->
+      <div *ngIf="reviewAction === 'approve'">
+        <div class="form-group">
+          <label>Authorized Payment Amount (₹)</label>
+          <input type="number" [(ngModel)]="approvedAmount" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>Audit Notes (Optional)</label>
+          <textarea [(ngModel)]="reviewNotes" class="form-control" rows="2" placeholder="Internal memo regarding this approval..."></textarea>
+        </div>
+      </div>
+
+      <!-- Reject Fields -->
+      <div *ngIf="reviewAction === 'reject'">
+        <div class="form-group">
+          <label>Justification for Rejection <span class="required">*</span></label>
+          <textarea [(ngModel)]="rejectionReason" class="form-control" rows="3" placeholder="Provide a structured reasoning for declining the claim..."></textarea>
+        </div>
+      </div>
+
+      <!-- Submit Section -->
+      <div class="form-actions" *ngIf="reviewAction && !actionMessage.startsWith('Success')">
+        <button class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 1rem;" (click)="submitReview()" [disabled]="actionProcessing">
+          {{ actionProcessing ? 'Finalizing...' : (reviewAction === 'approve' ? 'Finalize Approval Request' : 'Confirm Complete Rejection') }}
+        </button>
+      </div>
+      
+      <div class="action-result" *ngIf="actionMessage" [class.success]="!actionMessage.startsWith('Failed')" [class.error]="actionMessage.startsWith('Failed') || actionMessage.startsWith('Please')">
+        {{ actionMessage }}
+      </div>
+    </div>
+    
+    <div class="action-form" *ngIf="!canReview(selectedClaim?.status)">
+      <div style="background: #e8f5e9; color: #1b5e20; padding: 1rem; border-radius: 6px; text-align: center; font-weight: 600;">
+        This claim has been processed. Status is permanently locked to: {{ selectedClaim?.status }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Plan / Subtype Modal -->
+<div class="modal-overlay" *ngIf="showCreatePlanModal" (click)="closeCreatePlanModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h2>{{ creatingPlanType === 'type' ? 'Create Master Insurance Type' : 'Create Subtype Plan' }}</h2>
+        <p class="modal-sub">Configure a new officially supported insurance framework offering.</p>
+      </div>
+      <button class="close-btn" (click)="closeCreatePlanModal()"></button>
+    </div>
+
+    <div class="action-form">
+      <!-- Only for subtype -->
+      <div class="form-group" *ngIf="creatingPlanType === 'subtype'">
+        <label>Parent Insurance Type Framework <span class="required">*</span></label>
+        <select class="form-control" [(ngModel)]="newPlanData.typeId">
+          <option value="" disabled selected>Select Master Type Framework</option>
+          <option *ngFor="let t of insuranceTypesList" [ngValue]="t.typeId">{{ t.name }}</option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="creatingPlanType === 'type'">
+        <label>Plan Identifier Category <span class="required">*</span></label>
+        <select class="form-control" [(ngModel)]="newPlanData.name">
+          <option value="" disabled selected>Select Master Category</option>
+          <option value="Vehicle">Vehicle</option>
+          <option value="Home">Home</option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="creatingPlanType === 'subtype'">
+        <label>Plan Identifier Name <span class="required">*</span></label>
+        <input type="text" [(ngModel)]="newPlanData.name" class="form-control" placeholder="e.g. ShieldPlus Pro Series" />
+      </div>
+      
+      <div class="form-group">
+        <label>Framework Details & Coverage Information</label>
+        <textarea [(ngModel)]="newPlanData.description" class="form-control" rows="3" placeholder="List complete features..."></textarea>
+      </div>
+
+      <!-- Only for subtype -->
+      <div class="form-group" *ngIf="creatingPlanType === 'subtype'">
+        <label>Authorized Base Premium (₹)</label>
+        <input type="number" [(ngModel)]="newPlanData.basePremium" class="form-control" placeholder="5000" />
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-ghost" (click)="closeCreatePlanModal()">Cancel Configuration</button>
+        <button class="btn btn-primary" (click)="submitNewPlan()" [disabled]="planActionProcessing">
+          {{ planActionProcessing ? 'Authorizing Creation...' : 'Publish Offering' }}
+        </button>
+      </div>
+
+      <div class="action-result" *ngIf="planActionMessage" [class.success]="planActionMessage.startsWith('Success')" [class.error]="planActionMessage.startsWith('Failed') || planActionMessage.startsWith('Warning')">
+        {{ planActionMessage }}
+      </div>
+    </div>
+  </div>
+</div>

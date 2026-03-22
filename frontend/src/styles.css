@@ -1,0 +1,139 @@
+/* Master UI Theme: Orange & White Premium Feel */
+/* Master UI Theme: Professional Light Green & White Corporate Feel */
+:root {
+  --primary-color: #2E7D32;       /* Deep corporate green */
+  --primary-color-dark: #1B5E20;  /* Darker trusted green */
+  --primary-color-light: #4CAF50; /* Bright action green */
+  --bg-color: #F9FDF9;            /* Ultra-light green-tinted white */
+  --bg-surface: #FFFFFF;          /* Pure white panels */
+  --text-dark: #2C3E2D;           /* Deep green-gray text */
+  --text-muted: #5D6D5E;          /* Soft green-gray */
+  --border-color: #E8F5E9;        /* Soft green line */
+  --shadow-sm: 0 4px 6px rgba(46, 125, 50, 0.05);
+  --shadow-md: 0 10px 20px rgba(46, 125, 50, 0.08);
+  --shadow-lg: 0 20px 40px rgba(46, 125, 50, 0.12);
+  --radius-lg: 12px;
+  --radius-md: 8px;
+  --radius-sm: 6px;
+  --gradient-primary: linear-gradient(135deg, #4CAF50, #2E7D32);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.2s ease-in-out;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-dark);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Typography styles */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: 3.5rem; line-height: 1.1; }
+h2 { font-size: 2.5rem; }
+h3 { font-size: 1.75rem; }
+
+p {
+  color: var(--text-muted);
+  font-size: 1.125rem;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Button UI Components */
+.btn-primary {
+  background: var(--gradient-primary);
+  color: #fff;
+  border: none;
+  padding: 14px 28px;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  background: var(--primary-color-dark);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  padding: 12px 26px;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: rgba(46, 125, 50, 0.05);
+}
+
+.btn-text {
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 10px 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-text:hover {
+  color: var(--primary-color);
+}
+
+/* Container Utility */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Form inputs */
+.input-base {
+  width: 100%;
+  padding: 16px 20px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  font-size: 1rem;
+  color: var(--text-dark);
+  outline: none;
+}
+
+.input-base:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+}
+
+/* Animated glass effect */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-md);
+}

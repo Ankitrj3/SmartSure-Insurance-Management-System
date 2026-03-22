@@ -1,0 +1,27 @@
+<header class="navbar">
+  <div class="container navbar-content">
+    <div class="brand" routerLink="/" style="cursor: pointer;">
+      <h1 class="brand-logo" style="font-size: 1.4rem;">Smart<span class="highlight">Sure</span></h1>
+    </div>
+    
+    <nav class="nav-links">
+      <a routerLink="/" class="nav-link">Home</a>
+      
+      <!-- Only show for non-logged-in users as a landing page hook -->
+      <a *ngIf="!isLoggedIn" routerLink="/register" class="nav-link">Insurance Options</a>
+    </nav>
+
+    <div class="auth-buttons">
+      <ng-container *ngIf="!isLoggedIn">
+        <button class="btn-text" routerLink="/login">Sign In</button>
+        <button class="btn-primary" routerLink="/register">Get a Quote</button>
+      </ng-container>
+
+      <ng-container *ngIf="isLoggedIn">
+        <button class="btn-text" *ngIf="isAdmin" routerLink="/admin/dashboard">Admin Panel</button>
+        <button class="btn-primary" *ngIf="!isAdmin" routerLink="/user/dashboard">My Dashboard</button>
+        <button class="btn-outline ml-2" (click)="logout()" style="margin-left: 10px;">Log Out</button>
+      </ng-container>
+    </div>
+  </div>
+</header>

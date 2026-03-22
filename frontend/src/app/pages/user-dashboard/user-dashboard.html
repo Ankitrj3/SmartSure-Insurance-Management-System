@@ -1,0 +1,390 @@
+<div class="dashboard-container">
+  <div class="glass-header">
+    <div class="header-content">
+      <h1>Welcome back, {{ profile?.firstName || 'User' }}!</h1>
+      <p>Manage your policies, track claims, and profile with ease.</p>
+    </div>
+    <div class="stats-overview">
+      <div class="stat-card">
+        <h3>Active Policies</h3>
+        <h2>{{ policies.length }}</h2>
+      </div>
+      <div class="stat-card">
+        <h3>Claims Filed</h3>
+        <h2>{{ claims.length }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="user-nav" style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+    <button class="btn btn-outline" [class.active-tab]="activeTab === 'overview'" (click)="activeTab = 'overview'">Overview</button>
+    <button class="btn btn-outline" [class.active-tab]="activeTab === 'profile'" (click)="activeTab = 'profile'">Profile</button>
+    <button class="btn btn-outline" [class.active-tab]="activeTab === 'policies'" (click)="activeTab = 'policies'">Policies</button>
+    <button class="btn btn-outline" [class.active-tab]="activeTab === 'claims'" (click)="activeTab = 'claims'">Claims</button>
+  </div>
+
+  <div class="dashboard-grid" *ngIf="!loading">
+    
+    <!-- OVERVIEW TAB -->
+    <ng-container *ngIf="activeTab === 'overview'">
+      <section class="dashboard-section policies-section">
+        <div class="section-header">
+          <h2>My Policies</h2>
+          <button class="btn btn-primary" (click)="activeTab = 'policies'">View All</button>
+        </div>
+        
+        <div class="cards-grid">
+          <div class="info-card" *ngFor="let policy of policies.slice(0, 3)">
+            <div class="card-icon"><span class="icon">🛡️</span></div>
+            <div class="card-body">
+              <h3>Policy</h3>
+              <p class="status-badge active">{{ policy.status || 'Active' }}</p>
+              <div class="details">
+                <span class="detail-label">Premium:</span>
+                <span class="detail-value">₹{{ policy.premiumAmount || 0 }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="empty-state" *ngIf="policies.length === 0">
+            <p>You haven't taken any policies.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="dashboard-section claims-section">
+        <div class="section-header">
+          <h2>Recent Claims</h2>
+          <button class="btn btn-outline" (click)="activeTab = 'claims'">View All</button>
+        </div>
+        
+        <div class="claims-list">
+          <div class="claim-item" *ngFor="let claim of claims.slice(0, 3)">
+            <div class="claim-info">
+              <h4>{{ claim.description || 'General Claim' }}</h4>
+            </div>
+            <div class="claim-status">
+              <div class="amount">₹{{ claim.claimAmount }}</div>
+              <span class="status-pill under-review">{{ claim.status }}</span>
+            </div>
+          </div>
+          <div class="empty-state claim-empty" *ngIf="claims.length === 0">
+            <p>You have no recent claims.</p>
+          </div>
+        </div>
+      </section>
+    </ng-container>
+
+    <!-- PROFILE TAB -->
+    <ng-container *ngIf="activeTab === 'profile'">
+      <section class="dashboard-section full-width" style="grid-column: 1 / -1;">
+        <h2>My Profile</h2>
+        <div style="display: flex; gap: 2rem;">
+          <div class="glass-panel" style="flex: 1; padding: 1.5rem; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <h3>Update Information</h3>
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" class="form-control" [(ngModel)]="profile.firstName" />
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" class="form-control" [(ngModel)]="profile.lastName" />
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="text" class="form-control" [(ngModel)]="profile.phoneNumber" />
+            </div>
+            <button class="btn btn-primary" (click)="updateProfile()">Save Profile</button>
+            <p class="action-result" *ngIf="profileMessage" style="margin-top:1rem;">{{ profileMessage }}</p>
+          </div>
+
+          <div class="glass-panel" style="flex: 1; padding: 1.5rem; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <h3>Change Password</h3>
+            <div class="form-group">
+              <label>Current Password</label>
+              <input type="password" class="form-control" [(ngModel)]="passwordData.currentPassword" />
+            </div>
+            <div class="form-group">
+              <label>New Password</label>
+              <input type="password" class="form-control" [(ngModel)]="passwordData.newPassword" />
+            </div>
+            <button class="btn btn-danger" style="background:#f44336; color:white; border:none;" (click)="changePassword()">Update Password</button>
+            <p class="action-result" *ngIf="passwordMessage" style="margin-top:1rem;">{{ passwordMessage }}</p>
+          </div>
+        </div>
+      </section>
+    </ng-container>
+
+    <!-- POLICIES TAB -->
+    <ng-container *ngIf="activeTab === 'policies'">
+      <section class="dashboard-section full-width" style="grid-column: 1 / -1; background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <div class="section-header">
+          <h2>Manage Coverage</h2>
+          <button class="btn btn-primary" (click)="openBuyPolicyModal()">+ Buy New Policy</button>
+        </div>
+        <table class="admin-table" style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+          <thead>
+            <tr style="text-align: left; background: #f8f9fa;">
+              <th style="padding: 1rem;">Policy ID</th>
+              <th style="padding: 1rem;">Duration (M)</th>
+              <th style="padding: 1rem;">Premium</th>
+              <th style="padding: 1rem;">Status</th>
+              <th style="padding: 1rem;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of policies" style="border-bottom: 1px solid #eee;">
+              <td style="padding: 1rem;"><code>{{ p.policyId | slice:0:8 }}…</code></td>
+              <td style="padding: 1rem;">{{ p.durationMonths || 12 }}</td>
+              <td style="padding: 1rem;">₹{{ p.premiumAmount || 0 }}</td>
+              <td style="padding: 1rem;"><span class="status-badge" [ngClass]="p.status === 'Active' ? 'active' : ''">{{ p.status || 'Active' }}</span></td>
+              <td style="padding: 1rem;">
+                <button class="btn btn-outline btn-sm" (click)="openPaymentModal(p)">Pay Premium</button>
+              </td>
+            </tr>
+            <tr *ngIf="policies.length === 0">
+              <td colspan="5" style="padding:1rem; text-align:center;">No policies found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </ng-container>
+
+    <!-- CLAIMS TAB -->
+    <ng-container *ngIf="activeTab === 'claims'">
+      <section class="dashboard-section full-width" style="grid-column: 1 / -1; background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <div class="section-header">
+          <h2>My Claims</h2>
+          <button class="btn btn-primary" (click)="openClaimModal()">Submit New Claim</button>
+        </div>
+        <table class="admin-table" style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+          <thead>
+            <tr style="text-align: left; background: #f8f9fa;">
+              <th style="padding: 1rem;">Claim ID</th>
+              <th style="padding: 1rem;">Description</th>
+              <th style="padding: 1rem;">Amount</th>
+              <th style="padding: 1rem;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of claims" style="border-bottom: 1px solid #eee;">
+              <td style="padding: 1rem;"><code>{{ c.claimId | slice:0:8 }}…</code></td>
+              <td style="padding: 1rem;">{{ c.description }}</td>
+              <td style="padding: 1rem;">₹{{ c.claimAmount }}</td>
+              <td style="padding: 1rem;"><span class="status-pill under-review">{{ c.status }}</span></td>
+            </tr>
+            <tr *ngIf="claims.length === 0">
+              <td colspan="4" style="padding:1rem; text-align:center;">No claims filed.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </ng-container>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <div class="loader"></div>
+  </div>
+</div>
+
+<!-- ========================= MODALS ========================= -->
+
+<!-- Buy Policy Modal -->
+<div class="modal-overlay" *ngIf="showBuyPolicyModal" (click)="showBuyPolicyModal = false" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:999;">
+  <div class="modal-card" (click)="$event.stopPropagation()" style="background:white; padding:2rem; border-radius:12px; width:450px; max-width:90%;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h2 style="margin:0; font-size:1.5rem; color:#2b3674;">Purchase Insurance</h2>
+      <button class="close-btn" (click)="showBuyPolicyModal = false" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+    </div>
+
+    <!-- Step 1: Select Plan -->
+    <div *ngIf="buyPolicyStep === 1">
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Insurance Category</label>
+        <select class="form-control" [(ngModel)]="selectedType" (change)="loadSubtypes()" style="width:100%; padding:0.75rem; border:1px solid #ddd; border-radius:8px;">
+          <option value="">Select Category (Home/Vehicle)</option>
+          <option *ngFor="let t of insuranceTypes" [value]="t.typeId || t.id">{{ t.name }}</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom: 1rem;" *ngIf="subtypes.length > 0">
+        <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Choose Plan Tier</label>
+        <select class="form-control" [(ngModel)]="policyForm.subtypeId" (change)="updateCalculatedPremium()" style="width:100%; padding:0.75rem; border:1px solid #ddd; border-radius:8px;">
+          <option value="">Choose Subtype</option>
+          <option *ngFor="let s of subtypes" [value]="s.subtypeId">{{ s.name }} - ₹{{ s.basePremium }} / yr</option>
+        </select>
+      </div>
+      
+      <button class="btn btn-primary" style="width:100%; padding:1rem;" [disabled]="!policyForm.subtypeId" (click)="buyPolicyStep = 2">Enter Asset Details</button>
+    </div>
+
+    <!-- Step 2: Specific Details -->
+    <div *ngIf="buyPolicyStep === 2">
+      <p style="margin-bottom: 1rem; color:#666; font-size:0.9rem;">Provide details for your {{ selectedPlanName }} coverage.</p>
+      
+      <!-- Home Details Form -->
+      <div *ngIf="selectedType && insuranceTypes.find(t => (t.id || t.typeId) === selectedType)?.name.toLowerCase().includes('home')">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Property Address</label>
+          <input type="text" class="form-control" [(ngModel)]="homeDetails.address" placeholder="123 Street, City" style="width:100%; padding:0.75rem;"/>
+        </div>
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Building Type</label>
+          <select class="form-control" [(ngModel)]="homeDetails.propertyType" style="width:100%; padding:0.75rem;">
+            <option value="House">Independent House</option>
+            <option value="Apartment">Apartment / Flat</option>
+            <option value="Villa">Villa / Bungalow</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Market Value (₹)</label>
+          <input type="number" class="form-control" [(ngModel)]="homeDetails.estimatedValue" style="width:100%; padding:0.75rem;"/>
+        </div>
+      </div>
+
+      <!-- Vehicle Details Form -->
+      <div *ngIf="selectedType && insuranceTypes.find(t => (t.id || t.typeId) === selectedType)?.name.toLowerCase().includes('vehicle')">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Registration Number</label>
+          <input type="text" class="form-control" [(ngModel)]="vehicleDetails.registrationNumber" placeholder="MH-XX-XX-XXXX" style="width:100%; padding:0.75rem;"/>
+        </div>
+        <div class="form-group" style="margin-bottom: 1rem; display:flex; gap:1rem;">
+          <div style="flex:1;">
+            <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Make</label>
+            <input type="text" class="form-control" [(ngModel)]="vehicleDetails.make" placeholder="Honda" style="width:100%; padding:0.75rem;"/>
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Model</label>
+            <input type="text" class="form-control" [(ngModel)]="vehicleDetails.model" placeholder="City" style="width:100%; padding:0.75rem;"/>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Estimated Value (₹)</label>
+          <input type="number" class="form-control" [(ngModel)]="vehicleDetails.estimatedValue" style="width:100%; padding:0.75rem;"/>
+        </div>
+      </div>
+
+      <div style="display: flex; gap:1rem; margin-top:1.5rem;">
+        <button class="btn btn-outline" style="flex:1;" (click)="buyPolicyStep = 1">Back</button>
+        <button class="btn btn-primary" style="flex:2;" (click)="proceedToReview()">Review Order</button>
+      </div>
+      <p style="margin-top: 1rem; color: #f44336; text-align:center;">{{ policyMessage }}</p>
+    </div>
+
+    <!-- Step 3: Review Details -->
+    <div *ngIf="buyPolicyStep === 3">
+      <div class="review-summary" style="background:#f8f9fa; padding:1rem; border-radius:8px; margin-bottom:1.5rem;">
+        <h4 style="margin-top:0; color:#444;">Policy Summary</h4>
+        <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+          <span>Plan:</span>
+          <strong>{{ selectedPlanName }}</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+          <span>Duration:</span>
+          <strong>{{ policyForm.duration }} Months</strong>
+        </div>
+        <div style="border-top:1px solid #ddd; margin:0.5rem 0; padding-top:0.5rem; display:flex; justify-content:space-between; font-size:1.1rem; color:#4caf50;">
+          <span>Total Premium:</span>
+          <strong>₹{{ calculatedPremium }}</strong>
+        </div>
+      </div>
+
+      <div style="display: flex; gap:1rem;">
+        <button class="btn btn-outline" style="flex:1;" (click)="buyPolicyStep = 2">Back</button>
+        <button class="btn btn-primary" style="flex:2;" (click)="proceedToPayment()">Proceed to Payment</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Payment -->
+    <div *ngIf="buyPolicyStep === 4">
+      <h4 style="margin-top:0;">Payment Information</h4>
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Payment Method</label>
+        <select class="form-control" [(ngModel)]="paymentMethod" style="width:100%; padding:0.75rem; border:1px solid #ddd; border-radius:8px;">
+          <option value="CreditCard">Credit / Debit Card</option>
+          <option value="UPI">UPI / Net Banking</option>
+          <option value="Wallet">Digital Wallet</option>
+        </select>
+      </div>
+
+      <p style="font-size:0.85rem; color:#666; margin-bottom:1.5rem;">By clicking confirm, you authorize the charge of ₹{{ calculatedPremium }} to your selected payment method.</p>
+
+      <div style="display: flex; gap:1rem;">
+        <button class="btn btn-outline" style="flex:1;" (click)="buyPolicyStep = 3" [disabled]="paymentProcessing">Back</button>
+        <button class="btn btn-primary" style="flex:2;" (click)="submitPolicy()" [disabled]="paymentProcessing">
+          {{ paymentProcessing ? 'Processing...' : 'Pay & Activate' }}
+        </button>
+      </div>
+      <p style="margin-top: 1rem; color: #4caf50; text-align:center; font-weight:600;" *ngIf="policyMessage">{{ policyMessage }}</p>
+    </div>
+
+    <!-- Step 5: Success -->
+    <div *ngIf="buyPolicyStep === 5" style="text-align:center; padding:1rem 0;">
+      <div style="font-size:4rem; color:#4caf50; margin-bottom:1rem;">✅</div>
+      <h3 style="color:#2b3674; margin-bottom:0.5rem;">Payment Successful!</h3>
+      <p style="color:#666; margin-bottom:2rem;">Your insurance policy has been activated successfully. You can now view it in your dashboard.</p>
+      <button class="btn btn-primary" style="width:100%; padding:1rem;" (click)="showBuyPolicyModal = false">Continue to Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- Submit Claim Modal -->
+<div class="modal-overlay" *ngIf="showClaimModal" (click)="showClaimModal = false" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:999;">
+  <div class="modal-card" (click)="$event.stopPropagation()" style="background:white; padding:2rem; border-radius:12px; width:450px; max-width:90%;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h2 style="margin:0; font-size:1.5rem; color:#2b3674;">File a New Claim</h2>
+      <button class="close-btn" (click)="showClaimModal = false" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1rem;">
+      <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Select Target Policy</label>
+      <select class="form-control" [(ngModel)]="claimForm.policyId" style="width:100%; padding:0.75rem; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;">
+        <option value="">Select a Policy</option>
+        <option *ngFor="let p of policies" [value]="p.policyId">{{ p.type || 'Policy' }} - {{ p.policyId | slice:0:8 }}</option>
+      </select>
+    </div>
+    
+    <div class="form-group" style="margin-bottom: 1rem;">
+      <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Requested Compensation (₹)</label>
+      <input type="number" class="form-control" [(ngModel)]="claimForm.claimAmount" style="width:100%; padding:0.75rem; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;"/>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1rem;">
+      <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Incident Narrative</label>
+      <textarea class="form-control" [(ngModel)]="claimForm.description" rows="3" style="width:100%; padding:0.75rem; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;"></textarea>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1.5rem;">
+      <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Supporting Document (Optional)</label>
+      <input type="file" class="form-control" (change)="onFileSelected($event)" style="width:100%; padding:0.75rem; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;"/>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%; padding:1rem;" (click)="submitClaim()">Submit Claim Protocol</button>
+    <p style="margin-top: 1rem; color: #4caf50; font-weight:600; text-align:center;">{{ claimMessage }}</p>
+  </div>
+</div>
+
+<!-- Make Payment Modal -->
+<div class="modal-overlay" *ngIf="showPaymentModal" (click)="showPaymentModal = false" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:999;">
+  <div class="modal-card" (click)="$event.stopPropagation()" style="background:white; padding:2rem; border-radius:12px; width:400px; max-width:90%;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h2 style="margin:0; font-size:1.5rem; color:#2b3674;">Process Secure Payment</h2>
+      <button class="close-btn" (click)="showPaymentModal = false" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 1rem;">
+      <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Amount Transfer (₹)</label>
+      <input type="number" class="form-control" [(ngModel)]="paymentForm.amount" disabled style="width:100%; padding:0.75rem; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; background:#f4f4f4;"/>
+    </div>
+    
+    <div class="form-group" style="margin-bottom: 1.5rem;">
+      <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.9rem;">Instrument</label>
+      <select class="form-control" [(ngModel)]="paymentForm.paymentMethod" style="width:100%; padding:0.75rem; border:1px solid #ddd; border-radius:8px;">
+        <option value="CreditCard">Credit / Debit Card</option>
+        <option value="BankTransfer">Direct Bank Transfer</option>
+        <option value="UPI">UPI / Digital Wallet</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%; padding:1rem;" (click)="submitPayment()">Confirm Transfer Processing</button>
+    <p style="margin-top: 1rem; color: #4caf50; font-weight:600; text-align:center;">{{ paymentMessage }}</p>
+  </div>
+</div>

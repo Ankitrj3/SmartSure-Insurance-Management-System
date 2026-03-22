@@ -1,0 +1,120 @@
+<div class="auth-container">
+  <div class="glass-panel auth-card">
+    
+    @if (!verificationMode) {
+      <!-- Registration Mode -->
+      <div class="auth-header">
+        <h2>Create Account</h2>
+        <p>Join SmartSure to secure your future.</p>
+      </div>
+
+      @if (errorMessage) {
+        <div class="alert alert-error">{{ errorMessage }}</div>
+      }
+
+      <form (ngSubmit)="onRegister()" #registerForm="ngForm">
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input 
+            type="text" 
+            id="fullName" 
+            name="fullName" 
+            class="input-base" 
+            [(ngModel)]="registerData.fullName" 
+            required 
+            placeholder="John Doe">
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="input-base" 
+            [(ngModel)]="registerData.email" 
+            required 
+            placeholder="john@example.com">
+        </div>
+
+        <div class="form-group">
+          <label for="phoneNumber">Phone Number</label>
+          <input 
+            type="tel" 
+            id="phoneNumber" 
+            name="phoneNumber" 
+            class="input-base" 
+            [(ngModel)]="registerData.phoneNumber" 
+            required 
+            placeholder="+91-XXXXXXXXXX">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Create Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            class="input-base" 
+            [(ngModel)]="registerData.password" 
+            required 
+            placeholder="Minimum 8 characters">
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="!registerForm.valid || isLoading" style="width: 100%; margin-top: 16px;">
+          @if (isLoading) {
+            <span>Creating...</span>
+          } @else {
+            <span>Create Account</span>
+          }
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p>Already have an account? <a routerLink="/login">Sign In here</a></p>
+      </div>
+    } @else {
+      <!-- OTP Verification Mode -->
+      <div class="auth-header">
+        <div class="mail-icon"></div>
+        <h2>Verify Your Email</h2>
+        <p>We've sent a 6-digit OTP to <b>{{ registerData.email }}</b>.</p>
+      </div>
+
+      @if (errorMessage) {
+        <div class="alert alert-error">{{ errorMessage }}</div>
+      }
+      @if (successMessage) {
+        <div class="alert alert-success">{{ successMessage }}</div>
+      }
+
+      <form (ngSubmit)="onVerify()" #verifyForm="ngForm">
+        <div class="form-group otp-group">
+          <label for="otp">Enter OTP Code</label>
+          <input 
+            type="text" 
+            id="otp" 
+            name="otp" 
+            class="input-base text-center" 
+            [(ngModel)]="otpCode" 
+            required 
+            maxlength="6"
+            placeholder="• • • • • •"
+            style="letter-spacing: 12px; font-size: 1.5rem; font-weight: bold;">
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="!verifyForm.valid || isLoading" style="width: 100%; margin-top: 16px;">
+          @if (isLoading) {
+            <span>Verifying...</span>
+          } @else {
+            <span>Verify & Authenticate</span>
+          }
+        </button>
+        
+        <button type="button" class="btn-text" (click)="verificationMode = false" style="width: 100%; margin-top: 12px;">
+          Back to Registration
+        </button>
+      </form>
+    }
+  </div>
+</div>
