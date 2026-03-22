@@ -15,14 +15,14 @@ import { Navbar } from './components/navbar/navbar';
       <div class="footer-container">
         <div class="footer-brand">
           <div class="logo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="footer-logo-icon">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <svg viewBox="0 0 24 24" fill="none" class="footer-logo-icon">
+              <path d="M12 2L3 6v6.22c0 5.51 3.84 10.74 9 12 5.16-1.26 9-6.49 9-12V6l-9-4z" fill="#0DB18C"/>
+              <path d="M12 2v20c5.16-1.26 9-6.49 9-12V6l-9-4z" fill="#0A8E70"/>
             </svg>
-            <span class="logo-text">Smart<span class="highlight">Sure</span></span>
+            <span class="logo-text">SMARTSURE</span>
           </div>
           <p>
-            Next-generation insurance solutions delivering real-time compensation, 
-            dynamic planning, and total peace of mind for you and your family.
+            Explore our tailored insurance solutions and experience the peace of mind that comes with knowing you're covered.
           </p>
           <div class="social-links">
             <a href="#" class="social-icon">Tw</a>

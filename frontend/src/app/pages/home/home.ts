@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { PolicyService } from '../../core/services/policy.service';
@@ -9,12 +9,12 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './home.html',
-  styleUrl: './home.css',
+  styleUrl: './home.css'
 })
 export class Home implements OnInit {
-  insuranceTypes: any[] = [];
-  insuranceSubtypes: any[] = [];
-  loading = true;
+  isLoading = signal(true);
+  insuranceTypes = signal<any[]>([]);
+  insuranceSubtypes = signal<any[]>([]);
 
   constructor(
     private policyService: PolicyService,
@@ -23,65 +23,62 @@ export class Home implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.fetchPublicPlans();
+    console.log('HOME COMPONENT INITIALIZED - SIGNAL VERSION');
+    this.loadData();
   }
 
   get isLoggedIn(): boolean {
     return this.authService.hasToken();
   }
 
-  fetchPublicPlans() {
+  loadData() {
+    this.isLoading.set(true);
+    console.log('Loading data...');
+    
     this.policyService.getInsuranceTypes().subscribe({
-      next: (typesData: any) => {
-        // Handle potential $values wrapper from Newtonsoft.Json
-        this.insuranceTypes = this.extractData(typesData);
+      next: (response: any) => {
+        console.log('Types response:', response);
+        
+        let types = response;
+        if (response?.data) types = response.data;
+        if (types?.$values) types = types.$values;
+        
+        const typesArray = Array.isArray(types) ? types : [];
+        this.insuranceTypes.set(typesArray);
+        console.log('Types set:', typesArray.length);
         
         this.policyService.getInsuranceSubtypes().subscribe({
-          next: (subtypesData: any) => {
-            const allSubtypes = this.extractData(subtypesData);
+          next: (response2: any) => {
+            console.log('Subtypes response:', response2);
             
-            this.insuranceSubtypes = allSubtypes.map(s => {
-              // Be robust to property naming (camelCase vs PascalCase)
-              const sTypeId = s.typeId || s.TypeId || s.insuranceTypeId || s.InsuranceTypeId;
-              const parent = this.insuranceTypes.find(t => {
-                 const tId = t.typeId || t.TypeId || t.id || t.Id;
-                 return tId === sTypeId;
-              });
-              return { 
-                ...s, 
-                id: s.subtypeId || s.SubtypeId || s.id,
-                name: s.name || s.Name,
-                description: s.description || s.Description,
-                typeName: parent?.name || parent?.Name || 'Insurance Plan' 
-              };
-            });
-            this.loading = false;
+            let subtypes = response2;
+            if (response2?.data) subtypes = response2.data;
+            if (subtypes?.$values) subtypes = subtypes.$values;
+            
+            const subtypesArray = Array.isArray(subtypes) ? subtypes : [];
+            this.insuranceSubtypes.set(subtypesArray);
+            console.log('Subtypes set:', subtypesArray.length);
+            
+            this.isLoading.set(false);
+            console.log('Loading complete!');
           },
           error: (err) => {
-            console.error('Error fetching subtypes', err);
-            this.loading = false;
+            console.error('Subtypes error:', err);
+            this.isLoading.set(false);
           }
         });
       },
       error: (err) => {
-        console.error('Error fetching types', err);
-        this.loading = false;
+        console.error('Types error:', err);
+        this.isLoading.set(false);
       }
     });
   }
 
-  private extractData(data: any): any[] {
-    if (Array.isArray(data)) return data;
-    if (data && data.$values && Array.isArray(data.$values)) return data.$values;
-    return [];
-  }
-
-  getSubtypesForType(type: any) {
-    const typeId = type.typeId || type.TypeId || type.id || type.Id;
-    return this.insuranceSubtypes.filter(s => {
-       const sTypeId = s.typeId || s.TypeId || s.insuranceTypeId || s.InsuranceTypeId;
-       return sTypeId === typeId;
-    });
+  getSubtypesForType(typeId: string) {
+    return this.insuranceSubtypes().filter(s => 
+      (s.typeId || s.TypeId) === typeId
+    );
   }
 
   onPurchaseClick() {
@@ -98,5 +95,39 @@ export class Home implements OnInit {
     } else {
       this.router.navigate(['/login']);
     }
+  }
+
+  getIconClass(name: string): string {
+    const lowerName = name?.toLowerCase() || '';
+    if (lowerName.includes('car') || lowerName.includes('auto') || lowerName.includes('vehicle')) {
+      return 'icon-car';
+    } else if (lowerName.includes('home') || lowerName.includes('house') || lowerName.includes('property')) {
+      return 'icon-home';
+    } else if (lowerName.includes('health') || lowerName.includes('medical') || lowerName.includes('life')) {
+      return 'icon-health';
+    } else if (lowerName.includes('travel') || lowerName.includes('trip')) {
+      return 'icon-travel';
+    }
+    return 'icon-default';
+  }
+
+  isCarInsurance(name: string): boolean {
+    const lowerName = name?.toLowerCase() || '';
+    return lowerName.includes('car') || lowerName.includes('auto') || lowerName.includes('vehicle');
+  }
+
+  isHomeInsurance(name: string): boolean {
+    const lowerName = name?.toLowerCase() || '';
+    return lowerName.includes('home') || lowerName.includes('house') || lowerName.includes('property');
+  }
+
+  isHealthInsurance(name: string): boolean {
+    const lowerName = name?.toLowerCase() || '';
+    return lowerName.includes('health') || lowerName.includes('medical') || lowerName.includes('life');
+  }
+
+  isTravelInsurance(name: string): boolean {
+    const lowerName = name?.toLowerCase() || '';
+    return lowerName.includes('travel') || lowerName.includes('trip');
   }
 }

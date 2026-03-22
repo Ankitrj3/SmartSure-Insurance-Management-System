@@ -73,59 +73,44 @@ export class AdminDashboard implements OnInit {
 
   fetchDashboardData() {
     this.loading = true;
-    
-    // Fetch stats
-    this.adminService.getDashboardStats().subscribe({
-      next: (data) => {
-        if (data) this.stats = { ...this.stats, ...data };
+
+    forkJoin({
+      stats: this.adminService.getDashboardStats().pipe(catchError(() => of(null))),
+      users: this.adminService.getAllUsers().pipe(catchError(() => of([]))),
+      policies: this.adminService.getAllPolicies().pipe(catchError(() => of([]))),
+      claims: this.adminService.getAllClaims().pipe(catchError(() => of([]))),
+      reports: this.adminService.getAllReports().pipe(catchError(() => of([])))
+    }).subscribe({
+      next: ({ stats, users, policies, claims, reports }) => {
+        if (stats) this.stats = { ...this.stats, ...stats };
+
+        this.allUsers = Array.isArray(users) ? users : [];
+        this.stats.totalUsers = this.allUsers.length;
+
+        const pList = Array.isArray(policies) ? policies : [];
+        this.allPolicies = pList;
+        this.recentPolicies = pList.slice(0, 5);
+        this.stats.totalPolicies = pList.length;
+        this.stats.activePolicies = pList.filter((p: any) => p.status === 'Active').length;
+        this.stats.totalRevenue = pList.reduce((sum: number, p: any) => sum + (p.premiumAmount || 0), 0);
+
+        const cList = Array.isArray(claims) ? claims : [];
+        this.allClaims = cList;
+        this.recentClaims = cList.slice(0, 5);
+        this.stats.totalClaims = cList.length;
+        this.stats.pendingClaims = cList.filter((c: any) => c.status === 'Submitted').length;
+        this.stats.approvedClaims = cList.filter((c: any) => c.status === 'Approved').length;
+        this.stats.rejectedClaims = cList.filter((c: any) => c.status === 'Rejected').length;
+
+        this.reports = Array.isArray(reports) ? reports : [];
+
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: () => { this.loading = false; this.cdr.detectChanges(); }
-    });
-
-    // Fetch users
-    this.adminService.getAllUsers().subscribe({
-      next: (data) => {
-        this.allUsers = Array.isArray(data) ? data : [];
-        this.stats.totalUsers = this.allUsers.length;
+      error: () => {
+        this.loading = false;
         this.cdr.detectChanges();
-      },
-      error: () => {}
-    });
-
-    // Fetch policies
-    this.adminService.getAllPolicies().subscribe({
-      next: (data) => {
-        const list = Array.isArray(data) ? data : [];
-        this.allPolicies = list;
-        this.recentPolicies = list.slice(0, 5);
-        this.stats.totalPolicies = list.length;
-        this.stats.activePolicies = list.filter((p: any) => p.status === 'Active').length;
-        this.stats.totalRevenue = list.reduce((sum: number, p: any) => sum + (p.premiumAmount || 0), 0);
-        this.cdr.detectChanges();
-      },
-      error: () => {}
-    });
-
-    // Fetch claims
-    this.adminService.getAllClaims().subscribe({
-      next: (data) => {
-        const list = Array.isArray(data) ? data : [];
-        this.allClaims = list;
-        this.recentClaims = list.slice(0, 5);
-        this.stats.totalClaims = list.length;
-        this.stats.pendingClaims = list.filter((c: any) => c.status === 'Submitted').length;
-        this.stats.approvedClaims = list.filter((c: any) => c.status === 'Approved').length;
-        this.stats.rejectedClaims = list.filter((c: any) => c.status === 'Rejected').length;
-        this.cdr.detectChanges();
-      },
-      error: () => {}
-    });
-
-    // Fetch reports
-    this.adminService.getAllReports().subscribe({
-      next: (data) => this.reports = Array.isArray(data) ? data : []
+      }
     });
   }
 
@@ -301,7 +286,7 @@ export class AdminDashboard implements OnInit {
           setTimeout(() => this.closeCreatePlanModal(), 1500);
         },
         error: (err) => {
-          this.planActionMessage = '❌ ' + (err.error?.message || err.message);
+          this.planActionMessage = 'Failed: ' + (err.error?.message || err.message);
           this.planActionProcessing = false;
         }
       });
@@ -327,7 +312,7 @@ export class AdminDashboard implements OnInit {
         },
         error: (err) => {
           console.error("Subtype Creation Failed:", err);
-          this.planActionMessage = '❌ ' + (err.error?.message || err.message || 'Server rejected the request');
+          this.planActionMessage = 'Failed: ' + (err.error?.message || err.message || 'Server rejected the request');
           this.planActionProcessing = false;
         }
       });

@@ -37,7 +37,14 @@ builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<SmartSure.PolicyService.Consumers.UserRegisteredConsumer>();
 
-    x.UsingInMemory((ctx, cfg) => { cfg.ConfigureEndpoints(ctx); });
+    x.UsingRabbitMq((ctx, cfg) => 
+    {
+        cfg.Host("localhost", "/", h => {
+            h.Username("guest");
+            h.Password("guest");
+        });
+        cfg.ConfigureEndpoints(ctx);
+    });
 });
 
 // Authentication
@@ -76,7 +83,12 @@ builder.Services.AddScoped<IPolicyMgmtService, PolicyMgmtService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IDiscountService, DiscountService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
 
 // Swagger with JWT Support
 builder.Services.AddEndpointsApiExplorer();

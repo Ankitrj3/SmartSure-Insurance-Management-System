@@ -1,116 +1,109 @@
 <div class="smartsure-home">
   <!-- Hero Section -->
-  <section class="hero-section">
-    <div class="hero-container">
+  <section class="smartsure-hero">
+    <div class="container hero-container">
       <div class="hero-content">
-        <div class="badge-tag">
-          <span class="dot"></span>
-          Trusted Insurance Partner
-        </div>
-        <h1 class="hero-title">Protect your future with <span class="highlight">SmartSure</span></h1>
-        <p class="hero-subtitle">
-          Comprehensive coverage tailored for your life. Choose from a range of premium insurance plans, managed entirely through our innovative digital platform.
+        <h1 class="hero-title">
+          <span class="highlight-bg">All insurance</span><br>
+          in one place
+        </h1>
+        <p class="hero-text">
+          Explore our tailored insurance solutions and experience the peace of mind that comes with knowing you're covered.
         </p>
-        <div class="hero-actions">
-          <button class="btn btn-primary" (click)="onHeroAction()">Get a Quote Today</button>
-          <a routerLink="/insurance" class="btn btn-outline">Explore Our Plans</a>
-        </div>
-        
-        <div class="hero-stats">
-          <div class="stat-item">
-            <span class="stat-number">2M+</span>
-            <span class="stat-label">Active Policies</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">99.8%</span>
-            <span class="stat-label">Claims Settled</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">24/7</span>
-            <span class="stat-label">Support Access</span>
-          </div>
-        </div>
+        <button class="btn btn-primary btn-quote" (click)="onHeroAction()">GET A QUOTE <span class="arrow">→</span></button>
       </div>
-      <div class="hero-image-area">
-        <div class="floating-card primary-card">
-          <div class="card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-          </div>
-          <div class="card-details">
-            <span class="card-title">Comprehensive Protection</span>
-            <span class="card-status">Active Coverage</span>
-          </div>
-        </div>
-        <div class="floating-card secondary-card">
-          <div class="card-icon blue-icon">
-             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-          </div>
-          <div class="card-details">
-            <span class="card-title">Home Security</span>
-            <span class="card-status">Premium Active</span>
-          </div>
-        </div>
-        <!-- Decorative background elements -->
-        <div class="bg-shape shape-1"></div>
-        <div class="bg-shape shape-2"></div>
+      
+      <div class="hero-visual">
+         <div class="floating-cubes">
+            <!-- Simulated cube/diamond graphics from the theme -->
+            <div class="cube cube-1"><i class="icon-car"></i></div>
+            <div class="cube cube-2"><i class="icon-home"></i></div>
+            <div class="cube cube-3"><i class="icon-plane"></i></div>
+         </div>
+         <div class="hero-image-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+         </div>
       </div>
     </div>
   </section>
 
   <!-- Offerings Section -->
-  <section id="offerings" class="offerings-section">
-    <div class="section-header">
-      <h2>Our Insurance Portfolio</h2>
-      <p>Discover industry-leading coverage options designed specifically for your personal and professional needs.</p>
-    </div>
-
-    <div *ngIf="loading" class="loader-container">
-      <div class="spinner"></div>
-    </div>
-
-    <div *ngIf="!loading" class="offerings-container">
-      <div class="category-block" *ngFor="let type of insuranceTypes">
-        <div class="category-header">
-          <h3>{{ type.name }}</h3>
-          <p>{{ type.description || 'Premium coverage plans engineered for comprehensive protection.' }}</p>
+  <section class="smartsure-offerings">
+    <div class="container">
+      @if (isLoading()) {
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>Loading available plans...</p>
         </div>
+      }
 
-        <div class="plans-grid">
-          <div class="plan-card" *ngFor="let s of getSubtypesForType(type.id || type.typeId)">
-            <div class="plan-icon">
-              <!-- Vehicle/Auto Icon -->
-              <svg *ngIf="type.name?.toLowerCase().includes('vehicle') || type.name?.toLowerCase().includes('auto')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-              <!-- Home/Property Icon -->
-              <svg *ngIf="type.name?.toLowerCase().includes('home') || type.name?.toLowerCase().includes('property')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-              <!-- Default Shield Icon -->
-              <svg *ngIf="!type.name?.toLowerCase().includes('vehicle') && !type.name?.toLowerCase().includes('auto') && !type.name?.toLowerCase().includes('home') && !type.name?.toLowerCase().includes('property')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            </div>
-            
-            <div class="plan-content">
-              <h4>{{ s.name }}</h4>
-              <p>{{ s.description || 'Dedicated coverage tailored for this specific context, offering maximum value and security.' }}</p>
-            </div>
-
-            <div class="plan-footer">
-               <span class="plan-tag">Active Partner</span>
-               <button class="btn btn-purchase" (click)="onPurchaseClick()">Purchase Plan</button>
-            </div>
-          </div>
+      @if (!isLoading()) {
+        <div class="services-wrapper">
+          @if (insuranceTypes().length === 0) {
+            <div class="empty-state">No insurance plans available at the moment. Please check back soon!</div>
+          }
           
-          <div *ngIf="getSubtypesForType(type.id || type.typeId).length === 0" class="empty-state">
-             We are currently updating our portfolio for this category. New plans launching soon.
+          <div class="services-grid">
+            @for (type of insuranceTypes(); track type.typeId || type.TypeId) {
+              <div class="service-card">
+                <div class="service-icon-wrapper">
+                  <div class="diamond-bg bg-teal"></div>
+                  <div class="diamond-bg bg-light"></div>
+                  <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  </svg>
+                </div>
+                <h3 class="service-title">{{ type.name || type.Name }}</h3>
+                <p class="service-desc">{{ type.description || type.Description || 'Comprehensive protection. Pulvinar elementum integer enim neque volutpat ac.' }}</p>
+
+                @if (getSubtypesForType(type.typeId || type.TypeId).length > 0) {
+                  <ul class="subtype-list">
+                    @for (subtype of getSubtypesForType(type.typeId || type.TypeId); track subtype.subtypeId || subtype.SubtypeId) {
+                      <li>{{ subtype.name || subtype.Name }}</li>
+                    }
+                  </ul>
+                }
+              </div>
+            }
           </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Why Choose Us -->
+  <section class="smartsure-about">
+    <div class="container about-container">
+      <div class="about-image">
+         <div class="image-mask">
+            <!-- Simulated Image -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+         </div>
+      </div>
+      <div class="about-content">
+        <span class="badge-yellow">WHY CHOOSE US</span>
+        <h2 class="about-title">Why Choose SmartSure for Your Insurance Needs?</h2>
+        
+        <div class="feature-block">
+          <h3 class="feature-title">Transparent Pricing</h3>
+          <p class="feature-desc">Quis imperdiet massa tincidunt nunc pulvinar sapien et ligula. Sagittis orci a scelerisque purus semper eget duis at. Justo nec ultrices dui sapien eget mi proin sed libero.</p>
+        </div>
+        <div class="feature-block">
+          <h3 class="feature-title">Expert Agents</h3>
+          <p class="feature-desc">Massa eget egestas purus viverra accumsan in nisl. Erat pellentesque adipiscing commodo elit at imperdiet dui accumsan sit.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- CTA Section -->
-  <section class="cta-section">
-    <div class="cta-banner">
-      <h2>Ready to secure your future?</h2>
-      <p>Join thousands of members who trust SmartSure for their insurance needs.</p>
-      <button class="btn btn-white" (click)="onHeroAction()">Create Your Account</button>
+  <section class="smartsure-cta">
+    <div class="container cta-container">
+       <h2 class="cta-title">Reliable Guarantees:<br>Insurance with Confidence</h2>
+       <div class="cta-actions">
+         <p>Nullam velit ut aliquam imperdiet in. Lectus proin nibh nisl condimentum id venenatis a condimentum. Dignissim enim sit amet.</p>
+         <button class="btn btn-primary btn-quote" (click)="onHeroAction()">GET A QUOTE <span class="arrow">→</span></button>
+       </div>
     </div>
   </section>
 </div>

@@ -44,7 +44,14 @@ builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<IdentityService.Consumers.ClaimStatusChangedConsumer>();
 
-    x.UsingInMemory((ctx, cfg) => { cfg.ConfigureEndpoints(ctx); });
+    x.UsingRabbitMq((ctx, cfg) => 
+    {
+        cfg.Host("localhost", "/", h => {
+            h.Username("guest");
+            h.Password("guest");
+        });
+        cfg.ConfigureEndpoints(ctx);
+    });
 });
 
 builder.Services.AddDbContext<IdentityDbContext>(options =>

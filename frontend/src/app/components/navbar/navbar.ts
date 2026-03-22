@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -10,17 +11,43 @@ import { CommonModule } from '@angular/common';
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
-export class Navbar implements OnInit {
+export class Navbar implements OnInit, OnDestroy {
   isLoggedIn = false;
   isAdmin = false;
+  private subs = new Subscription();
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    this.authService.authStatus$.subscribe(status => {
-      this.isLoggedIn = status;
-      this.isAdmin = this.authService.getRole()?.toLowerCase() === 'admin';
-    });
+    // Re-check auth state on every completed navigation (covers login redirect)
+    this.subs.add(
+      this.router.events
+        .pipe(filter(e => e instanceof NavigationEnd))
+        .subscribe(() => {
+          this.updateAuthState();
+        })
+    );
+
+    // Also react immediately to explicit login/logout calls
+    this.subs.add(
+      this.authService.authStatus$.subscribe(() => {
+        this.updateAuthState();
+      })
+    );
+  }
+
+  private updateAuthState() {
+    this.isLoggedIn = this.authService.hasToken();
+    this.isAdmin = this.authService.getRole()?.toLowerCase() === 'admin';
+    this.cdr.detectChanges();
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
   }
 
   logout() {

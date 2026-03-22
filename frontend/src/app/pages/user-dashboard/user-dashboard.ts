@@ -34,8 +34,8 @@ export class UserDashboard implements OnInit {
   selectedType: string = '';
   subtypes: any[] = [];
   policyForm: any = { subtypeId: '', duration: 12 };
-  homeDetails: any = { address: '', propertyType: 'House', yearBuilt: 2020, estimatedValue: 0, securityFeatures: '' };
-  vehicleDetails: any = { registrationNumber: '', make: '', model: '', manufactureYear: 2022, estimatedValue: 0, chassisNumber: '', engineNumber: '' };
+  homeDetails: any = { address: '', propertyType: 'House', yearBuilt: new Date().getFullYear(), estimatedValue: 0, securityFeatures: '' };
+  vehicleDetails: any = { registrationNumber: '', make: '', model: '', manufactureYear: new Date().getFullYear(), estimatedValue: 0, chassisNumber: '', engineNumber: '' };
   policyMessage = '';
   calculatedPremium = 0;
   calculatedIdv = 0;
@@ -135,8 +135,8 @@ export class UserDashboard implements OnInit {
     this.buyPolicyStep = 1;
     this.policyMessage = '';
     this.policyForm = { subtypeId: '', duration: 12 };
-    this.homeDetails = { address: '', propertyType: 'House', yearBuilt: 2020, estimatedValue: 0, securityFeatures: '' };
-    this.vehicleDetails = { registrationNumber: '', make: '', model: '', manufactureYear: 2022, estimatedValue: 0, chassisNumber: '', engineNumber: '' };
+    this.homeDetails = { address: '', propertyType: 'House', yearBuilt: new Date().getFullYear(), estimatedValue: 0, securityFeatures: '' };
+    this.vehicleDetails = { registrationNumber: '', make: '', model: '', manufactureYear: new Date().getFullYear(), estimatedValue: 0, chassisNumber: '', engineNumber: '' };
     this.calculatedPremium = 0;
     this.calculatedIdv = 0;
     this.quoteBreakdown = '';

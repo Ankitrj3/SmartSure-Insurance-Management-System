@@ -18,8 +18,9 @@ namespace IdentityService.Services
         private readonly IMemoryCache _cache;
         private readonly IBus _bus;
         private readonly IEmailService _emailService;
+        private readonly IOtpService _otpService;
 
-        public AuthService(IUserRepository repo, TokenService tokenService, IConfiguration config, IMemoryCache cache, IBus bus, IEmailService emailService)
+        public AuthService(IUserRepository repo, TokenService tokenService, IConfiguration config, IMemoryCache cache, IBus bus, IEmailService emailService, IOtpService otpService)
         {
             _repo = repo;
             _tokenService = tokenService;
@@ -27,6 +28,7 @@ namespace IdentityService.Services
             _cache = cache;
             _bus = bus;
             _emailService = emailService;
+            _otpService = otpService;
         }
 
         public async Task ChangePassword(string userId, ChangePasswordDTO dto)
@@ -36,6 +38,18 @@ namespace IdentityService.Services
 
             if (!PasswordHasher.Verify(dto.OldPassword, user.Password.PasswordHash))
                 throw new Exception("Invalid old password");
+
+            user.Password.PasswordHash = PasswordHasher.PasswordHash(dto.NewPassword);
+            await _repo.SaveChangesAsync();
+        }
+
+        public async Task ResetPasswordAsync(ResetPasswordWithOtpDTO dto)
+        {
+            bool isValid = await _otpService.ValidateOtpAsync(dto.Email, dto.Otp);
+            if (!isValid) throw new Exception("Invalid or expired OTP");
+
+            var user = await _repo.GetByEmailAsync(dto.Email);
+            if (user == null) throw new Exception("User not found");
 
             user.Password.PasswordHash = PasswordHasher.PasswordHash(dto.NewPassword);
             await _repo.SaveChangesAsync();

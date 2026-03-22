@@ -15,7 +15,9 @@ namespace SmartSure.PolicyService.Repositories
 
         public async Task<List<InsuranceType>> GetAllTypesAsync()
         {
-            return await _context.InsuranceTypes.ToListAsync();
+            return await _context.InsuranceTypes
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<InsuranceType> GetTypeByIdAsync(Guid typeId)
@@ -26,6 +28,7 @@ namespace SmartSure.PolicyService.Repositories
         public async Task<List<InsuranceSubtype>> GetAllSubtypesAsync()
         {
             return await _context.InsuranceSubtypes
+                .AsNoTracking()
                 .Include(s => s.Type)
                 .ToListAsync();
         }
@@ -33,6 +36,7 @@ namespace SmartSure.PolicyService.Repositories
         public async Task<List<InsuranceSubtype>> GetSubtypesByTypeIdAsync(Guid typeId)
         {
             return await _context.InsuranceSubtypes
+                .AsNoTracking()
                 .Include(s => s.Type)
                 .Where(s => s.TypeId == typeId)
                 .ToListAsync();

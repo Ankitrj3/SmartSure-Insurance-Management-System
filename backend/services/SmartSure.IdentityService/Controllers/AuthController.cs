@@ -12,11 +12,13 @@ namespace IdentityService.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IGoogleAuthService _googleAuthService;
+        private readonly IOtpService _otpService;
 
-        public AuthController(IAuthService authService, IGoogleAuthService googleAuthService)
+        public AuthController(IAuthService authService, IGoogleAuthService googleAuthService, IOtpService otpService)
         {
             _authService = authService;
             _googleAuthService = googleAuthService;
+            _otpService = otpService;
         }
 
         [HttpGet("google")]
@@ -62,6 +64,34 @@ namespace IdentityService.Controllers
             {
                 var result = await _authService.VerifyRegistrationOtp(dto);
                 return Ok(new { message = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto)
+        {
+            try
+            {
+                var otp = await _otpService.GenerateAndSendOtpAsync(dto.Email);
+                return Ok(new { message = "OTP sent to your registered email successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordWithOtpDTO dto)
+        {
+            try
+            {
+                await _authService.ResetPasswordAsync(dto);
+                return Ok(new { message = "Password has been successfully changed" });
             }
             catch (Exception ex)
             {

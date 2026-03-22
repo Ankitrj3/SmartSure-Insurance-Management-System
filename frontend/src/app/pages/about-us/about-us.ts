@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="page-container">
       <div class="header-banner">
+        <span class="badge-yellow">KNOW US</span>
         <h1>About SmartSure</h1>
         <p>Your Trusted Partner in Complete Protection.</p>
       </div>
@@ -25,22 +26,35 @@ import { CommonModule } from '@angular/common';
   `,
   styles: [`
     .page-container {
-      padding: 60px 5%;
+      padding: 100px 5%;
       background: white;
       min-height: 80vh;
+      font-family: 'Inter', sans-serif;
     }
     .header-banner {
       text-align: center;
-      margin-bottom: 50px;
+      margin-bottom: 60px;
+    }
+    .badge-yellow {
+      display: inline-block;
+      background-color: #F7F072;
+      color: #1A1A1A;
+      padding: 6px 16px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
     }
     .header-banner h1 {
-      font-size: 3rem;
-      color: #10B981;
+      font-size: 3.5rem;
+      color: #1A1A1A;
       margin-bottom: 15px;
+      font-weight: 800;
     }
     .header-banner p {
-      font-size: 1.2rem;
-      color: #64748b;
+      font-size: 1.25rem;
+      color: #666666;
     }
     .content-body {
       max-width: 900px;
@@ -50,19 +64,22 @@ import { CommonModule } from '@angular/common';
       gap: 30px;
     }
     .info-card {
-      background: #F0FDF4;
+      background: #F8F9FA;
       padding: 40px;
-      border-radius: 16px;
-      border-left: 5px solid #10B981;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      border-radius: 0px;
+      border-left: 5px solid #0DB18C;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
     .info-card h2 {
-      color: #1A1F36;
+      color: #0DB18C;
       margin-bottom: 15px;
+      font-size: 2rem;
+      font-weight: 700;
     }
     .info-card p {
-      color: #4F566B;
+      color: #666666;
       line-height: 1.6;
+      font-size: 1.1rem;
     }
   `]
 })

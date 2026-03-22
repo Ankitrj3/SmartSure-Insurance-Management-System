@@ -1,124 +1,103 @@
-/* Navbar styles */
-.navbar {
-  height: var(--nav-height);
+.smartsure-navbar {
+  height: 90px;
   background-color: white;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid #E5E5E5;
   display: flex;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.03); /* Subtle emerald shadow */
+  width: 100%;
 }
 
-.navbar-content {
-  width: 100%;
+.navbar-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
-/* Brand */
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
+  cursor: pointer;
+  text-decoration: none;
 }
 
-.nav-brand-icon {
-  width: 28px;
-  height: 28px;
-  color: var(--primary-green);
+.brand-icon {
+  width: 40px;
+  height: 40px;
 }
 
-.brand-logo {
-  font-size: 1.5rem;
+.brand-text {
+  font-size: 1.8rem;
   font-weight: 800;
-  color: var(--text-main);
-  letter-spacing: -0.01em;
+  color: #1A1A1A;
+  letter-spacing: -0.02em;
+  margin: 0;
 }
 
-.brand-logo .highlight {
-  color: var(--primary-green);
-}
-
-/* Nav links */
 .nav-links {
   display: flex;
-  gap: 32px;
+  gap: 30px;
 }
 
-.nav-link {
-  font-size: 0.95rem;
+.nav-links a {
+  font-size: 1.05rem;
   font-weight: 600;
-  color: var(--text-secondary);
-  position: relative;
-  padding: 8px 0;
+  color: #1A1A1A;
+  text-decoration: none;
+  transition: color 0.3s;
 }
 
-.nav-link:hover, .nav-link.active {
-  color: var(--primary-green);
+.nav-links a:hover, .nav-links a.active {
+  color: #0DB18C;
 }
 
-.nav-link.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: var(--primary-green);
-  border-radius: 2px;
-}
-
-/* Auth Section */
-.auth-buttons {
+.auth-section {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 
-.user-pill {
+.user-menu {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background-color: var(--primary-light);
-  padding: 6px 12px 6px 16px;
-  border-radius: 100px;
-  border: 1px solid var(--border-color);
+  gap: 15px;
 }
 
-.role-badge {
-  font-size: 0.75rem;
+.role-text {
+  font-size: 0.9rem;
   font-weight: 700;
-  color: var(--primary-green);
+  color: #666;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.role-badge.admin-badge {
-  color: #DC2626; /* Deep red for admin warning text in pill */
 }
 
 .btn-text {
-  background-color: transparent;
-  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  font-size: 1rem;
   font-weight: 600;
+  color: #1A1A1A;
+  cursor: pointer;
 }
 
 .btn-text:hover {
-  color: var(--primary-green);
+  color: #0DB18C;
 }
 
-.btn-outline {
-  background-color: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  padding: 8px 16px;
-  font-size: 0.875rem;
+.btn-quote-nav {
+  background-color: #0DB18C;
+  color: white;
+  padding: 12px 24px;
+  font-weight: 700;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
 }
 
-.btn-outline:hover {
-  border-color: var(--primary-green);
-  color: var(--primary-green);
+.btn-quote-nav:hover {
+  background-color: #0A8E70;
 }

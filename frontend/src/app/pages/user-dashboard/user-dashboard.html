@@ -1,7 +1,7 @@
 <div class="dashboard-container">
   <div class="glass-header">
     <div class="header-content">
-      <h1>Welcome back, {{ profile?.firstName || 'User' }}!</h1>
+      <h1>Welcome back{{ profile?.firstName ? ', ' + profile.firstName : '' }}!</h1>
       <p>Manage your policies, track claims, and profile with ease.</p>
     </div>
     <div class="stats-overview">
@@ -267,6 +267,10 @@
           <label>Current Market Value (₹)</label>
           <input type="number" class="input-base" [(ngModel)]="homeDetails.estimatedValue" />
         </div>
+        <div class="form-group">
+          <label>Year Built</label>
+          <input type="number" class="input-base" [(ngModel)]="homeDetails.yearBuilt" placeholder="e.g. 2015" />
+        </div>
       </div>
 
       <div *ngIf="isVehicleType()">
@@ -284,9 +288,15 @@
              <input type="text" class="input-base" [(ngModel)]="vehicleDetails.model" />
            </div>
         </div>
-        <div class="form-group">
-          <label>Ex-Showroom Price (₹)</label>
-          <input type="number" class="input-base" [(ngModel)]="vehicleDetails.estimatedValue" />
+        <div class="form-grid">
+           <div class="form-group">
+             <label>Ex-Showroom Price (₹)</label>
+             <input type="number" class="input-base" [(ngModel)]="vehicleDetails.estimatedValue" />
+           </div>
+           <div class="form-group">
+             <label>Manufacture Year</label>
+             <input type="number" class="input-base" [(ngModel)]="vehicleDetails.manufactureYear" placeholder="e.g. 2022" />
+           </div>
         </div>
       </div>
 
@@ -347,5 +357,60 @@
         <p>Your coverage is now active. You can view it in your dashboard.</p>
         <button class="btn btn-primary full-width" (click)="showBuyPolicyModal = false">Return to Dashboard</button>
     </div>
+  </div>
+</div>
+
+<!-- Claim Modal -->
+<div class="modal-overlay" *ngIf="showClaimModal" (click)="showClaimModal = false">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>File a New Claim</h2>
+      <button class="close-btn" (click)="showClaimModal = false">&times;</button>
+    </div>
+    <div class="form-group">
+      <label>Select Policy</label>
+      <select class="input-base" [(ngModel)]="claimForm.policyId">
+        <option value="" disabled>Choose an active policy</option>
+        <option *ngFor="let p of policies" [value]="p.policyId">{{ p.typeName || 'Policy' }} - {{ p.policyId | slice:0:8 }}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Claim Amount (₹)</label>
+      <input type="number" class="input-base" [(ngModel)]="claimForm.claimAmount" placeholder="Enter requested amount" />
+    </div>
+    <div class="form-group">
+      <label>Incident Description</label>
+      <textarea class="input-base" rows="4" [(ngModel)]="claimForm.description" placeholder="Describe the incident..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Upload Supporting Document (Optional)</label>
+      <input type="file" class="input-base" (change)="onFileSelected($event)" accept=".pdf,.jpg,.png" style="padding: 10px;" />
+    </div>
+    <button class="btn btn-primary full-width" style="margin-top: 15px;" (click)="submitClaim()">Submit Claim Request</button>
+    <p class="action-result" *ngIf="claimMessage" [class.error]="claimMessage.includes('Failed') || claimMessage.includes('Please')">{{ claimMessage }}</p>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal-overlay" *ngIf="showPaymentModal" (click)="showPaymentModal = false">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Process Payment</h2>
+      <button class="close-btn" (click)="showPaymentModal = false">&times;</button>
+    </div>
+    <div class="form-group">
+      <label>Amount Due</label>
+      <h3 style="color: #0DB18C; margin: 10px 0; font-size: 2rem;">₹{{ paymentForm.amount | number }}</h3>
+    </div>
+    <div class="form-group">
+      <label>Payment Method</label>
+      <select class="input-base" [(ngModel)]="paymentForm.paymentMethod">
+        <option value="CreditCard">Credit / Debit Card</option>
+        <option value="NetBanking">Net Banking</option>
+        <option value="UPI">UPI</option>
+      </select>
+    </div>
+    <button class="btn btn-primary full-width" style="margin-top: 15px;" (click)="submitPayment()">Pay Securely</button>
+    <p class="action-result" *ngIf="paymentMessage" [class.error]="paymentMessage.includes('Failed')">{{ paymentMessage }}</p>
   </div>
 </div>

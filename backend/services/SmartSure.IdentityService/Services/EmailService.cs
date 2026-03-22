@@ -21,14 +21,15 @@ namespace IdentityService.Services
                 return;
             }
 
-            var smtpClient = new SmtpClient("smtp.gmail.com")
+            using var smtpClient = new SmtpClient("smtp.gmail.com")
             {
                 Port = 587,
                 Credentials = new NetworkCredential(smtpUser, smtpPass),
                 EnableSsl = true,
+                Timeout = 10000 // Set 10s timeout so it doesn't hang indefinitely 
             };
             
-            var mailMessage = new MailMessage
+            using var mailMessage = new MailMessage
             {
                 From = new MailAddress(fromEmail!),
                 Subject = subject,

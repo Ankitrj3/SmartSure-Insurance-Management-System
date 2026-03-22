@@ -36,6 +36,14 @@ export class AuthService {
     return this.api.post<{ message: string }>('auth/verify-register-otp', data);
   }
 
+  forgotPassword(data: { email: string }) {
+    return this.api.post<{ message: string }>('auth/forgot-password', data);
+  }
+
+  resetPassword(data: any) {
+    return this.api.post<{ message: string }>('auth/reset-password', data);
+  }
+
   logout() {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userRoleKey);

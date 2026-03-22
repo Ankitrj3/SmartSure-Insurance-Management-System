@@ -12,5 +12,6 @@ namespace IdentityService.Services
         Task UpdateProfile(string userId, UpdateUserDTO dto);
         Task ChangePassword(string userId, ChangePasswordDTO dto);
         Task<TokenResponseDTO> Refresh(string refreshToken);
+        Task ResetPasswordAsync(ResetPasswordWithOtpDTO dto);
     }
 }
