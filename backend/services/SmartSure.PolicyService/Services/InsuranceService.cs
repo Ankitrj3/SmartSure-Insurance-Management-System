@@ -79,6 +79,7 @@ namespace SmartSure.PolicyService.Services
             {
                 SubtypeId = s.SubtypeId,
                 TypeId = s.TypeId,
+                TypeName = s.Type?.Name,
                 Name = s.Name,
                 Description = s.Description,
                 BasePremium = s.BasePremium
@@ -92,6 +93,7 @@ namespace SmartSure.PolicyService.Services
             {
                 SubtypeId = s.SubtypeId,
                 TypeId = s.TypeId,
+                TypeName = s.Type?.Name,
                 Name = s.Name,
                 Description = s.Description,
                 BasePremium = s.BasePremium
@@ -110,10 +112,15 @@ namespace SmartSure.PolicyService.Services
             };
             await _repo.AddSubtypeAsync(subtype);
             await _repo.SaveChangesAsync();
+
+            // Fetch the parent type name for the response
+            var parentType = await _repo.GetTypeByIdAsync(dto.TypeId);
+
             return new InsuranceSubtypeDTO
             {
                 SubtypeId = subtype.SubtypeId,
                 TypeId = subtype.TypeId,
+                TypeName = parentType?.Name,
                 Name = subtype.Name,
                 Description = subtype.Description,
                 BasePremium = subtype.BasePremium

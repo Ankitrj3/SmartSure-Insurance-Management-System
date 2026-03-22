@@ -5,6 +5,8 @@ import { AdminService } from '../../core/services/admin.service';
 import { ClaimService } from '../../core/services/claim.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PolicyService } from '../../core/services/policy.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -65,18 +67,24 @@ export class AdminDashboard implements OnInit {
 
   ngOnInit() {
     this.fetchDashboardData();
+    this.loadPlans();
+    this.loadAuditLogs();
   }
 
   fetchDashboardData() {
+    this.loading = true;
+    
+    // Fetch stats
     this.adminService.getDashboardStats().subscribe({
       next: (data) => {
-        this.stats = { ...this.stats, ...data };
+        if (data) this.stats = { ...this.stats, ...data };
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: () => { this.loading = false; this.cdr.detectChanges(); }
     });
 
+    // Fetch users
     this.adminService.getAllUsers().subscribe({
       next: (data) => {
         this.allUsers = Array.isArray(data) ? data : [];
@@ -86,6 +94,7 @@ export class AdminDashboard implements OnInit {
       error: () => {}
     });
 
+    // Fetch policies
     this.adminService.getAllPolicies().subscribe({
       next: (data) => {
         const list = Array.isArray(data) ? data : [];
@@ -99,6 +108,7 @@ export class AdminDashboard implements OnInit {
       error: () => {}
     });
 
+    // Fetch claims
     this.adminService.getAllClaims().subscribe({
       next: (data) => {
         const list = Array.isArray(data) ? data : [];
@@ -113,42 +123,86 @@ export class AdminDashboard implements OnInit {
       error: () => {}
     });
 
-    this.policyService.getInsuranceTypes().subscribe({
-      next: (data) => {
-        this.insuranceTypesList = (Array.isArray(data) ? data : []).filter((t: any) => 
-          t.name?.toLowerCase().includes('vehicle') || t.name?.toLowerCase().includes('home')
-        );
-        
-        this.policyService.getInsuranceSubtypes().subscribe({
-          next: (subtypesData) => {
-            const allSubtypes = Array.isArray(subtypesData) ? subtypesData : [];
-            const allowedTypeIds = this.insuranceTypesList.map(t => t.insuranceTypeId || t.typeId || t.id);
-            this.insuranceSubtypesList = allSubtypes
-              .filter(s => allowedTypeIds.includes(s.typeId || s.insuranceTypeId))
-              .map(s => {
-                const parent = this.insuranceTypesList.find(t => (t.insuranceTypeId || t.typeId || t.id) === (s.typeId || s.insuranceTypeId));
-                return { ...s, typeName: parent?.name || 'Unknown Category' };
-              });
-            this.cdr.detectChanges();
-          },
-          error: () => {}
-        });
-        
-        this.cdr.detectChanges();
-      },
-      error: () => {}
-    });
-
+    // Fetch reports
     this.adminService.getAllReports().subscribe({
       next: (data) => this.reports = Array.isArray(data) ? data : []
     });
+  }
 
+  loadPlans() {
+    this.policyService.getInsuranceTypes().subscribe(data => {
+      this.insuranceTypesList = Array.isArray(data) ? data : [];
+    });
+    this.policyService.getInsuranceSubtypes().subscribe(data => {
+      this.insuranceSubtypesList = Array.isArray(data) ? data : [];
+    });
+    this.loadDiscounts();
+  }
+
+  loadDiscounts() {
+    this.policyService.getDiscounts().subscribe({
+      next: (data) => this.discountsList = Array.isArray(data) ? data : [],
+      error: (err) => console.error('Error fetching discounts', err)
+    });
+  }
+
+  openDiscountModal() {
+    this.discountForm = { code: '', description: '', percentage: 10, maxDiscountAmount: 0, isFirstTimeOnly: false };
+    this.discountActionMessage = '';
+    this.showDiscountModal = true;
+  }
+
+  closeDiscountModal() {
+    this.showDiscountModal = false;
+  }
+
+  submitDiscount() {
+    if (!this.discountForm.code || !this.discountForm.percentage) {
+      this.discountActionMessage = 'Code and percentage are required.';
+      return;
+    }
+    
+    // Ensure data meets backend validation
+    const payload = {
+        code: this.discountForm.code,
+        percentage: Number(this.discountForm.percentage) || 10,
+        description: this.discountForm.description?.trim() || `Discount for ${this.discountForm.code}`,
+        maxDiscountAmount: Number(this.discountForm.maxDiscountAmount) || 0,
+        isFirstTimeOnly: !!this.discountForm.isFirstTimeOnly
+    };
+
+    this.discountActionProcessing = true;
+    this.policyService.createDiscount(payload).subscribe({
+       next: () => {
+         this.discountActionMessage = 'Success! Discount created.';
+         this.loadDiscounts();
+         setTimeout(() => {
+           this.closeDiscountModal();
+           this.discountActionProcessing = false;
+         }, 1000);
+       },
+       error: (err) => {
+         console.error('Submit discount error:', err);
+         this.discountActionMessage = err?.error?.title || err?.error?.message || 'Failed to create discount. Check inputs.';
+         this.discountActionProcessing = false;
+       }
+    });
+  }
+
+  deleteDiscount(id: string) {
+    if (confirm('Are you sure you want to deactivate this discount code?')) {
+       this.policyService.deleteDiscount(id).subscribe({
+         next: () => this.loadDiscounts()
+       });
+    }
+  }
+
+  loadAuditLogs() {
     this.adminService.getAuditLogs(1, 50).subscribe({
       next: (data) => {
         this.auditLogs = Array.isArray(data) ? data : (data?.items || []);
       }
     });
-
   }
 
   deactivateUser(userId: string) {
@@ -206,6 +260,15 @@ export class AdminDashboard implements OnInit {
   creatingPlanType: 'type' | 'subtype' = 'type';
   insuranceTypesList: any[] = [];
   insuranceSubtypesList: any[] = [];
+  
+  // Custom discounts
+  discountsList: any[] = [];
+  showDiscountModal = false;
+  discountForm: any = { code: '', description: '', percentage: 10, maxDiscountAmount: 0, isFirstTimeOnly: false };
+  discountActionMessage = '';
+  discountActionProcessing = false;
+
+
   planActionProcessing = false;
   planActionMessage = '';
   newPlanData = { name: '', description: '', typeId: '', basePremium: 0 };

@@ -17,6 +17,7 @@ namespace SmartSure.PolicyService.Repositories
         {
             return await _context.Policies
                 .Include(p => p.Subtype)
+                    .ThenInclude(s => s.Type)
                 .Where(p => p.UserId == userId)
                 .ToListAsync();
         }
@@ -25,6 +26,7 @@ namespace SmartSure.PolicyService.Repositories
         {
             return await _context.Policies
                 .Include(p => p.Subtype)
+                    .ThenInclude(s => s.Type)
                 .ToListAsync();
         }
 
@@ -32,6 +34,7 @@ namespace SmartSure.PolicyService.Repositories
         {
             return await _context.Policies
                 .Include(p => p.Subtype)
+                    .ThenInclude(s => s.Type)
                 .Include(p => p.PolicyDetail)
                 .Include(p => p.HomeDetail)
                 .Include(p => p.VehicleDetail)

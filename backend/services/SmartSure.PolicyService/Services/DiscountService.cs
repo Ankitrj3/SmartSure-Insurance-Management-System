@@ -1,0 +1,154 @@
+using SmartSure.PolicyService.DTOs;
+using SmartSure.PolicyService.Models;
+using SmartSure.PolicyService.Repositories;
+
+namespace SmartSure.PolicyService.Services
+{
+    public class DiscountService : IDiscountService
+    {
+        private readonly IDiscountRepository _repo;
+        private readonly IPolicyRepository _policyRepo;
+
+        public DiscountService(IDiscountRepository repo, IPolicyRepository policyRepo)
+        {
+            _repo = repo;
+            _policyRepo = policyRepo;
+        }
+
+        public async Task<List<DiscountDTO>> GetAllDiscountsAsync()
+        {
+            var discounts = await _repo.GetAllAsync();
+            return discounts.Select(MapToDto).ToList();
+        }
+
+        public async Task<DiscountDTO> GetDiscountByIdAsync(Guid discountId)
+        {
+            var d = await _repo.GetByIdAsync(discountId);
+            if (d == null) return null;
+            return MapToDto(d);
+        }
+
+        public async Task<DiscountDTO> CreateDiscountAsync(CreateDiscountDTO dto)
+        {
+            var discount = new Discount
+            {
+                DiscountId = Guid.NewGuid(),
+                Code = dto.Code.ToUpper(),
+                Description = dto.Description,
+                Percentage = dto.Percentage,
+                MaxDiscountAmount = dto.MaxDiscountAmount,
+                IsFirstTimeOnly = dto.IsFirstTimeOnly,
+                IsActive = true,
+                ValidFrom = DateTime.UtcNow,
+                ValidUntil = dto.ValidUntil
+            };
+
+            await _repo.AddAsync(discount);
+            await _repo.SaveChangesAsync();
+            return MapToDto(discount);
+        }
+
+        public async Task UpdateDiscountAsync(Guid discountId, CreateDiscountDTO dto)
+        {
+            var discount = await _repo.GetByIdAsync(discountId);
+            if (discount == null) throw new Exception("Discount not found");
+
+            discount.Code = dto.Code.ToUpper();
+            discount.Description = dto.Description;
+            discount.Percentage = dto.Percentage;
+            discount.MaxDiscountAmount = dto.MaxDiscountAmount;
+            discount.IsFirstTimeOnly = dto.IsFirstTimeOnly;
+            discount.ValidUntil = dto.ValidUntil;
+
+            await _repo.UpdateAsync(discount);
+            await _repo.SaveChangesAsync();
+        }
+
+        public async Task DeleteDiscountAsync(Guid discountId)
+        {
+            await _repo.DeleteAsync(discountId);
+            await _repo.SaveChangesAsync();
+        }
+
+        public async Task<ApplyDiscountResultDTO> CalculateDiscountAsync(Guid userId, decimal originalPremium, string? couponCode)
+        {
+            decimal totalDiscountPercent = 0;
+            string description = "";
+            bool firstTimeApplied = false;
+            string appliedCoupon = "";
+
+            // --- 1. Check if first-time buyer → auto 10% discount ---
+            var userPolicies = await _policyRepo.GetByUserIdAsync(userId);
+            bool isFirstTime = userPolicies == null || userPolicies.Count == 0;
+
+            if (isFirstTime)
+            {
+                totalDiscountPercent += 10;
+                description += "🎉 First insurance purchase: 10% off! ";
+                firstTimeApplied = true;
+            }
+
+            // --- 2. Check coupon code if provided ---
+            if (!string.IsNullOrWhiteSpace(couponCode))
+            {
+                var coupon = await _repo.GetByCodeAsync(couponCode);
+                if (coupon != null)
+                {
+                    bool isValid = coupon.IsActive
+                        && coupon.ValidFrom <= DateTime.UtcNow
+                        && (coupon.ValidUntil == null || coupon.ValidUntil >= DateTime.UtcNow);
+
+                    // If first-time-only coupon, check if user is first-time
+                    if (coupon.IsFirstTimeOnly && !isFirstTime)
+                    {
+                        isValid = false;
+                    }
+
+                    if (isValid)
+                    {
+                        totalDiscountPercent += coupon.Percentage;
+                        description += $"Coupon {coupon.Code}: {coupon.Percentage}% off. ";
+                        appliedCoupon = coupon.Code;
+                    }
+                }
+            }
+
+            // Cap at max 30% total discount
+            totalDiscountPercent = Math.Min(totalDiscountPercent, 30);
+
+            decimal discountAmount = originalPremium * totalDiscountPercent / 100;
+
+            // Apply max cap if coupon has one
+            // (Already incorporated in the percentage logic)
+
+            decimal finalPremium = Math.Round(originalPremium - discountAmount, 2);
+
+            return new ApplyDiscountResultDTO
+            {
+                OriginalPremium = originalPremium,
+                DiscountPercentage = totalDiscountPercent,
+                DiscountAmount = Math.Round(discountAmount, 2),
+                FinalPremium = Math.Max(finalPremium, 0),
+                DiscountDescription = description.Trim(),
+                FirstTimeDiscount = firstTimeApplied,
+                CouponCode = appliedCoupon
+            };
+        }
+
+        private DiscountDTO MapToDto(Discount d)
+        {
+            return new DiscountDTO
+            {
+                DiscountId = d.DiscountId,
+                Code = d.Code,
+                Description = d.Description,
+                Percentage = d.Percentage,
+                MaxDiscountAmount = d.MaxDiscountAmount,
+                IsFirstTimeOnly = d.IsFirstTimeOnly,
+                IsActive = d.IsActive,
+                ValidFrom = d.ValidFrom,
+                ValidUntil = d.ValidUntil
+            };
+        }
+    }
+}

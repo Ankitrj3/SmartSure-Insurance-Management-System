@@ -68,11 +68,13 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IInsuranceRepository, InsuranceRepository>();
 builder.Services.AddScoped<IPolicyRepository, PolicyRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
 
 // Services
 builder.Services.AddScoped<IInsuranceService, InsuranceService>();
 builder.Services.AddScoped<IPolicyMgmtService, PolicyMgmtService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IDiscountService, DiscountService>();
 
 builder.Services.AddControllers();
 

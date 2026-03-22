@@ -8,9 +8,11 @@ namespace SmartSure.PolicyService.DTOs
         public Guid UserId { get; set; }
         public Guid SubtypeId { get; set; }
         public string? SubtypeName { get; set; }
+        public string? TypeName { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public decimal PremiumAmount { get; set; }
+        public decimal InsuredDeclaredValue { get; set; }
         public string? Status { get; set; }
     }
 
@@ -28,6 +30,8 @@ namespace SmartSure.PolicyService.DTOs
 
         // Vehicle detail fields (wizard can submit if it's a vehicle policy)
         public CreateVehicleDetailDTO? VehicleDetail { get; set; }
+
+        public string? CouponCode { get; set; }
     }
 
     public class CreateHomeDetailDTO
@@ -75,6 +79,20 @@ namespace SmartSure.PolicyService.DTOs
 
         [Required]
         public string EngineNumber { get; set; }
+    }
+
+    /// <summary>
+    /// Returned after IDV/Insurance value calculation before purchase confirmation.
+    /// </summary>
+    public class PolicyQuoteDTO
+    {
+        public Guid SubtypeId { get; set; }
+        public string SubtypeName { get; set; }
+        public string TypeName { get; set; }
+        public int Duration { get; set; }
+        public decimal InsuredDeclaredValue { get; set; }
+        public decimal PremiumAmount { get; set; }
+        public string Breakdown { get; set; }
     }
 
     public class PolicyDetailDTO

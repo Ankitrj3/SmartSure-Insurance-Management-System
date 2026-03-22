@@ -50,6 +50,25 @@ namespace SmartSure.PolicyService.Controllers
             return Ok(policy);
         }
 
+        /// <summary>
+        /// Calculate a quote (IDV + premium) without creating a policy.
+        /// The user's frontend calls this first to display the calculated values.
+        /// </summary>
+        [HttpPost("/policies/quote")]
+        public async Task<IActionResult> GetQuote([FromBody] CreatePolicyDTO dto)
+        {
+            try
+            {
+                var quote = await _service.CalculateQuoteAsync(dto);
+                return Ok(quote);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating quote");
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPost("/policies")]
         public async Task<IActionResult> BuyPolicy(CreatePolicyDTO dto)
         {
@@ -80,6 +99,23 @@ namespace SmartSure.PolicyService.Controllers
             }
         }
 
+        /// <summary>
+        /// Activate a pending policy after successful payment.
+        /// </summary>
+        [HttpPut("/policies/{policyId}/activate")]
+        public async Task<IActionResult> ActivatePolicy(Guid policyId)
+        {
+            try
+            {
+                await _service.ActivatePolicyAsync(policyId);
+                return Ok(new { message = "Policy activated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPut("/policies/{policyId}/cancel")]
         public async Task<IActionResult> CancelPolicy(Guid policyId)
         {
@@ -96,7 +132,6 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpPost("/policies/{policyId}/details")]
-        // [HttpPut("/policies/{policyId}/details")] already handled via Post or need separate?
         public async Task<IActionResult> SaveDetails(Guid policyId, SavePolicyDetailDTO dto)
         {
             await _service.SavePolicyDetailsAsync(policyId, dto);
@@ -128,13 +163,6 @@ namespace SmartSure.PolicyService.Controllers
         [HttpPost("/home-details")]
         public async Task<IActionResult> SaveHomeDetail(CreateHomeDetailDTO dto)
         {
-            // Note: The previous implementation had policyId in path. I am assuming logic allows retrieving policyId from DTO, if it's there. 
-            // If it's not in the DTO, it will fail to compile. Let's just use the signature with policyId in the path if needed, but the document says POST /home-details.
-            // Let's pass Guid.Empty for now if the signature is missing, wait: this might not compile.
-            // The previous method was SaveHomeDetailAsync(Guid policyId, CreateHomeDetailDTO dto).
-            // Let's look at the DTO. If the DTO doesn't have it, I'll pass a dummy or use DTO's value if it has one.
-            // Actually, let's keep the DTO as it is, and maybe it has PolicyId? I'll check it shortly. Let's just pass `dto.PolicyId` and hope it exists, or just change the route back to include `{policyId}` to make it compile but use absolute path.
-            // Wait, I will just use `dto.PolicyId` temporarily. If it doesn't exist, I'll fix the DTO.
             await _service.SaveHomeDetailAsync(dto.PolicyId.GetValueOrDefault(), dto);
             return Ok(new { message = "Home detail saved successfully" });
         }

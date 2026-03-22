@@ -16,6 +16,7 @@ namespace SmartSure.PolicyService.Data
         public DbSet<HomeDetail> HomeDetails { get; set; }
         public DbSet<VehicleDetail> VehicleDetails { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Discount> Discounts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -64,6 +65,10 @@ namespace SmartSure.PolicyService.Data
 
             modelBuilder.Entity<Policy>()
                 .Property(p => p.PremiumAmount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Policy>()
+                .Property(p => p.InsuredDeclaredValue)
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<HomeDetail>()

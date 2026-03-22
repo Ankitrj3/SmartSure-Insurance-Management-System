@@ -6,6 +6,7 @@ namespace SmartSure.PolicyService.DTOs
     {
         public Guid SubtypeId { get; set; }
         public Guid TypeId { get; set; }
+        public string? TypeName { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal BasePremium { get; set; }

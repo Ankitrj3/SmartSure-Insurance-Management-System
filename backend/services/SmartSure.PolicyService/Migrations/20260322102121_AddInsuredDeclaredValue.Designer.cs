@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartSure.PolicyService.Data;
 
@@ -11,9 +12,11 @@ using SmartSure.PolicyService.Data;
 namespace SmartSure.PolicyService.Migrations
 {
     [DbContext(typeof(PolicyDbContext))]
-    partial class PolicyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260322102121_AddInsuredDeclaredValue")]
+    partial class AddInsuredDeclaredValue
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,48 +24,6 @@ namespace SmartSure.PolicyService.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("SmartSure.PolicyService.Models.Discount", b =>
-                {
-                    b.Property<Guid>("DiscountId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsFirstTimeOnly")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal>("MaxDiscountAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Percentage")
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<DateTime>("ValidFrom")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ValidUntil")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("DiscountId");
-
-                    b.ToTable("Discounts");
-                });
 
             modelBuilder.Entity("SmartSure.PolicyService.Models.HomeDetail", b =>
                 {

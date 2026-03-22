@@ -34,13 +34,21 @@ export class UserDashboard implements OnInit {
   selectedType: string = '';
   subtypes: any[] = [];
   policyForm: any = { subtypeId: '', duration: 12 };
-  homeDetails: any = { address: '', propertyType: 'House', estimatedValue: 0 };
-  vehicleDetails: any = { registrationNumber: '', make: '', model: '', estimatedValue: 0, chassisNumber: '', engineNumber: '' };
+  homeDetails: any = { address: '', propertyType: 'House', yearBuilt: 2020, estimatedValue: 0, securityFeatures: '' };
+  vehicleDetails: any = { registrationNumber: '', make: '', model: '', manufactureYear: 2022, estimatedValue: 0, chassisNumber: '', engineNumber: '' };
   policyMessage = '';
   calculatedPremium = 0;
+  calculatedIdv = 0;
+  quoteBreakdown = '';
   paymentProcessing = false;
+  quoteLoading = false;
   selectedPlanName = '';
   paymentMethod = 'CreditCard';
+
+  // Discount
+  couponCode = '';
+  discountResult: any = null;
+  applyingDiscount = false;
 
   // Claim Form
   showClaimModal = false;
@@ -77,11 +85,13 @@ export class UserDashboard implements OnInit {
     }).subscribe({
       next: (result: any) => {
         this.profile = result.profile || {};
-        this.policies = Array.isArray(result.policies) ? result.policies : [];
-        this.claims = Array.isArray(result.claims) ? result.claims : [];
-        this.insuranceTypes = (Array.isArray(result.types) ? result.types : []).filter((t: any) => 
-          t.name?.toLowerCase().includes('vehicle') || t.name?.toLowerCase().includes('home')
-        );
+        this.policies = this.extractData(result.policies);
+        this.claims = this.extractData(result.claims);
+        const rawTypes = this.extractData(result.types);
+        this.insuranceTypes = rawTypes.filter((t: any) => {
+          const name = t.name || t.Name || '';
+          return name.toLowerCase().includes('vehicle') || name.toLowerCase().includes('home');
+        });
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -90,6 +100,12 @@ export class UserDashboard implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  private extractData(data: any): any[] {
+    if (Array.isArray(data)) return data;
+    if (data && data.$values && Array.isArray(data.$values)) return data.$values;
+    return [];
   }
 
   // --- Profile Management ---
@@ -119,48 +135,122 @@ export class UserDashboard implements OnInit {
     this.buyPolicyStep = 1;
     this.policyMessage = '';
     this.policyForm = { subtypeId: '', duration: 12 };
+    this.homeDetails = { address: '', propertyType: 'House', yearBuilt: 2020, estimatedValue: 0, securityFeatures: '' };
+    this.vehicleDetails = { registrationNumber: '', make: '', model: '', manufactureYear: 2022, estimatedValue: 0, chassisNumber: '', engineNumber: '' };
+    this.calculatedPremium = 0;
+    this.calculatedIdv = 0;
+    this.quoteBreakdown = '';
     this.showBuyPolicyModal = true;
   }
 
   loadSubtypes() {
     if (!this.selectedType) return;
     this.policyService.getSubtypesByType(this.selectedType).subscribe({
-      next: (data) => {
-        this.subtypes = data;
-        this.updateCalculatedPremium();
+      next: (data: any) => {
+        this.subtypes = this.extractData(data);
+        this.updateSelectedPlanName();
       }
     });
   }
 
-  updateCalculatedPremium() {
-    const subtype = this.subtypes.find(s => s.subtypeId === this.policyForm.subtypeId);
+  updateSelectedPlanName() {
+    const subtype = this.subtypes.find(s => (s.subtypeId || s.SubtypeId) === this.policyForm.subtypeId);
     if (subtype) {
-      this.selectedPlanName = subtype.name;
-      this.calculatedPremium = (subtype.basePremium || 0) * (this.policyForm.duration / 12);
-      // Ensure at least base premium if duration is small
-      if (this.calculatedPremium < (subtype.basePremium || 0)) {
-        this.calculatedPremium = subtype.basePremium || 0;
-      }
+      this.selectedPlanName = subtype.name || subtype.Name;
     }
   }
 
-  proceedToReview() {
-    const typeObj = this.insuranceTypes.find(t => (t.id || t.typeId) === this.selectedType);
-    const isVehicle = typeObj?.name?.toLowerCase().includes('vehicle');
-    const isHome = typeObj?.name?.toLowerCase().includes('home');
+  isVehicleType(): boolean {
+    const typeObj = this.insuranceTypes.find(t => (t.id || t.typeId || t.TypeId) === this.selectedType);
+    const name = typeObj?.name || typeObj?.Name || '';
+    return name.toLowerCase().includes('vehicle') || false;
+  }
 
-    if (isHome && (!this.homeDetails.address || !this.homeDetails.propertyType || !this.homeDetails.estimatedValue)) {
+  isHomeType(): boolean {
+    const typeObj = this.insuranceTypes.find(t => (t.id || t.typeId || t.TypeId) === this.selectedType);
+    const name = typeObj?.name || typeObj?.Name || '';
+    return name.toLowerCase().includes('home') || false;
+  }
+
+  proceedToReview() {
+    if (this.isHomeType() && (!this.homeDetails.address || !this.homeDetails.propertyType || !this.homeDetails.estimatedValue)) {
       this.policyMessage = 'Please fill all required home details.';
       return;
     }
-    if (isVehicle && (!this.vehicleDetails.registrationNumber || !this.vehicleDetails.make || !this.vehicleDetails.model || !this.vehicleDetails.estimatedValue)) {
+    if (this.isVehicleType() && (!this.vehicleDetails.registrationNumber || !this.vehicleDetails.make || !this.vehicleDetails.model || !this.vehicleDetails.estimatedValue)) {
       this.policyMessage = 'Please fill all required vehicle details.';
       return;
     }
 
     this.policyMessage = '';
+    this.quoteLoading = true;
     this.buyPolicyStep = 3;
-    this.updateCalculatedPremium();
+
+    // Reset discount
+    this.couponCode = '';
+    this.discountResult = null;
+
+    // Call the backend to calculate IDV and premium
+    const quotePayload: any = {
+      subtypeId: this.policyForm.subtypeId,
+      duration: this.policyForm.duration,
+    };
+
+    if (this.isHomeType()) {
+      quotePayload.homeDetail = Object.assign({}, this.homeDetails);
+    }
+
+    if (this.isVehicleType()) {
+      quotePayload.vehicleDetail = Object.assign({}, this.vehicleDetails);
+      if (!quotePayload.vehicleDetail.chassisNumber) quotePayload.vehicleDetail.chassisNumber = 'CH' + Math.random().toString(36).substring(7).toUpperCase();
+      if (!quotePayload.vehicleDetail.engineNumber) quotePayload.vehicleDetail.engineNumber = 'EN' + Math.random().toString(36).substring(7).toUpperCase();
+    }
+
+    this.policyService.calculateQuote(quotePayload).subscribe({
+      next: (quote) => {
+        this.calculatedIdv = quote.insuredDeclaredValue || quote.InsuredDeclaredValue || 0;
+        this.calculatedPremium = quote.premiumAmount || quote.PremiumAmount || 0;
+        this.quoteBreakdown = quote.breakdown || quote.Breakdown || '';
+        
+        // After getting original premium, get the discount!
+        this.fetchDiscountData();
+      },
+      error: (err) => {
+        this.quoteLoading = false;
+        const subtypeId = this.policyForm.subtypeId;
+        const subtype = this.subtypes.find(s => (s.subtypeId || s.SubtypeId) === subtypeId);
+        const basePremium = subtype?.basePremium || subtype?.BasePremium || 0;
+        this.calculatedPremium = basePremium * (this.policyForm.duration / 12);
+        this.calculatedIdv = this.isVehicleType() ? this.vehicleDetails.estimatedValue : this.homeDetails.estimatedValue;
+        this.quoteBreakdown = 'Estimated values (detailed calculation unavailable)';
+        
+        // Fetch discounts even on simple fallback
+        this.fetchDiscountData();
+      }
+    });
+  }
+
+  fetchDiscountData() {
+    this.applyingDiscount = true;
+    this.policyService.calculateDiscount(this.calculatedPremium, this.couponCode).subscribe({
+       next: (res) => {
+         this.discountResult = res;
+         this.applyingDiscount = false;
+         this.quoteLoading = false;
+         this.cdr.detectChanges();
+       },
+       error: (err) => {
+         this.applyingDiscount = false;
+         this.quoteLoading = false;
+         this.policyMessage = 'Error calculating discounts. Check if coupon is valid.';
+         this.cdr.detectChanges();
+       }
+    });
+  }
+
+  applyCoupon() {
+    if (!this.couponCode) return;
+    this.fetchDiscountData();
   }
 
   proceedToPayment() {
@@ -169,45 +259,46 @@ export class UserDashboard implements OnInit {
 
   submitPolicy() {
     this.paymentProcessing = true;
-    this.policyMessage = 'Processing secure payment and activating policy...';
-
-    const typeObj = this.insuranceTypes.find(t => (t.id || t.typeId) === this.selectedType);
-    const isVehicle = typeObj?.name?.toLowerCase().includes('vehicle');
-    const isHome = typeObj?.name?.toLowerCase().includes('home');
+    this.policyMessage = 'Creating policy and processing payment...';
 
     const payload: any = {
       subtypeId: this.policyForm.subtypeId,
       duration: this.policyForm.duration,
+      couponCode: this.couponCode
     };
 
-    if (isHome) {
+    if (this.isHomeType()) {
       payload.homeDetail = {
         address: this.homeDetails.address,
         propertyType: this.homeDetails.propertyType || 'Residential',
-        yearBuilt: this.homeDetails.yearBuilt || 2024,
+        yearBuilt: this.homeDetails.yearBuilt || 2020,
         estimatedValue: this.homeDetails.estimatedValue,
         securityFeatures: this.homeDetails.securityFeatures || 'Standard'
       };
     }
 
-    if (isVehicle) {
+    if (this.isVehicleType()) {
       payload.vehicleDetail = {
         registrationNumber: this.vehicleDetails.registrationNumber,
         make: this.vehicleDetails.make,
         model: this.vehicleDetails.model,
-        manufactureYear: this.vehicleDetails.manufactureYear || 2024,
+        manufactureYear: this.vehicleDetails.manufactureYear || 2022,
         estimatedValue: this.vehicleDetails.estimatedValue,
         chassisNumber: this.vehicleDetails.chassisNumber || 'CH' + Math.random().toString(36).substring(7).toUpperCase(),
         engineNumber: this.vehicleDetails.engineNumber || 'EN' + Math.random().toString(36).substring(7).toUpperCase()
       };
     }
 
-    this.policyService.createHomePolicy(payload).subscribe({
-      next: (res) => {
-        // Now process the payment in the background
-        this.policyService.processPayment(res.policyId, {
-          policyId: res.policyId,
-          amount: res.premiumAmount,
+    // Step 1: Create the policy (status = Pending)
+    this.policyService.buyPolicy(payload).subscribe({
+      next: (res: any) => {
+        this.policyMessage = 'Policy created! Processing payment...';
+        const pId = res.policyId || res.PolicyId;
+        const pAmount = res.premiumAmount || res.PremiumAmount;
+        // Step 2: Process payment (this will also activate the policy in backend)
+        this.policyService.processPayment(pId, {
+          policyId: pId,
+          amount: pAmount,
           paymentMethod: this.paymentMethod
         }).subscribe({
           next: () => {
@@ -230,8 +321,8 @@ export class UserDashboard implements OnInit {
 
   // --- Payments ---
   openPaymentModal(policy: any) {
-    this.paymentPolicyId = policy.policyId;
-    this.paymentForm.amount = policy.premiumAmount || 0;
+    this.paymentPolicyId = policy.policyId || policy.PolicyId;
+    this.paymentForm.amount = policy.premiumAmount || policy.PremiumAmount || 0;
     this.paymentMessage = '';
     this.showPaymentModal = true;
   }
@@ -243,7 +334,8 @@ export class UserDashboard implements OnInit {
       paymentMethod: this.paymentForm.paymentMethod
     }).subscribe({
       next: () => {
-        this.paymentMessage = 'Success: Payment processed.';
+        this.paymentMessage = 'Success: Payment processed & policy activated.';
+        this.fetchData();
         setTimeout(() => this.showPaymentModal = false, 1500);
       },
       error: (err) => this.paymentMessage = 'Failed: ' + (err.error?.message || err.message)
@@ -268,14 +360,15 @@ export class UserDashboard implements OnInit {
       return;
     }
     this.claimService.submitClaim(this.claimForm).subscribe({
-      next: (res) => {
+      next: (res: any) => {
+        const cId = res.claimId || res.ClaimId;
         // Upload document if selected
         if (this.selectedFile) {
           const formData = new FormData();
           formData.append('file', this.selectedFile);
-          this.claimService.uploadDocument(res.claimId, formData).subscribe({
+          this.claimService.uploadDocument(cId, formData).subscribe({
             next: () => {
-               this.claimService.submitClaimToReview(res.claimId).subscribe(() => {
+               this.claimService.submitClaimToReview(cId).subscribe(() => {
                  this.claimMessage = 'Success: Claim and document submitted to review.';
                  this.fetchData();
                  setTimeout(() => this.showClaimModal = false, 1500);
@@ -284,7 +377,7 @@ export class UserDashboard implements OnInit {
             error: () => this.claimMessage = 'Claim created, but document upload failed.'
           });
         } else {
-           this.claimService.submitClaimToReview(res.claimId).subscribe(() => {
+           this.claimService.submitClaimToReview(cId).subscribe(() => {
              this.claimMessage = 'Success: Claim submitted to review.';
              this.fetchData();
              setTimeout(() => this.showClaimModal = false, 1500);
@@ -293,5 +386,16 @@ export class UserDashboard implements OnInit {
       },
       error: (err) => this.claimMessage = 'Failed to submit claim: ' + (err.error?.message || err.message)
     });
+  }
+
+  // --- Helpers ---
+  getStatusClass(status: string): string {
+    switch (status?.toLowerCase()) {
+      case 'active': return 'status-active';
+      case 'pending': return 'status-pending';
+      case 'cancelled': return 'status-cancelled';
+      case 'expired': return 'status-expired';
+      default: return '';
+    }
   }
 }

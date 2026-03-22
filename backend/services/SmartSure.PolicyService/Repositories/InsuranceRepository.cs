@@ -25,12 +25,17 @@ namespace SmartSure.PolicyService.Repositories
 
         public async Task<List<InsuranceSubtype>> GetAllSubtypesAsync()
         {
-            return await _context.InsuranceSubtypes.ToListAsync();
+            return await _context.InsuranceSubtypes
+                .Include(s => s.Type)
+                .ToListAsync();
         }
 
         public async Task<List<InsuranceSubtype>> GetSubtypesByTypeIdAsync(Guid typeId)
         {
-            return await _context.InsuranceSubtypes.Where(s => s.TypeId == typeId).ToListAsync();
+            return await _context.InsuranceSubtypes
+                .Include(s => s.Type)
+                .Where(s => s.TypeId == typeId)
+                .ToListAsync();
         }
 
         public async Task<InsuranceSubtype> GetSubtypeByIdAsync(Guid subtypeId)

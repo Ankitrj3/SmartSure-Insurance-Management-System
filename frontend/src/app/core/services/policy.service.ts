@@ -74,6 +74,27 @@ export class PolicyService {
     return this.api.put<any>(`policies/${policyId}/details`, data);
   }
 
+  /**
+   * Calculate a quote (IDV + premium) without creating a policy.
+   */
+  calculateQuote(data: any): Observable<any> {
+    return this.api.post<any>('policies/quote', data);
+  }
+
+  /**
+   * Create/buy a policy (home or vehicle).
+   */
+  buyPolicy(data: any): Observable<any> {
+    return this.api.post<any>('policies', data);
+  }
+
+  /**
+   * Activate a pending policy after payment.
+   */
+  activatePolicy(policyId: string): Observable<any> {
+    return this.api.put<any>(`policies/${policyId}/activate`, {});
+  }
+
   createHomePolicy(data: any): Observable<any> {
     return this.api.post<any>('policies', data); 
   }
@@ -113,5 +134,26 @@ export class PolicyService {
 
   processPayment(policyId: string, paymentDetails: any): Observable<any> {
     return this.api.post<any>(`policies/${policyId}/payments`, paymentDetails);
+  }
+
+  // Discounts
+  getDiscounts(): Observable<any[]> {
+    return this.api.get<any[]>('discounts');
+  }
+
+  createDiscount(data: any): Observable<any> {
+    return this.api.post<any>('discounts', data);
+  }
+
+  updateDiscount(discountId: string, data: any): Observable<any> {
+    return this.api.put<any>(`discounts/${discountId}`, data);
+  }
+
+  deleteDiscount(discountId: string): Observable<any> {
+    return this.api.delete<any>(`discounts/${discountId}`);
+  }
+
+  calculateDiscount(originalPremium: number, couponCode: string | null = null): Observable<any> {
+    return this.api.post<any>('discounts/calculate', { originalPremium, couponCode });
   }
 }

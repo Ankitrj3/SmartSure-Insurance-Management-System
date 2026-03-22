@@ -26,9 +26,16 @@ namespace SmartSure.PolicyService.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal PremiumAmount { get; set; }
 
+        /// <summary>
+        /// Insured Declared Value – calculated by the system based on asset details.
+        /// For Vehicle: depreciation-based IDV. For Home: rebuild-cost-based insurance value.
+        /// </summary>
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal InsuredDeclaredValue { get; set; }
+
         [Required]
         [StringLength(50)]
-        public string Status { get; set; } // "Active", "Cancelled", "Expired", "Pending"
+        public string Status { get; set; } // "Pending", "Active", "Cancelled", "Expired"
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

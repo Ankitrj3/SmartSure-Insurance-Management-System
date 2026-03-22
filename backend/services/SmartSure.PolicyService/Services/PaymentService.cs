@@ -7,10 +7,12 @@ namespace SmartSure.PolicyService.Services
     public class PaymentService : IPaymentService
     {
         private readonly IPaymentRepository _repo;
+        private readonly IPolicyMgmtService _policyService;
 
-        public PaymentService(IPaymentRepository repo)
+        public PaymentService(IPaymentRepository repo, IPolicyMgmtService policyService)
         {
             _repo = repo;
+            _policyService = policyService;
         }
 
         public async Task<List<PaymentDTO>> GetByPolicyIdAsync(Guid policyId)
@@ -59,6 +61,16 @@ namespace SmartSure.PolicyService.Services
 
             await _repo.AddAsync(payment);
             await _repo.SaveChangesAsync();
+
+            // After successful payment, activate the policy
+            try
+            {
+                await _policyService.ActivatePolicyAsync(dto.PolicyId);
+            }
+            catch
+            {
+                // Policy might already be active – that's OK
+            }
 
             return new PaymentDTO
             {

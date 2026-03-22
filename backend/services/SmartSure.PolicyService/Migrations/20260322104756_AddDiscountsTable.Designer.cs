@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SmartSure.PolicyService.Data;
 
@@ -11,9 +12,11 @@ using SmartSure.PolicyService.Data;
 namespace SmartSure.PolicyService.Migrations
 {
     [DbContext(typeof(PolicyDbContext))]
-    partial class PolicyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260322104756_AddDiscountsTable")]
+    partial class AddDiscountsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

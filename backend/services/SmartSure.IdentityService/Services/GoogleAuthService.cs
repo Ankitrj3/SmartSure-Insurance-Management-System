@@ -76,11 +76,23 @@ namespace IdentityService.Services
                     UserId = Guid.NewGuid(),
                     Email = email,
                     FullName = name,
+                    PhoneNumber = "Not Provided",
+                    Address = "Not Provided",
                     IsGoogleAuth = true,
                     IsEmailVerified = true,
                     Password = new Password { PassId = Guid.NewGuid(), PasswordHash = "" } // No password for Google users
                 };
                 user.Password.UserId = user.UserId;
+
+                // Assign default role (Customer)
+                var defaultRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Customer");
+                if (defaultRole != null)
+                {
+                    user.UserRoles = new List<UserRole>
+                    {
+                        new UserRole { UserId = user.UserId, RoleId = defaultRole.RoleId, Role = defaultRole }
+                    };
+                }
 
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
@@ -90,7 +102,8 @@ namespace IdentityService.Services
             }
 
             // Map standard roles
-            var roles = user.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string> { "Customer" };
+            var roles = user.UserRoles?.Where(ur => ur.Role != null).Select(ur => ur.Role.RoleName).ToList() ?? new List<string> { "Customer" };
+            if (!roles.Any()) roles.Add("Customer");
             var audience = new List<string> { _config["Jwt:Audience"] ?? _config["Jwt:Issuer"] };
 
             // Generate our own System Token

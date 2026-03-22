@@ -1,26 +1,33 @@
 <header class="navbar">
   <div class="container navbar-content">
     <div class="brand" routerLink="/" style="cursor: pointer;">
-      <h1 class="brand-logo" style="font-size: 1.4rem;">Smart<span class="highlight">Sure</span></h1>
+      <!-- Professional SVG Icon instead of emoji -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="nav-brand-icon">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </svg>
+      <h1 class="brand-logo">Smart<span class="highlight">Sure</span></h1>
     </div>
     
     <nav class="nav-links">
-      <a routerLink="/" class="nav-link">Home</a>
-      
-      <!-- Only show for non-logged-in users as a landing page hook -->
-      <a *ngIf="!isLoggedIn" routerLink="/register" class="nav-link">Insurance Options</a>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Home</a>
+      <a routerLink="/insurance" routerLinkActive="active" class="nav-link">Insurance Plans</a>
+      <a routerLink="/about-us" routerLinkActive="active" class="nav-link">About Us</a>
+      <a routerLink="/contact-us" routerLinkActive="active" class="nav-link">Contact</a>
     </nav>
 
     <div class="auth-buttons">
       <ng-container *ngIf="!isLoggedIn">
-        <button class="btn-text" routerLink="/login">Sign In</button>
-        <button class="btn-primary" routerLink="/register">Get a Quote</button>
+        <button class="btn btn-text" routerLink="/login">Sign In</button>
+        <button class="btn btn-primary" routerLink="/register">Get a Quote</button>
       </ng-container>
 
       <ng-container *ngIf="isLoggedIn">
-        <button class="btn-text" *ngIf="isAdmin" routerLink="/admin/dashboard">Admin Panel</button>
-        <button class="btn-primary" *ngIf="!isAdmin" routerLink="/user/dashboard">My Dashboard</button>
-        <button class="btn-outline ml-2" (click)="logout()" style="margin-left: 10px;">Log Out</button>
+        <div class="user-pill">
+           <span class="role-badge" [class.admin-badge]="isAdmin">{{ isAdmin ? 'Admin' : 'Personal' }} Control</span>
+           <button class="btn btn-primary" *ngIf="isAdmin" routerLink="/admin/dashboard">Admin Dashboard</button>
+           <button class="btn btn-primary" *ngIf="!isAdmin" routerLink="/user/dashboard">My Dashboard</button>
+           <button class="btn btn-outline" (click)="logout()">Sign Out</button>
+        </div>
       </ng-container>
     </div>
   </div>

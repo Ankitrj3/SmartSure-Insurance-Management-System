@@ -266,6 +266,51 @@
             </table>
           </div>
         </section>
+
+        <!-- Discounts Section -->
+        <section class="glass-panel full-width" style="margin-top: 2rem;">
+          <div class="section-header">
+            <h3>Promotional Discounts & Coupons</h3>
+            <div class="table-actions">
+              <button class="btn btn-primary btn-sm" (click)="openDiscountModal()">Create Discount Coupon</button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Description</th>
+                  <th>Offer (%)</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let d of discountsList">
+                  <td><code class="claim-id" style="background:#e3f2fd; color:#1565c0; padding:4px 8px;">{{ d.code }}</code></td>
+                  <td>{{ d.description }}</td>
+                  <td><strong>{{ d.percentage }}%</strong></td>
+                  <td>
+                    <span class="status-badge" [ngStyle]="{'background': d.isFirstTimeOnly ? '#f3e5f5' : '#e0f2f1', 'color': d.isFirstTimeOnly ? '#7b1fa2' : '#00796b'}">
+                      {{ d.isFirstTimeOnly ? 'First-Time' : 'General' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="status-badge" [ngClass]="d.isActive ? 'status-approved' : 'status-rejected'">{{ d.isActive ? 'Active' : 'Archived' }}</span>
+                  </td>
+                  <td>
+                    <button class="btn btn-danger btn-sm" (click)="deleteDiscount(d.discountId)">Deactivate</button>
+                  </td>
+                </tr>
+                <tr *ngIf="discountsList.length === 0">
+                  <td colspan="6" class="empty-td">No promotional codes configured.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
 
       <!-- ========================================== -->
@@ -562,6 +607,58 @@
 
       <div class="action-result" *ngIf="planActionMessage" [class.success]="planActionMessage.startsWith('Success')" [class.error]="planActionMessage.startsWith('Failed') || planActionMessage.startsWith('Warning')">
         {{ planActionMessage }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Discount Modal -->
+<div class="modal-overlay" *ngIf="showDiscountModal" (click)="closeDiscountModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h2>Create Discount / Promotional Coupon</h2>
+        <p class="modal-sub">Generate a new promotional code for calculating final premiums.</p>
+      </div>
+      <button class="close-btn" (click)="closeDiscountModal()"></button>
+    </div>
+
+    <div class="action-form">
+      <div class="form-group">
+        <label>Coupon Code <span class="required">*</span></label>
+        <input type="text" [(ngModel)]="discountForm.code" class="form-control" placeholder="e.g. SUMMER25" style="text-transform: uppercase;" />
+      </div>
+
+      <div class="form-group" style="display:flex; gap:1rem;">
+        <div style="flex:1;">
+          <label>Discount Percentage (%) <span class="required">*</span></label>
+          <input type="number" [(ngModel)]="discountForm.percentage" class="form-control" placeholder="10" />
+        </div>
+        <div style="flex:1;">
+          <label>Maximum Cap Amount (₹)</label>
+          <input type="number" [(ngModel)]="discountForm.maxDiscountAmount" class="form-control" placeholder="Optional cap" />
+        </div>
+      </div>
+
+      <div class="form-group" style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;">
+        <input type="checkbox" [(ngModel)]="discountForm.isFirstTimeOnly" id="firstTimeCheck" style="width:1.2rem; height:1.2rem; cursor:pointer;" />
+        <label for="firstTimeCheck" style="margin:0; cursor:pointer; color:#1b5e20;">Exclusive First-Time Buyer Discount?</label>
+      </div>
+
+      <div class="form-group">
+        <label>Marketing Description</label>
+        <textarea [(ngModel)]="discountForm.description" class="form-control" rows="2" placeholder="e.g. 15% off during the festive season!"></textarea>
+      </div>
+
+      <div class="form-actions" style="margin-top: 2rem;">
+        <button class="btn btn-ghost" (click)="closeDiscountModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="submitDiscount()" [disabled]="discountActionProcessing">
+          {{ discountActionProcessing ? 'Saving...' : 'Create Promotional Code' }}
+        </button>
+      </div>
+
+      <div class="action-result" *ngIf="discountActionMessage" [class.success]="discountActionMessage.startsWith('Success')" [class.error]="discountActionMessage.startsWith('Failed') || discountActionMessage.startsWith('Code')">
+        {{ discountActionMessage }}
       </div>
     </div>
   </div>

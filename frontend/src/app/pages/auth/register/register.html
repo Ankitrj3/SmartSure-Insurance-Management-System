@@ -1,11 +1,10 @@
 <div class="auth-container">
-  <div class="glass-panel auth-card">
+  <div class="auth-card animate-fade-in">
     
     @if (!verificationMode) {
-      <!-- Registration Mode -->
       <div class="auth-header">
-        <h2>Create Account</h2>
-        <p>Join SmartSure to secure your future.</p>
+        <h1 class="highlight-text">Create Account</h1>
+        <p>Join SmartSure to secure your future with intelligent insurance solutions.</p>
       </div>
 
       @if (errorMessage) {
@@ -61,7 +60,7 @@
             placeholder="Minimum 8 characters">
         </div>
 
-        <button type="submit" class="btn-primary" [disabled]="!registerForm.valid || isLoading" style="width: 100%; margin-top: 16px;">
+        <button type="submit" class="btn btn-primary" [disabled]="!registerForm.valid || isLoading" style="width: 100%; margin-top: 16px;">
           @if (isLoading) {
             <span>Creating...</span>
           } @else {
@@ -74,9 +73,10 @@
         <p>Already have an account? <a routerLink="/login">Sign In here</a></p>
       </div>
     } @else {
-      <!-- OTP Verification Mode -->
       <div class="auth-header">
-        <div class="mail-icon"></div>
+        <div class="success-icon-wrap" style="width: 80px; height: 80px; background: #F0FDF4; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin: 0 auto 24px; color: #10B981;">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 40px; height: 40px;"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg>
+        </div>
         <h2>Verify Your Email</h2>
         <p>We've sent a 6-digit OTP to <b>{{ registerData.email }}</b>.</p>
       </div>
@@ -89,21 +89,21 @@
       }
 
       <form (ngSubmit)="onVerify()" #verifyForm="ngForm">
-        <div class="form-group otp-group">
+        <div class="form-group">
           <label for="otp">Enter OTP Code</label>
           <input 
             type="text" 
             id="otp" 
             name="otp" 
-            class="input-base text-center" 
+            class="input-base" 
             [(ngModel)]="otpCode" 
             required 
             maxlength="6"
             placeholder="• • • • • •"
-            style="letter-spacing: 12px; font-size: 1.5rem; font-weight: bold;">
+            style="letter-spacing: 12px; font-size: 1.5rem; font-weight: bold; text-align: center;">
         </div>
 
-        <button type="submit" class="btn-primary" [disabled]="!verifyForm.valid || isLoading" style="width: 100%; margin-top: 16px;">
+        <button type="submit" class="btn btn-primary" [disabled]="!verifyForm.valid || isLoading" style="width: 100%; margin-top: 16px;">
           @if (isLoading) {
             <span>Verifying...</span>
           } @else {
@@ -111,7 +111,7 @@
           }
         </button>
         
-        <button type="button" class="btn-text" (click)="verificationMode = false" style="width: 100%; margin-top: 12px;">
+        <button type="button" class="btn btn-text" (click)="verificationMode = false" style="width: 100%; margin-top: 12px; color: var(--text-secondary); opacity: 0.8;">
           Back to Registration
         </button>
       </form>

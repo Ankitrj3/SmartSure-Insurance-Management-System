@@ -7,7 +7,6 @@ namespace SmartSure.PolicyService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class InsuranceController : ControllerBase
     {
         private readonly IInsuranceService _service;
