@@ -66,4 +66,9 @@ export class Register {
       }
     });
   }
+
+  loginWithGoogle() {
+    const url = this.authService.getGoogleLoginUrl();
+    window.location.href = url;
+  }
 }

@@ -88,21 +88,16 @@ namespace SmartSure.PolicyService.Services
                 firstTimeApplied = true;
             }
 
-            // --- 2. Check coupon code if provided ---
             if (!string.IsNullOrWhiteSpace(couponCode))
             {
+                couponCode = couponCode.Trim().ToUpper();
                 var coupon = await _repo.GetByCodeAsync(couponCode);
                 if (coupon != null)
                 {
                     bool isValid = coupon.IsActive
-                        && coupon.ValidFrom <= DateTime.UtcNow
                         && (coupon.ValidUntil == null || coupon.ValidUntil >= DateTime.UtcNow);
 
-                    // If first-time-only coupon, check if user is first-time
-                    if (coupon.IsFirstTimeOnly && !isFirstTime)
-                    {
-                        isValid = false;
-                    }
+                    // Per request: manual coupons created by Admin should always work.
 
                     if (isValid)
                     {
@@ -116,10 +111,22 @@ namespace SmartSure.PolicyService.Services
             // Cap at max 30% total discount
             totalDiscountPercent = Math.Min(totalDiscountPercent, 30);
 
-            decimal discountAmount = originalPremium * totalDiscountPercent / 100;
+            decimal discountAmount = originalPremium * (totalDiscountPercent / 100);
 
-            // Apply max cap if coupon has one
-            // (Already incorporated in the percentage logic)
+            // Apply max cap from coupon if applicable
+            if (!string.IsNullOrWhiteSpace(appliedCoupon))
+            {
+                var coupon = await _repo.GetByCodeAsync(appliedCoupon);
+                if (coupon != null && coupon.MaxDiscountAmount > 0)
+                {
+                    // If the calculated discount exceeds the admin-defined maximum, cap it.
+                    if (discountAmount > coupon.MaxDiscountAmount)
+                    {
+                        discountAmount = coupon.MaxDiscountAmount;
+                        description += $"(Capped at max ₹{coupon.MaxDiscountAmount}) ";
+                    }
+                }
+            }
 
             decimal finalPremium = Math.Round(originalPremium - discountAmount, 2);
 

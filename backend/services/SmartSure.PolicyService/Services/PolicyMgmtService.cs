@@ -99,7 +99,7 @@ namespace SmartSure.PolicyService.Services
             decimal riskRate = isVehicle ? 0.025m : 0.0015m;
             decimal riskPart = idv * riskRate * years;
             decimal total = basePart + riskPart;
-            return Math.Round(total, 2);
+            return Math.Round(Math.Min(total, basePremium), 2);
         }
 
         // ── Quote ──────────────────────────────────────────────────────────────

@@ -230,11 +230,19 @@
           <option *ngFor="let t of insuranceTypes" [value]="t.typeId || t.id">{{ t.name }}</option>
         </select>
       </div>
-      <div class="form-group" *ngIf="subtypes.length > 0">
+      <div class="form-group" *ngIf="isVehicleType() && selectedType">
+        <label>Select Vehicle Make (Company)</label>
+        <select class="input-base" [(ngModel)]="vehicleMakeFilter" (change)="onVehicleMakeChange()">
+          <option value="">-- Choose Company --</option>
+          <option *ngFor="let s of subtypes" [value]="s.name">{{ s.name }}</option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="filteredSubtypes.length > 0 && (!isVehicleType() || vehicleMakeFilter)">
         <label>Choose Plan Tier</label>
         <select class="input-base" [(ngModel)]="policyForm.subtypeId" (change)="updateSelectedPlanName()">
           <option value="">Choose Subtype</option>
-          <option *ngFor="let s of subtypes" [value]="s.subtypeId">{{ s.name }} - ₹{{ s.basePremium | number }} base</option>
+          <option *ngFor="let s of filteredSubtypes" [value]="s.subtypeId">{{ s.name }} - Premium start with rate: ₹{{ s.basePremium | number }}</option>
         </select>
       </div>
       <div class="form-group">
@@ -280,8 +288,8 @@
         </div>
         <div class="form-grid">
            <div class="form-group">
-             <label>Make</label>
-             <input type="text" class="input-base" [(ngModel)]="vehicleDetails.make" />
+             <label>Make (Company)</label>
+             <input type="text" class="input-base" [(ngModel)]="vehicleDetails.make" readonly style="background-color: #f3f4f6; cursor: not-allowed; opacity: 0.8;" title="Company make is auto-filled from previous selection" />
            </div>
            <div class="form-group">
              <label>Model</label>
@@ -320,7 +328,25 @@
            </div>
            <div class="premium-box">
               <span class="label">Total Premium</span>
-              <span class="premium-value">₹{{ calculatedPremium | number }}</span>
+              <span class="premium-value" [style.textDecoration]="discountResult ? 'line-through' : 'none'">₹{{ calculatedPremium | number }}</span>
+           </div>
+
+           <div class="form-group" style="margin-top: 15px;">
+              <label>Discount Coupon</label>
+              <div style="display:flex;gap:10px;">
+                 <input type="text" class="input-base" [(ngModel)]="couponCode" placeholder="Enter coupon code" />
+                 <button class="btn btn-outline" (click)="applyCoupon()" [disabled]="applyingDiscount">Apply</button>
+              </div>
+           </div>
+
+           <div class="summary-lite" *ngIf="discountResult" style="color: var(--status-active-color); margin-top: 10px;">
+              <span>Discount Applied: </span>
+              <strong>-₹{{ (calculatedPremium - discountResult.finalPremium) | number }}</strong>
+           </div>
+           
+           <div class="premium-box" *ngIf="discountResult" style="background: var(--status-active-bg); margin-top: 10px;">
+              <span class="label">Final Premium (After Discount)</span>
+              <span class="premium-value">₹{{ discountResult.finalPremium | number }}</span>
            </div>
         </div>
         <div class="modal-footer-btns">
@@ -334,7 +360,7 @@
         <h4>Complete Payment</h4>
         <div class="summary-lite">
            <span>Total to Pay:</span>
-           <strong>₹{{ calculatedPremium | number }}</strong>
+           <strong>₹{{ (discountResult ? discountResult.finalPremium : calculatedPremium) | number }}</strong>
         </div>
         <div class="form-group">
            <label>Payment Method</label>

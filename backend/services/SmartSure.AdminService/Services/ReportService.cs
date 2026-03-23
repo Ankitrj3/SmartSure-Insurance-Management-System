@@ -1,3 +1,4 @@
+using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using SmartSure.AdminService.Data;
 using SmartSure.AdminService.DTOs;
@@ -10,17 +11,21 @@ namespace SmartSure.AdminService.Services
     {
         private readonly AdminDbContext _context;
         private readonly ILogger<ReportService> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
 
-        public ReportService(AdminDbContext context, ILogger<ReportService> logger)
+        public ReportService(AdminDbContext context, ILogger<ReportService> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _context = context;
             _logger = logger;
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
         }
 
-        public async Task<ReportResponseDTO> GenerateReportAsync(Guid adminId, ReportRequestDTO dto)
+        public async Task<ReportResponseDTO> GenerateReportAsync(Guid adminId, ReportRequestDTO dto, string token)
         {
             // Generate report content based on type
-            var content = await GenerateContentAsync(dto);
+            var content = await GenerateContentAsync(dto, token);
 
             var report = new Report
             {
@@ -57,17 +62,60 @@ namespace SmartSure.AdminService.Services
             return report == null ? null : MapToDto(report);
         }
 
-        private async Task<string> GenerateContentAsync(ReportRequestDTO dto)
+        private async Task<string> GenerateContentAsync(ReportRequestDTO dto, string token)
         {
             // Generate JSON payload based on report type
             // In production this would query policy/claims data via HTTP or shared DB views
+            var gatewayUrl = _configuration["Gateway:Url"] ?? "http://localhost:5057";
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Add("Authorization", token);
+
+            int totalInsuranceSell = 0;
+            int totalClaimAccepted = 0;
+            int totalClaimRejected = 0;
+
+            try
+            {
+                var policiesResponse = await client.GetAsync($"{gatewayUrl}/policies/all");
+                if (policiesResponse.IsSuccessStatusCode)
+                {
+                    var policiesStr = await policiesResponse.Content.ReadAsStringAsync();
+                    var policies = JsonSerializer.Deserialize<JsonElement[]>(policiesStr);
+                    if (policies != null)
+                    {
+                        totalInsuranceSell = policies.Length;
+                    }
+                }
+
+                var claimsResponse = await client.GetAsync($"{gatewayUrl}/claims/all");
+                if (claimsResponse.IsSuccessStatusCode)
+                {
+                    var claimsStr = await claimsResponse.Content.ReadAsStringAsync();
+                    var claims = JsonSerializer.Deserialize<JsonElement[]>(claimsStr);
+                    if (claims != null)
+                    {
+                        totalClaimAccepted = claims.Count(c => c.TryGetProperty("status", out var s) && s.GetString() == "Approved");
+                        totalClaimRejected = claims.Count(c => c.TryGetProperty("status", out var s) && s.GetString() == "Rejected");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching data for report generation");
+            }
+
             var reportData = new
             {
                 title = dto.Title,
                 type = dto.ReportType,
                 dateRange = new { start = dto.DateRangeStart, end = dto.DateRangeEnd },
                 generatedAt = DateTime.UtcNow,
-                summary = $"Report generated for {dto.ReportType} from {dto.DateRangeStart:yyyy-MM-dd} to {dto.DateRangeEnd:yyyy-MM-dd}"
+                summary = $"Report generated for {dto.ReportType} from {dto.DateRangeStart:yyyy-MM-dd} to {dto.DateRangeEnd:yyyy-MM-dd}",
+                statistics = new {
+                    totalInsuranceSell,
+                    totalClaimAccepted,
+                    totalClaimRejected
+                }
             };
 
             return JsonSerializer.Serialize(reportData);

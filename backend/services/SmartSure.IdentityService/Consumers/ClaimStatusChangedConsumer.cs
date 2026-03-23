@@ -26,7 +26,12 @@ namespace IdentityService.Consumers
                 if (user != null && !string.IsNullOrEmpty(user.Email))
                 {
                     string subject = $"Your Claim {msg.ClaimId} was {msg.NewStatus.ToUpper()}";
-                    string body = $"Hello {user.FullName},<br/><br/>Your insurance claim with ID <b>{msg.ClaimId}</b> has been <b>{msg.NewStatus}</b>.<br/><br/>If you have any questions, please contact our support team.";
+                    string body = $"Hello {user.FullName},<br/><br/>Your insurance claim with ID <b>{msg.ClaimId}</b> has been <b>{msg.NewStatus}</b>.";
+                    if (msg.NewStatus == ClaimStatus.Rejected && !string.IsNullOrEmpty(msg.Reason))
+                    {
+                        body += $"<br/><br/><b>Reason for Rejection:</b> {msg.Reason}";
+                    }
+                    body += "<br/><br/>If you have any questions, please contact our support team.";
                     
                     await _emailService.SendEmailAsync(user.Email, subject, body);
                 }

@@ -307,7 +307,8 @@ export class AdminDashboard implements OnInit {
         next: (res) => {
           this.planActionMessage = 'Success: Subtype Plan published successfully!';
           this.planActionProcessing = false;
-          // Refresh list isn't straightforward without refetching or complex state
+          this.insuranceSubtypesList.push(res);
+          this.cdr.detectChanges();
           setTimeout(() => this.closeCreatePlanModal(), 1500);
         },
         error: (err) => {
@@ -491,5 +492,20 @@ export class AdminDashboard implements OnInit {
         alert('Failed: ' + (err.error?.message || err.message));
       }
     });
+  }
+
+  viewReport(report: any) {
+    if (report.content) {
+       try {
+          const parsed = typeof report.content === 'string' ? JSON.parse(report.content) : report.content;
+          if (parsed.statistics) {
+             alert(`Report: ${parsed.title}\nTotal Insurance Sell: ${parsed.statistics.totalInsuranceSell}\nTotal Claim Accepted: ${parsed.statistics.totalClaimAccepted}\nTotal Claim Rejected: ${parsed.statistics.totalClaimRejected}`);
+          } else {
+             alert(JSON.stringify(parsed, null, 2));
+          }
+       } catch (e) {
+          alert(report.content);
+       }
+    }
   }
 }

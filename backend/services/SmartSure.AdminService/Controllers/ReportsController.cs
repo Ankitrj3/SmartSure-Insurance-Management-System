@@ -32,7 +32,8 @@ namespace SmartSure.AdminService.Controllers
         public async Task<IActionResult> GenerateReport([FromBody] ReportRequestDTO dto)
         {
             var adminId = GetAdminId();
-            var report = await _reportService.GenerateReportAsync(adminId, dto);
+            string token = Request.Headers["Authorization"].ToString();
+            var report = await _reportService.GenerateReportAsync(adminId, dto, token);
             return CreatedAtAction(nameof(GetReport), new { reportId = report.ReportId }, report);
         }
 

@@ -49,6 +49,10 @@ export class UserDashboard implements OnInit {
   couponCode = '';
   discountResult: any = null;
   applyingDiscount = false;
+  
+  // filtering
+  vehicleMakeFilter = '';
+  filteredSubtypes: any[] = [];
 
   // Claim Form
   showClaimModal = false;
@@ -140,6 +144,8 @@ export class UserDashboard implements OnInit {
     this.calculatedPremium = 0;
     this.calculatedIdv = 0;
     this.quoteBreakdown = '';
+    this.vehicleMakeFilter = '';
+    this.filteredSubtypes = [];
     this.showBuyPolicyModal = true;
   }
 
@@ -148,9 +154,25 @@ export class UserDashboard implements OnInit {
     this.policyService.getSubtypesByType(this.selectedType).subscribe({
       next: (data: any) => {
         this.subtypes = this.extractData(data);
+        this.filterSubtypes();
         this.updateSelectedPlanName();
       }
     });
+  }
+
+  filterSubtypes() {
+    if (this.isVehicleType() && this.vehicleMakeFilter) {
+      const filterLower = this.vehicleMakeFilter.toLowerCase().trim();
+      this.filteredSubtypes = this.subtypes.filter(s => (s.name || s.Name || '').toLowerCase().startsWith(filterLower) || (s.name || s.Name || '').toLowerCase().includes(filterLower));
+    } else {
+      this.filteredSubtypes = this.subtypes;
+    }
+  }
+
+  onVehicleMakeChange() {
+     this.vehicleDetails.make = this.vehicleMakeFilter;
+     this.filterSubtypes();
+     this.updateSelectedPlanName();
   }
 
   updateSelectedPlanName() {
@@ -264,7 +286,7 @@ export class UserDashboard implements OnInit {
     const payload: any = {
       subtypeId: this.policyForm.subtypeId,
       duration: this.policyForm.duration,
-      couponCode: this.couponCode
+      couponCode: this.couponCode || null
     };
 
     if (this.isHomeType()) {
@@ -359,6 +381,14 @@ export class UserDashboard implements OnInit {
       this.claimMessage = 'Please fill all fields.';
       return;
     }
+    
+    // Check IDV Limit
+    const selectedPolicy = this.policies.find(p => p.policyId === this.claimForm.policyId);
+    if (selectedPolicy && this.claimForm.claimAmount > selectedPolicy.insuredDeclaredValue) {
+      this.claimMessage = 'Please Enter Amount less than or equal to IDV (₹' + selectedPolicy.insuredDeclaredValue + ')';
+      return;
+    }
+    
     this.claimService.submitClaim(this.claimForm).subscribe({
       next: (res: any) => {
         const cId = res.claimId || res.ClaimId;

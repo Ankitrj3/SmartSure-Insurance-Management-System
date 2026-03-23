@@ -23,6 +23,12 @@ namespace SmartSure.ClaimsService.Services
 
         public async Task<ClaimResponseDTO> CreateClaimAsync(Guid userId, CreateClaimDTO dto)
         {
+            var pendingClaimExists = await _context.Claims.AnyAsync(c => c.PolicyId == dto.PolicyId && (c.Status == ClaimStatus.Draft || c.Status == ClaimStatus.Submitted || c.Status == ClaimStatus.UnderReview));
+            if (pendingClaimExists)
+            {
+                throw new InvalidOperationException("You already filed a claim for this insurance. It is currently under review.");
+            }
+
             var claim = new Claim
             {
                 ClaimId = Guid.NewGuid(),
@@ -213,7 +219,7 @@ namespace SmartSure.ClaimsService.Services
             await _context.SaveChangesAsync();
             
             await _bus.Publish(new ClaimStatusChangedEvent(
-                claimId, ClaimStatus.Submitted, ClaimStatus.Rejected, adminId, DateTime.UtcNow, claim.UserId));
+                claimId, ClaimStatus.Submitted, ClaimStatus.Rejected, adminId, DateTime.UtcNow, claim.UserId, reason));
         }
 
         public async Task TransitionStatusAsync(Guid claimId, string newStatus, string changedBy, string? notes = null)
