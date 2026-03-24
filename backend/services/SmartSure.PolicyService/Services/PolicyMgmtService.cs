@@ -99,7 +99,7 @@ namespace SmartSure.PolicyService.Services
             decimal riskRate = isVehicle ? 0.025m : 0.0015m;
             decimal riskPart = idv * riskRate * years;
             decimal total = basePart + riskPart;
-            return Math.Round(Math.Min(total, basePremium), 2);
+            return Math.Round(total, 2);
         }
 
         // ── Quote ──────────────────────────────────────────────────────────────
@@ -200,7 +200,9 @@ namespace SmartSure.PolicyService.Services
                 EndDate = DateTime.UtcNow.AddMonths(dto.Duration),
                 PremiumAmount = finalPremium,
                 InsuredDeclaredValue = idv,
-                Status = "Pending" // Will become "Active" after payment
+                Status = "Pending", // Will become "Active" after payment
+                NomineeName = dto.NomineeName,
+                NomineeRelation = dto.NomineeRelation
             };
 
             await _repo.AddAsync(policy);
@@ -251,7 +253,9 @@ namespace SmartSure.PolicyService.Services
                 EndDate = policy.EndDate,
                 PremiumAmount = policy.PremiumAmount,
                 InsuredDeclaredValue = policy.InsuredDeclaredValue,
-                Status = policy.Status
+                Status = policy.Status,
+                NomineeName = policy.NomineeName,
+                NomineeRelation = policy.NomineeRelation
             };
         }
 
@@ -391,7 +395,9 @@ namespace SmartSure.PolicyService.Services
                 EndDate = p.EndDate,
                 PremiumAmount = p.PremiumAmount,
                 InsuredDeclaredValue = p.InsuredDeclaredValue,
-                Status = p.Status
+                Status = p.Status,
+                NomineeName = p.NomineeName,
+                NomineeRelation = p.NomineeRelation
             };
         }
     }

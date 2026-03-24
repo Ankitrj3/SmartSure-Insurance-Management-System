@@ -14,6 +14,9 @@ namespace SmartSure.ClaimsService.DTOs
         [Required]
         [Range(0.01, double.MaxValue, ErrorMessage = "Claim amount must be positive")]
         public decimal ClaimAmount { get; set; }
+
+        public string? ClaimType { get; set; }
+        public bool? IsCompletelyDamaged { get; set; }
     }
 
     public class UpdateClaimDTO
@@ -35,6 +38,8 @@ namespace SmartSure.ClaimsService.DTOs
         public decimal ClaimAmount { get; set; }
         public decimal? ApprovedAmount { get; set; }
         public string? RejectionReason { get; set; }
+        public string? ClaimType { get; set; }
+        public bool? IsCompletelyDamaged { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public List<DocumentResponseDTO> Documents { get; set; } = new();

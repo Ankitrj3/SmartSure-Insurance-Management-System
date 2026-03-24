@@ -30,6 +30,10 @@ namespace SmartSure.ClaimsService.Models
 
         public string? RejectionReason { get; set; }
 
+        public string? ClaimType { get; set; }
+        
+        public bool? IsCompletelyDamaged { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

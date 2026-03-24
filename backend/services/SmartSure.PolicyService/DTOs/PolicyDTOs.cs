@@ -14,6 +14,8 @@ namespace SmartSure.PolicyService.DTOs
         public decimal PremiumAmount { get; set; }
         public decimal InsuredDeclaredValue { get; set; }
         public string? Status { get; set; }
+        public string? NomineeName { get; set; }
+        public string? NomineeRelation { get; set; }
     }
 
     public class CreatePolicyDTO
@@ -32,6 +34,9 @@ namespace SmartSure.PolicyService.DTOs
         public CreateVehicleDetailDTO? VehicleDetail { get; set; }
 
         public string? CouponCode { get; set; }
+
+        public string? NomineeName { get; set; }
+        public string? NomineeRelation { get; set; }
     }
 
     public class CreateHomeDetailDTO

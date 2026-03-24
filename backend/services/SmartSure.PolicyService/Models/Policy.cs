@@ -44,5 +44,12 @@ namespace SmartSure.PolicyService.Models
         public HomeDetail HomeDetail { get; set; }
         public VehicleDetail VehicleDetail { get; set; }
         public ICollection<Payment> Payments { get; set; }
+
+        // Nominee details for the policy (optional)
+        [StringLength(100)]
+        public string? NomineeName { get; set; }
+        
+        [StringLength(50)]
+        public string? NomineeRelation { get; set; }
     }
 }

@@ -36,6 +36,8 @@ namespace SmartSure.ClaimsService.Services
                 UserId = userId,
                 Description = dto.Description,
                 ClaimAmount = dto.ClaimAmount,
+                ClaimType = dto.ClaimType,
+                IsCompletelyDamaged = dto.IsCompletelyDamaged,
                 Status = ClaimStatus.Draft
             };
 
@@ -263,6 +265,8 @@ namespace SmartSure.ClaimsService.Services
                 ClaimAmount = claim.ClaimAmount,
                 ApprovedAmount = claim.ApprovedAmount,
                 RejectionReason = claim.RejectionReason,
+                ClaimType = claim.ClaimType,
+                IsCompletelyDamaged = claim.IsCompletelyDamaged,
                 CreatedAt = claim.CreatedAt,
                 UpdatedAt = claim.UpdatedAt,
                 Documents = claim.Documents?.Select(d => new DocumentResponseDTO
