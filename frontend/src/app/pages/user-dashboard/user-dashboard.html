@@ -277,7 +277,9 @@
         </div>
         <div class="form-group">
           <label>Year Built</label>
-          <input type="number" class="input-base" [(ngModel)]="homeDetails.yearBuilt" placeholder="e.g. 2015" />
+          <select class="input-base" [(ngModel)]="homeDetails.yearBuilt">
+            <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
+          </select>
         </div>
       </div>
 
@@ -303,9 +305,23 @@
            </div>
            <div class="form-group">
              <label>Manufacture Year</label>
-             <input type="number" class="input-base" [(ngModel)]="vehicleDetails.manufactureYear" placeholder="e.g. 2022" />
+             <select class="input-base" [(ngModel)]="vehicleDetails.manufactureYear">
+               <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
+             </select>
            </div>
         </div>
+      </div>
+
+      <!-- Common Fields for both Vehicle & Home -->
+      <div class="form-grid">
+         <div class="form-group">
+            <label>Nominee Name</label>
+            <input type="text" class="input-base" [(ngModel)]="policyForm.nomineeName" placeholder="Full Name" />
+         </div>
+         <div class="form-group">
+            <label>Nominee Relation</label>
+            <input type="text" class="input-base" [(ngModel)]="policyForm.nomineeRelation" placeholder="e.g. Spouse, Son" />
+         </div>
       </div>
 
       <div class="modal-footer-btns">
@@ -395,14 +411,33 @@
     </div>
     <div class="form-group">
       <label>Select Policy</label>
-      <select class="input-base" [(ngModel)]="claimForm.policyId">
+      <select class="input-base" [(ngModel)]="claimForm.policyId" (change)="onClaimPolicyChange()">
         <option value="" disabled>Choose an active policy</option>
-        <option *ngFor="let p of policies" [value]="p.policyId">{{ p.typeName || 'Policy' }} - {{ p.policyId | slice:0:8 }}</option>
+        <option *ngFor="let p of policies" [value]="p.policyId" [disabled]="p.status !== 'Active'">{{ p.typeName || 'Policy' }} - {{ p.policyId | slice:0:8 }} ({{ p.status }})</option>
       </select>
     </div>
+
+    <!-- Vehicle specific fields -->
+    <ng-container *ngIf="claimForm.policyId && isPolicyVehicleType(getSelectedClaimPolicy())">
+      <div class="form-group">
+        <label>Claim Event Type</label>
+        <select class="input-base" [(ngModel)]="claimForm.claimType">
+          <option value="Accident">Accident</option>
+          <option value="Stolen">Stolen</option>
+          <option value="NaturalDisaster">Natural Disaster</option>
+        </select>
+      </div>
+      <div class="form-group" style="display: flex; align-items: center; gap: 10px;" *ngIf="claimForm.claimType === 'Accident'">
+         <input type="checkbox" id="dmgCheck" [(ngModel)]="claimForm.isCompletelyDamaged" (change)="onCompletelyDamagedChange()" style="width: 20px; height: 20px;" />
+         <label for="dmgCheck" style="margin-bottom: 0;">Vehicle is completely damaged (not repairable)</label>
+      </div>
+    </ng-container>
+
     <div class="form-group">
       <label>Claim Amount (₹)</label>
-      <input type="number" class="input-base" [(ngModel)]="claimForm.claimAmount" placeholder="Enter requested amount" />
+      <input type="number" class="input-base" [(ngModel)]="claimForm.claimAmount" placeholder="Enter requested amount" [disabled]="claimForm.isCompletelyDamaged" />
+      <small style="color: #666;" *ngIf="claimForm.policyId && isPolicyVehicleType(getSelectedClaimPolicy()) && claimForm.claimType === 'Accident' && !claimForm.isCompletelyDamaged">Accident limit: 75% of IDV</small>
+      <small style="color: #0DB18C;" *ngIf="claimForm.isCompletelyDamaged">Full IDV will be claimed automatically.</small>
     </div>
     <div class="form-group">
       <label>Incident Description</label>

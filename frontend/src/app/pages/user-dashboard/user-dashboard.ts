@@ -53,10 +53,11 @@ export class UserDashboard implements OnInit {
   // filtering
   vehicleMakeFilter = '';
   filteredSubtypes: any[] = [];
+  availableYears: number[] = [];
 
   // Claim Form
   showClaimModal = false;
-  claimForm = { policyId: '', description: '', claimAmount: 0 };
+  claimForm: any = { policyId: '', description: '', claimAmount: 0, claimType: 'Accident', isCompletelyDamaged: false };
   claimMessage = '';
   selectedFile: File | null = null;
   selectedPolicyForClaim = '';
@@ -72,7 +73,12 @@ export class UserDashboard implements OnInit {
     private claimService: ClaimService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    const currentYear = new Date().getFullYear();
+    for (let i = 0; i <= 30; i++) {
+       this.availableYears.push(currentYear - i);
+    }
+  }
 
   ngOnInit() {
     this.fetchData();
@@ -138,7 +144,7 @@ export class UserDashboard implements OnInit {
   openBuyPolicyModal() {
     this.buyPolicyStep = 1;
     this.policyMessage = '';
-    this.policyForm = { subtypeId: '', duration: 12 };
+    this.policyForm = { subtypeId: '', duration: 12, nomineeName: '', nomineeRelation: '' };
     this.homeDetails = { address: '', propertyType: 'House', yearBuilt: new Date().getFullYear(), estimatedValue: 0, securityFeatures: '' };
     this.vehicleDetails = { registrationNumber: '', make: '', model: '', manufactureYear: new Date().getFullYear(), estimatedValue: 0, chassisNumber: '', engineNumber: '' };
     this.calculatedPremium = 0;
@@ -195,6 +201,10 @@ export class UserDashboard implements OnInit {
   }
 
   proceedToReview() {
+    if (!this.policyForm.nomineeName || !this.policyForm.nomineeRelation) {
+      this.policyMessage = 'Please enter nominee details.';
+      return;
+    }
     if (this.isHomeType() && (!this.homeDetails.address || !this.homeDetails.propertyType || !this.homeDetails.estimatedValue)) {
       this.policyMessage = 'Please fill all required home details.';
       return;
@@ -202,6 +212,13 @@ export class UserDashboard implements OnInit {
     if (this.isVehicleType() && (!this.vehicleDetails.registrationNumber || !this.vehicleDetails.make || !this.vehicleDetails.model || !this.vehicleDetails.estimatedValue)) {
       this.policyMessage = 'Please fill all required vehicle details.';
       return;
+    }
+    if (this.isVehicleType()) {
+      const plateRegex = /^[A-Z]{2}[ -]?[0-9]{1,2}[ -]?[A-Z]{1,3}[ -]?[0-9]{4}$/i;
+      if (!plateRegex.test(this.vehicleDetails.registrationNumber)) {
+        this.policyMessage = 'Registration Number must be in a valid format (e.g. MH-12-AB-1234 or MH12AB1234)';
+        return;
+      }
     }
 
     this.policyMessage = '';
@@ -286,7 +303,9 @@ export class UserDashboard implements OnInit {
     const payload: any = {
       subtypeId: this.policyForm.subtypeId,
       duration: this.policyForm.duration,
-      couponCode: this.couponCode || null
+      couponCode: this.couponCode || null,
+      nomineeName: this.policyForm.nomineeName,
+      nomineeRelation: this.policyForm.nomineeRelation
     };
 
     if (this.isHomeType()) {
@@ -366,7 +385,7 @@ export class UserDashboard implements OnInit {
 
   // --- Claims Flow ---
   openClaimModal() {
-    this.claimForm = { policyId: '', description: '', claimAmount: 0 };
+    this.claimForm = { policyId: '', description: '', claimAmount: 0, claimType: 'Accident', isCompletelyDamaged: false };
     this.claimMessage = '';
     this.selectedFile = null;
     this.showClaimModal = true;
@@ -377,16 +396,41 @@ export class UserDashboard implements OnInit {
   }
 
   submitClaim() {
-    if (!this.claimForm.policyId || !this.claimForm.description || !this.claimForm.claimAmount) {
-      this.claimMessage = 'Please fill all fields.';
+    if (!this.claimForm.policyId || !this.claimForm.description) {
+      this.claimMessage = 'Please fill all required fields.';
       return;
     }
     
-    // Check IDV Limit
     const selectedPolicy = this.policies.find(p => p.policyId === this.claimForm.policyId);
-    if (selectedPolicy && this.claimForm.claimAmount > selectedPolicy.insuredDeclaredValue) {
-      this.claimMessage = 'Please Enter Amount less than or equal to IDV (₹' + selectedPolicy.insuredDeclaredValue + ')';
-      return;
+    if (!selectedPolicy) return;
+    
+    // Check IDV Limit and Conditions
+    if (this.isPolicyVehicleType(selectedPolicy)) {
+       if (this.claimForm.claimType === 'Stolen' || this.claimForm.claimType === 'NaturalDisaster') {
+          if (this.claimForm.claimAmount > selectedPolicy.insuredDeclaredValue) {
+            this.claimMessage = 'For Stolen/Natural Disaster, max claim is IDV (₹' + selectedPolicy.insuredDeclaredValue + ')';
+            return;
+          }
+       } else if (this.claimForm.claimType === 'Accident') {
+          if (this.claimForm.isCompletelyDamaged) {
+             if (!this.selectedFile) {
+               this.claimMessage = 'Please upload a document/image for full damage claim.';
+               return;
+             }
+             this.claimForm.claimAmount = selectedPolicy.insuredDeclaredValue;
+          } else {
+             const maxAccidentAmount = selectedPolicy.insuredDeclaredValue * 0.75;
+             if (this.claimForm.claimAmount > maxAccidentAmount) {
+                this.claimMessage = 'For Accident (repairable), you can only claim up to 75% of IDV (₹' + maxAccidentAmount + ')';
+                return;
+             }
+          }
+       }
+    } else {
+       if (this.claimForm.claimAmount > selectedPolicy.insuredDeclaredValue) {
+          this.claimMessage = 'Please Enter Amount less than or equal to IDV (₹' + selectedPolicy.insuredDeclaredValue + ')';
+          return;
+       }
     }
     
     this.claimService.submitClaim(this.claimForm).subscribe({
@@ -426,6 +470,32 @@ export class UserDashboard implements OnInit {
       case 'cancelled': return 'status-cancelled';
       case 'expired': return 'status-expired';
       default: return '';
+    }
+  }
+
+  isPolicyVehicleType(policy: any): boolean {
+    if (!policy) return false;
+    const name = policy.typeName?.toLowerCase() || '';
+    return name.includes('vehicle') || name.includes('auto') || name.includes('car');
+  }
+
+  onClaimPolicyChange() {
+    this.claimForm.claimAmount = 0;
+    this.claimForm.claimType = 'Accident';
+    this.claimForm.isCompletelyDamaged = false;
+  }
+
+  getSelectedClaimPolicy() {
+    if (!this.claimForm.policyId) return null;
+    return this.policies.find(p => p.policyId === this.claimForm.policyId);
+  }
+
+  onCompletelyDamagedChange() {
+    const selectedPolicy = this.policies.find(p => p.policyId === this.claimForm.policyId);
+    if (this.claimForm.isCompletelyDamaged && selectedPolicy) {
+       this.claimForm.claimAmount = selectedPolicy.insuredDeclaredValue;
+    } else {
+       this.claimForm.claimAmount = 0;
     }
   }
 }
