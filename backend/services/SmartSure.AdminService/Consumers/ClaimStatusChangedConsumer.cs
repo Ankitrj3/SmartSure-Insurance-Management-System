@@ -2,6 +2,7 @@ using MassTransit;
 using SmartSure.AdminService.Services;
 using SmartSure.Shared.Contracts.Events;
 
+
 namespace SmartSure.AdminService.Consumers
 {
     public class ClaimStatusChangedConsumer : IConsumer<ClaimStatusChangedEvent>

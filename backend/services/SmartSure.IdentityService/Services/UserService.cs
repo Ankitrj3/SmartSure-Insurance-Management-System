@@ -1,6 +1,7 @@
 using IdentityService.DTOs;
 using IdentityService.Models;
 using IdentityService.Repositories;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace IdentityService.Services
 {
@@ -16,10 +17,10 @@ namespace IdentityService.Services
         public async Task AssignRole(Guid userId, Guid roleId)
         {
             var user = await _repo.GetByIdAsync(userId);
-            if (user == null) throw new Exception("User not found");
+            if (user == null) throw new NotFoundException("User", userId);
 
             var role = await _repo.GetRoleByIdAsync(roleId);
-            if (role == null) throw new Exception("Role not found");
+            if (role == null) throw new NotFoundException("Role", roleId);
 
             var userRole = new UserRole { UserId = userId, RoleId = roleId };
             await _repo.AddUserRoleAsync(userRole);
@@ -29,7 +30,7 @@ namespace IdentityService.Services
         public async Task DeleteUser(Guid userId)
         {
             var user = await _repo.GetByIdAsync(userId);
-            if (user == null) throw new Exception("User not found");
+            if (user == null) throw new NotFoundException("User", userId);
 
             _repo.Delete(user);
             await _repo.SaveChangesAsync();
@@ -40,8 +41,8 @@ namespace IdentityService.Services
             var users = await _repo.GetAllAsync();
             return users.Select(u => new UserDTO
             {
-                UserId = u.UserId,
-                Email = u.Email,
+                UserId   = u.UserId,
+                Email    = u.Email,
                 FullName = u.FullName
             }).ToList();
         }

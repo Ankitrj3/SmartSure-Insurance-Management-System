@@ -34,7 +34,7 @@ builder.AddSerilogLogging("ClaimsService");
 
 // Database
 builder.Services.AddDbContext<ClaimsDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultClaimsConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ClaimsConnDb")));
 
 // RabbitMQ (InMemory for testing)
 builder.Services.AddMassTransit(x =>

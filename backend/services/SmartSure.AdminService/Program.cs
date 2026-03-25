@@ -38,7 +38,7 @@ builder.Services.AddHttpClient();
 
 // Database
 builder.Services.AddDbContext<AdminDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultAdminConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AdminConnDb")));
 
 // RabbitMQ (InMemory for testing)
 builder.Services.AddMassTransit(x =>

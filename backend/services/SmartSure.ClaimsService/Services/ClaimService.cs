@@ -5,6 +5,7 @@ using SmartSure.ClaimsService.DTOs;
 using SmartSure.ClaimsService.Models;
 using SmartSure.Shared.Contracts.Constants;
 using SmartSure.Shared.Contracts.Events;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.ClaimsService.Services
 {
@@ -17,44 +18,45 @@ namespace SmartSure.ClaimsService.Services
         public ClaimService(ClaimsDbContext context, IBus bus, ILogger<ClaimService> logger)
         {
             _context = context;
-            _bus = bus;
-            _logger = logger;
+            _bus     = bus;
+            _logger  = logger;
         }
 
         public async Task<ClaimResponseDTO> CreateClaimAsync(Guid userId, CreateClaimDTO dto)
         {
-            var pendingClaimExists = await _context.Claims.AnyAsync(c => c.PolicyId == dto.PolicyId && (c.Status == ClaimStatus.Draft || c.Status == ClaimStatus.Submitted || c.Status == ClaimStatus.UnderReview));
+            var pendingClaimExists = await _context.Claims.AnyAsync(c =>
+                c.PolicyId == dto.PolicyId &&
+                (c.Status == ClaimStatus.Draft || c.Status == ClaimStatus.Submitted || c.Status == ClaimStatus.UnderReview));
+
             if (pendingClaimExists)
-            {
-                throw new InvalidOperationException("You already filed a claim for this insurance. It is currently under review.");
-            }
+                throw new ConflictException("You already filed a claim for this insurance. It is currently under review.");
 
             var claim = new Claim
             {
-                ClaimId = Guid.NewGuid(),
-                PolicyId = dto.PolicyId,
-                UserId = userId,
-                Description = dto.Description,
-                ClaimAmount = dto.ClaimAmount,
-                ClaimType = dto.ClaimType,
-                IsCompletelyDamaged = dto.IsCompletelyDamaged,
-                Status = ClaimStatus.Draft
+                ClaimId              = Guid.NewGuid(),
+                PolicyId             = dto.PolicyId,
+                UserId               = userId,
+                Description          = dto.Description,
+                ClaimAmount          = dto.ClaimAmount,
+                ClaimType            = dto.ClaimType,
+                IsCompletelyDamaged  = dto.IsCompletelyDamaged,
+                Status               = ClaimStatus.Draft
             };
 
-            // Add initial status history
             claim.StatusHistory.Add(new ClaimStatusHistory
             {
-                ClaimId = claim.ClaimId,
-                OldStatus = "",
-                NewStatus = ClaimStatus.Draft,
-                ChangedBy = userId.ToString(),
-                Notes = "Claim created"
+                ClaimId    = claim.ClaimId,
+                OldStatus  = "",
+                NewStatus  = ClaimStatus.Draft,
+                ChangedBy  = userId.ToString(),
+                Notes      = "Claim created"
             });
 
             _context.Claims.Add(claim);
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Claim {ClaimId} created for policy {PolicyId} by user {UserId}", claim.ClaimId, dto.PolicyId, userId);
+            _logger.LogInformation("Claim {ClaimId} created for policy {PolicyId} by user {UserId}",
+                claim.ClaimId, dto.PolicyId, userId);
 
             return MapToDto(claim);
         }
@@ -104,10 +106,10 @@ namespace SmartSure.ClaimsService.Services
         public async Task<ClaimResponseDTO> UpdateClaimAsync(Guid claimId, UpdateClaimDTO dto)
         {
             var claim = await _context.Claims.FindAsync(claimId);
-            if (claim == null) throw new KeyNotFoundException("Claim not found.");
+            if (claim == null) throw new NotFoundException("Claim", claimId);
 
             if (claim.Status != ClaimStatus.Draft)
-                throw new InvalidOperationException("Only draft claims can be updated.");
+                throw new BusinessRuleException("Only draft claims can be updated.");
 
             if (!string.IsNullOrEmpty(dto.Description))
                 claim.Description = dto.Description;
@@ -119,7 +121,6 @@ namespace SmartSure.ClaimsService.Services
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("Claim {ClaimId} updated", claimId);
-
             return MapToDto(claim);
         }
 
@@ -129,26 +130,25 @@ namespace SmartSure.ClaimsService.Services
                 .Include(c => c.StatusHistory)
                 .FirstOrDefaultAsync(c => c.ClaimId == claimId);
 
-            if (claim == null) throw new KeyNotFoundException("Claim not found.");
+            if (claim == null) throw new NotFoundException("Claim", claimId);
             if (claim.Status != ClaimStatus.Draft)
-                throw new InvalidOperationException("Only draft claims can be submitted.");
+                throw new BusinessRuleException("Only draft claims can be submitted.");
 
-            var oldStatus = claim.Status;
-            claim.Status = ClaimStatus.Submitted;
+            var oldStatus  = claim.Status;
+            claim.Status    = ClaimStatus.Submitted;
             claim.UpdatedAt = DateTime.UtcNow;
 
             claim.StatusHistory.Add(new ClaimStatusHistory
             {
-                ClaimId = claimId,
+                ClaimId   = claimId,
                 OldStatus = oldStatus,
                 NewStatus = ClaimStatus.Submitted,
                 ChangedBy = userId.ToString(),
-                Notes = "Claim submitted for review"
+                Notes     = "Claim submitted for review"
             });
 
             await _context.SaveChangesAsync();
 
-            // Publish event
             await _bus.Publish(new ClaimSubmittedEvent(
                 claimId, claim.PolicyId, claim.UserId, claim.Description, DateTime.UtcNow));
 
@@ -167,10 +167,10 @@ namespace SmartSure.ClaimsService.Services
 
             return history.Select(h => new ClaimStatusHistoryDTO
             {
-                Id = h.Id,
+                Id        = h.Id,
                 OldStatus = h.OldStatus,
                 NewStatus = h.NewStatus,
-                Notes = h.Notes,
+                Notes     = h.Notes,
                 ChangedBy = h.ChangedBy,
                 ChangedAt = h.ChangedAt
             }).ToList();
@@ -178,48 +178,54 @@ namespace SmartSure.ClaimsService.Services
 
         public async Task ApproveClaimAsync(Guid claimId, decimal approvedAmount, string? notes, string adminId)
         {
-            var claim = await _context.Claims.Include(c => c.StatusHistory).FirstOrDefaultAsync(c => c.ClaimId == claimId);
-            if (claim == null) throw new KeyNotFoundException("Claim not found.");
+            var claim = await _context.Claims
+                .Include(c => c.StatusHistory)
+                .FirstOrDefaultAsync(c => c.ClaimId == claimId);
 
-            claim.Status = ClaimStatus.Approved;
+            if (claim == null) throw new NotFoundException("Claim", claimId);
+
+            claim.Status         = ClaimStatus.Approved;
             claim.ApprovedAmount = approvedAmount;
-            claim.UpdatedAt = DateTime.UtcNow;
+            claim.UpdatedAt      = DateTime.UtcNow;
 
             claim.StatusHistory.Add(new ClaimStatusHistory
             {
-                ClaimId = claimId,
+                ClaimId   = claimId,
                 OldStatus = ClaimStatus.Submitted,
                 NewStatus = ClaimStatus.Approved,
                 ChangedBy = adminId,
-                Notes = notes ?? "Approved by administrator"
+                Notes     = notes ?? "Approved by administrator"
             });
 
             await _context.SaveChangesAsync();
-            
+
             await _bus.Publish(new ClaimStatusChangedEvent(
                 claimId, ClaimStatus.Submitted, ClaimStatus.Approved, adminId, DateTime.UtcNow, claim.UserId));
         }
 
         public async Task RejectClaimAsync(Guid claimId, string reason, string adminId)
         {
-            var claim = await _context.Claims.Include(c => c.StatusHistory).FirstOrDefaultAsync(c => c.ClaimId == claimId);
-            if (claim == null) throw new KeyNotFoundException("Claim not found.");
+            var claim = await _context.Claims
+                .Include(c => c.StatusHistory)
+                .FirstOrDefaultAsync(c => c.ClaimId == claimId);
 
-            claim.Status = ClaimStatus.Rejected;
+            if (claim == null) throw new NotFoundException("Claim", claimId);
+
+            claim.Status          = ClaimStatus.Rejected;
             claim.RejectionReason = reason;
-            claim.UpdatedAt = DateTime.UtcNow;
+            claim.UpdatedAt       = DateTime.UtcNow;
 
             claim.StatusHistory.Add(new ClaimStatusHistory
             {
-                ClaimId = claimId,
+                ClaimId   = claimId,
                 OldStatus = ClaimStatus.Submitted,
                 NewStatus = ClaimStatus.Rejected,
                 ChangedBy = adminId,
-                Notes = reason
+                Notes     = reason
             });
 
             await _context.SaveChangesAsync();
-            
+
             await _bus.Publish(new ClaimStatusChangedEvent(
                 claimId, ClaimStatus.Submitted, ClaimStatus.Rejected, adminId, DateTime.UtcNow, claim.UserId, reason));
         }
@@ -230,19 +236,19 @@ namespace SmartSure.ClaimsService.Services
                 .Include(c => c.StatusHistory)
                 .FirstOrDefaultAsync(c => c.ClaimId == claimId);
 
-            if (claim == null) throw new KeyNotFoundException("Claim not found.");
+            if (claim == null) throw new NotFoundException("Claim", claimId);
 
-            var oldStatus = claim.Status;
-            claim.Status = newStatus;
+            var oldStatus   = claim.Status;
+            claim.Status    = newStatus;
             claim.UpdatedAt = DateTime.UtcNow;
 
             claim.StatusHistory.Add(new ClaimStatusHistory
             {
-                ClaimId = claimId,
+                ClaimId   = claimId,
                 OldStatus = oldStatus,
                 NewStatus = newStatus,
                 ChangedBy = changedBy,
-                Notes = notes
+                Notes     = notes
             });
 
             await _context.SaveChangesAsync();
@@ -257,27 +263,27 @@ namespace SmartSure.ClaimsService.Services
         {
             return new ClaimResponseDTO
             {
-                ClaimId = claim.ClaimId,
-                PolicyId = claim.PolicyId,
-                UserId = claim.UserId,
-                Description = claim.Description,
-                Status = claim.Status,
-                ClaimAmount = claim.ClaimAmount,
-                ApprovedAmount = claim.ApprovedAmount,
-                RejectionReason = claim.RejectionReason,
-                ClaimType = claim.ClaimType,
+                ClaimId             = claim.ClaimId,
+                PolicyId            = claim.PolicyId,
+                UserId              = claim.UserId,
+                Description         = claim.Description,
+                Status              = claim.Status,
+                ClaimAmount         = claim.ClaimAmount,
+                ApprovedAmount      = claim.ApprovedAmount,
+                RejectionReason     = claim.RejectionReason,
+                ClaimType           = claim.ClaimType,
                 IsCompletelyDamaged = claim.IsCompletelyDamaged,
-                CreatedAt = claim.CreatedAt,
-                UpdatedAt = claim.UpdatedAt,
-                Documents = claim.Documents?.Select(d => new DocumentResponseDTO
+                CreatedAt           = claim.CreatedAt,
+                UpdatedAt           = claim.UpdatedAt,
+                Documents           = claim.Documents?.Select(d => new DocumentResponseDTO
                 {
-                    DocumentId = d.DocumentId,
-                    ClaimId = d.ClaimId,
-                    FileName = d.FileName,
-                    FileUrl = d.FileUrl,
+                    DocumentId  = d.DocumentId,
+                    ClaimId     = d.ClaimId,
+                    FileName    = d.FileName,
+                    FileUrl     = d.FileUrl,
                     ContentType = d.ContentType,
-                    FileSize = d.FileSize,
-                    UploadedAt = d.UploadedAt
+                    FileSize    = d.FileSize,
+                    UploadedAt  = d.UploadedAt
                 }).ToList() ?? new()
             };
         }

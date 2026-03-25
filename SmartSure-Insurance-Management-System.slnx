@@ -13,6 +13,8 @@
     <Project Path="backend/shared/SmartSure.Shared.Contracts/SmartSure.Shared.Contracts.csproj" />
   </Folder>
   <Folder Name="/backend/test/">
+    <Project Path="backend/test/SmartSure.AdminService.Tests/SmartSure.AdminService.Tests.csproj" />
+    <Project Path="backend/test/SmartSure.ClaimsService.Tests/SmartSure.ClaimsService.Tests.csproj" />
     <Project Path="backend/test/SmartSure.IdentityService.Tests/SmartSure.IdentityService.Tests.csproj" />
     <Project Path="backend/test/SmartSure.PolicyService.Tests/SmartSure.PolicyService.Tests.csproj" />
   </Folder>

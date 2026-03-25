@@ -1,6 +1,7 @@
 using SmartSure.PolicyService.DTOs;
 using SmartSure.PolicyService.Models;
 using SmartSure.PolicyService.Repositories;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.PolicyService.Services
 {
@@ -18,8 +19,8 @@ namespace SmartSure.PolicyService.Services
             var types = await _repo.GetAllTypesAsync();
             return types.Select(t => new InsuranceTypeDTO
             {
-                TypeId = t.TypeId,
-                Name = t.Name,
+                TypeId      = t.TypeId,
+                Name        = t.Name,
                 Description = t.Description
             }).ToList();
         }
@@ -27,11 +28,11 @@ namespace SmartSure.PolicyService.Services
         public async Task<InsuranceTypeDTO> GetTypeByIdAsync(Guid typeId)
         {
             var type = await _repo.GetTypeByIdAsync(typeId);
-            if (type == null) return null;
+            if (type == null) return null!;
             return new InsuranceTypeDTO
             {
-                TypeId = type.TypeId,
-                Name = type.Name,
+                TypeId      = type.TypeId,
+                Name        = type.Name,
                 Description = type.Description
             };
         }
@@ -40,16 +41,16 @@ namespace SmartSure.PolicyService.Services
         {
             var type = new InsuranceType
             {
-                TypeId = Guid.NewGuid(),
-                Name = dto.Name,
+                TypeId      = Guid.NewGuid(),
+                Name        = dto.Name,
                 Description = dto.Description
             };
             await _repo.AddTypeAsync(type);
             await _repo.SaveChangesAsync();
             return new InsuranceTypeDTO
             {
-                TypeId = type.TypeId,
-                Name = type.Name,
+                TypeId      = type.TypeId,
+                Name        = type.Name,
                 Description = type.Description
             };
         }
@@ -57,11 +58,11 @@ namespace SmartSure.PolicyService.Services
         public async Task UpdateTypeAsync(Guid typeId, UpdateInsuranceTypeDTO dto)
         {
             var type = await _repo.GetTypeByIdAsync(typeId);
-            if (type == null) throw new Exception("Type not found");
+            if (type == null) throw new NotFoundException("Insurance type", typeId);
 
-            type.Name = dto.Name;
+            type.Name        = dto.Name;
             type.Description = dto.Description;
-            
+
             await _repo.UpdateTypeAsync(type);
             await _repo.SaveChangesAsync();
         }
@@ -77,10 +78,10 @@ namespace SmartSure.PolicyService.Services
             var subtypes = await _repo.GetAllSubtypesAsync();
             return subtypes.Select(s => new InsuranceSubtypeDTO
             {
-                SubtypeId = s.SubtypeId,
-                TypeId = s.TypeId,
-                TypeName = s.Type?.Name,
-                Name = s.Name,
+                SubtypeId   = s.SubtypeId,
+                TypeId      = s.TypeId,
+                TypeName    = s.Type?.Name,
+                Name        = s.Name,
                 Description = s.Description,
                 BasePremium = s.BasePremium
             }).ToList();
@@ -91,10 +92,10 @@ namespace SmartSure.PolicyService.Services
             var subtypes = await _repo.GetSubtypesByTypeIdAsync(typeId);
             return subtypes.Select(s => new InsuranceSubtypeDTO
             {
-                SubtypeId = s.SubtypeId,
-                TypeId = s.TypeId,
-                TypeName = s.Type?.Name,
-                Name = s.Name,
+                SubtypeId   = s.SubtypeId,
+                TypeId      = s.TypeId,
+                TypeName    = s.Type?.Name,
+                Name        = s.Name,
                 Description = s.Description,
                 BasePremium = s.BasePremium
             }).ToList();
@@ -104,24 +105,23 @@ namespace SmartSure.PolicyService.Services
         {
             var subtype = new InsuranceSubtype
             {
-                SubtypeId = Guid.NewGuid(),
-                TypeId = dto.TypeId,
-                Name = dto.Name,
+                SubtypeId   = Guid.NewGuid(),
+                TypeId      = dto.TypeId,
+                Name        = dto.Name,
                 Description = dto.Description,
                 BasePremium = dto.BasePremium
             };
             await _repo.AddSubtypeAsync(subtype);
             await _repo.SaveChangesAsync();
 
-            // Fetch the parent type name for the response
             var parentType = await _repo.GetTypeByIdAsync(dto.TypeId);
 
             return new InsuranceSubtypeDTO
             {
-                SubtypeId = subtype.SubtypeId,
-                TypeId = subtype.TypeId,
-                TypeName = parentType?.Name,
-                Name = subtype.Name,
+                SubtypeId   = subtype.SubtypeId,
+                TypeId      = subtype.TypeId,
+                TypeName    = parentType?.Name,
+                Name        = subtype.Name,
                 Description = subtype.Description,
                 BasePremium = subtype.BasePremium
             };
@@ -130,9 +130,9 @@ namespace SmartSure.PolicyService.Services
         public async Task UpdateSubtypeAsync(Guid subtypeId, UpdateInsuranceSubtypeDTO dto)
         {
             var subtype = await _repo.GetSubtypeByIdAsync(subtypeId);
-            if (subtype == null) throw new Exception("Subtype not found");
+            if (subtype == null) throw new NotFoundException("Insurance subtype", subtypeId);
 
-            subtype.Name = dto.Name;
+            subtype.Name        = dto.Name;
             subtype.Description = dto.Description;
             subtype.BasePremium = dto.BasePremium;
 

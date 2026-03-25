@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-
 namespace SmartSure.AdminService.Models
 {
     public class AuditLog
     {
+
         [Key]
         public Guid Id { get; set; }
 

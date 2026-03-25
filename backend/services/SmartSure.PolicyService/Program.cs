@@ -30,7 +30,7 @@ builder.Services.AddCors(options =>
 
 // Database
 builder.Services.AddDbContext<PolicyDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultPolicyConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("PolicyConnDb")));
 
 // MassTransit / RabbitMQ
 builder.Services.AddMassTransit(x =>

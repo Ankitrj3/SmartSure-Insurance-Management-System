@@ -3,6 +3,7 @@ using SmartSure.PolicyService.Models;
 using SmartSure.PolicyService.Repositories;
 using MassTransit;
 using SmartSure.Shared.Contracts.Events;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.PolicyService.Services
 {
@@ -15,17 +16,17 @@ namespace SmartSure.PolicyService.Services
         private readonly ILogger<PolicyMgmtService> _logger;
 
         public PolicyMgmtService(
-            IPolicyRepository repo, 
-            IInsuranceRepository insuranceRepo, 
-            IBus bus, 
-            IDiscountService discountService, 
+            IPolicyRepository repo,
+            IInsuranceRepository insuranceRepo,
+            IBus bus,
+            IDiscountService discountService,
             ILogger<PolicyMgmtService> logger)
         {
-            _repo = repo;
-            _insuranceRepo = insuranceRepo;
-            _bus = bus;
+            _repo            = repo;
+            _insuranceRepo   = insuranceRepo;
+            _bus             = bus;
             _discountService = discountService;
-            _logger = logger;
+            _logger          = logger;
         }
 
         // ── Helpers: IDV / Insurance Value Calculation ─────────────────────────
@@ -33,12 +34,12 @@ namespace SmartSure.PolicyService.Services
         /// <summary>
         /// Vehicle IDV = Ex-showroom price × depreciation factor based on vehicle age.
         /// Standard IRDAI depreciation schedule:
-        ///   ≤ 6 months  → 5%  
-        ///   6–12 months → 15%  
-        ///   1–2 years   → 20%  
-        ///   2–3 years   → 30%  
-        ///   3–4 years   → 40%  
-        ///   4–5 years   → 50%  
+        ///   ≤ 6 months  → 5%
+        ///   6–12 months → 15%
+        ///   1–2 years   → 20%
+        ///   2–3 years   → 30%
+        ///   3–4 years   → 40%
+        ///   4–5 years   → 50%
         ///   > 5 years   → IDV agreed upon (we use 60% here)
         /// </summary>
         private static decimal CalculateVehicleIdv(CreateVehicleDetailDTO v)
@@ -58,15 +59,15 @@ namespace SmartSure.PolicyService.Services
             };
 
             decimal idv = v.EstimatedValue * (1 - depreciationRate);
-            return Math.Max(idv, 10000); // Minimum IDV of ₹10,000
+            return Math.Max(idv, 10000); // Minimum IDV ₹10,000
         }
 
         /// <summary>
         /// Home Insurance Value = Rebuild cost estimation.
         /// Formula: Current market value adjusted by age depreciation and property-type multiplier.
-        ///   - Apartment   → 0.90 multiplier
-        ///   - House       → 1.00 multiplier
-        ///   - Villa       → 1.10 multiplier
+        ///   - Apartment → 0.90
+        ///   - House     → 1.00
+        ///   - Villa     → 1.10
         /// Age depreciation: 1% per year after construction, capped at 40%.
         /// </summary>
         private static decimal CalculateHomeInsuranceValue(CreateHomeDetailDTO h)
@@ -75,13 +76,12 @@ namespace SmartSure.PolicyService.Services
             int age = currentYear - h.YearBuilt;
             if (age < 0) age = 0;
 
-            decimal ageDepreciation = Math.Min(age * 0.01m, 0.40m);
-
+            decimal ageDepreciation    = Math.Min(age * 0.01m, 0.40m);
             decimal propertyMultiplier = h.PropertyType?.ToLower() switch
             {
                 "apartment" => 0.90m,
                 "villa"     => 1.10m,
-                _           => 1.00m  // House or default
+                _           => 1.00m
             };
 
             decimal insuranceValue = h.EstimatedValue * (1 - ageDepreciation) * propertyMultiplier;
@@ -90,15 +90,15 @@ namespace SmartSure.PolicyService.Services
 
         /// <summary>
         /// Premium = BasePremium × (duration / 12) + IDV-based risk component.
-        /// Risk component: 2.5% of IDV per year for vehicles, 0.15% of insurance value per year for homes.
+        /// Risk component: 2.5% of IDV per year for vehicles, 0.15% per year for homes.
         /// </summary>
         private static decimal CalculatePremium(decimal basePremium, int durationMonths, decimal idv, bool isVehicle)
         {
-            decimal years = durationMonths / 12.0m;
+            decimal years    = durationMonths / 12.0m;
             decimal basePart = basePremium * years;
             decimal riskRate = isVehicle ? 0.025m : 0.0015m;
             decimal riskPart = idv * riskRate * years;
-            decimal total = basePart + riskPart;
+            decimal total    = basePart + riskPart;
             return Math.Round(total, 2);
         }
 
@@ -107,25 +107,25 @@ namespace SmartSure.PolicyService.Services
         public async Task<PolicyQuoteDTO> CalculateQuoteAsync(CreatePolicyDTO dto)
         {
             var subtype = await _insuranceRepo.GetSubtypeByIdAsync(dto.SubtypeId);
-            if (subtype == null) throw new Exception("Insurance subtype not found");
+            if (subtype == null) throw new NotFoundException("Insurance subtype", dto.SubtypeId);
 
-            var type = await _insuranceRepo.GetTypeByIdAsync(subtype.TypeId);
+            var type      = await _insuranceRepo.GetTypeByIdAsync(subtype.TypeId);
             bool isVehicle = type?.Name?.Contains("Vehicle", StringComparison.OrdinalIgnoreCase) == true;
-            bool isHome = type?.Name?.Contains("Home", StringComparison.OrdinalIgnoreCase) == true;
+            bool isHome    = type?.Name?.Contains("Home",    StringComparison.OrdinalIgnoreCase) == true;
 
-            decimal idv = 0;
-            string breakdown = "";
+            decimal idv       = 0;
+            string breakdown  = "";
 
             if (isVehicle && dto.VehicleDetail != null)
             {
                 idv = CalculateVehicleIdv(dto.VehicleDetail);
-                int age = DateTime.UtcNow.Year - dto.VehicleDetail.ManufactureYear;
+                int age   = DateTime.UtcNow.Year - dto.VehicleDetail.ManufactureYear;
                 breakdown = $"Vehicle IDV Calculation: Ex-showroom ₹{dto.VehicleDetail.EstimatedValue:N0} | Age {age} yrs | IDV ₹{idv:N0}";
             }
             else if (isHome && dto.HomeDetail != null)
             {
                 idv = CalculateHomeInsuranceValue(dto.HomeDetail);
-                int age = DateTime.UtcNow.Year - dto.HomeDetail.YearBuilt;
+                int age   = DateTime.UtcNow.Year - dto.HomeDetail.YearBuilt;
                 breakdown = $"Home Insurance Value: Market Value ₹{dto.HomeDetail.EstimatedValue:N0} | Age {age} yrs | Insured Value ₹{idv:N0}";
             }
 
@@ -133,13 +133,13 @@ namespace SmartSure.PolicyService.Services
 
             return new PolicyQuoteDTO
             {
-                SubtypeId = subtype.SubtypeId,
-                SubtypeName = subtype.Name,
-                TypeName = type?.Name ?? "Unknown",
-                Duration = dto.Duration,
+                SubtypeId            = subtype.SubtypeId,
+                SubtypeName          = subtype.Name,
+                TypeName             = type?.Name ?? "Unknown",
+                Duration             = dto.Duration,
                 InsuredDeclaredValue = idv,
-                PremiumAmount = premium,
-                Breakdown = breakdown
+                PremiumAmount        = premium,
+                Breakdown            = breakdown
             };
         }
 
@@ -160,49 +160,45 @@ namespace SmartSure.PolicyService.Services
         public async Task<PolicyDTO> GetPolicyByIdAsync(Guid policyId)
         {
             var p = await _repo.GetByIdAsync(policyId);
-            if (p == null) return null;
+            if (p == null) return null!;
             return MapToDto(p);
         }
 
         public async Task<PolicyDTO> CreatePolicyAsync(Guid userId, CreatePolicyDTO dto)
         {
             var subtype = await _insuranceRepo.GetSubtypeByIdAsync(dto.SubtypeId);
-            if (subtype == null) throw new Exception("Insurance subtype not found");
+            if (subtype == null) throw new NotFoundException("Insurance subtype", dto.SubtypeId);
 
-            var type = await _insuranceRepo.GetTypeByIdAsync(subtype.TypeId);
+            var type      = await _insuranceRepo.GetTypeByIdAsync(subtype.TypeId);
             bool isVehicle = type?.Name?.Contains("Vehicle", StringComparison.OrdinalIgnoreCase) == true;
-            bool isHome = type?.Name?.Contains("Home", StringComparison.OrdinalIgnoreCase) == true;
+            bool isHome    = type?.Name?.Contains("Home",    StringComparison.OrdinalIgnoreCase) == true;
 
             // Calculate IDV
             decimal idv = 0;
             if (isVehicle && dto.VehicleDetail != null)
-            {
                 idv = CalculateVehicleIdv(dto.VehicleDetail);
-            }
             else if (isHome && dto.HomeDetail != null)
-            {
                 idv = CalculateHomeInsuranceValue(dto.HomeDetail);
-            }
 
             // Calculate premium based on IDV
             decimal basePremium = CalculatePremium(subtype.BasePremium, dto.Duration, idv, isVehicle);
-            
+
             // Apply discounts if applicable
             var discountResult = await _discountService.CalculateDiscountAsync(userId, basePremium, dto.CouponCode);
             decimal finalPremium = discountResult.FinalPremium;
 
             var policy = new Policy
             {
-                PolicyId = Guid.NewGuid(),
-                UserId = userId,
-                SubtypeId = dto.SubtypeId,
-                StartDate = DateTime.UtcNow,
-                EndDate = DateTime.UtcNow.AddMonths(dto.Duration),
-                PremiumAmount = finalPremium,
+                PolicyId             = Guid.NewGuid(),
+                UserId               = userId,
+                SubtypeId            = dto.SubtypeId,
+                StartDate            = DateTime.UtcNow,
+                EndDate              = DateTime.UtcNow.AddMonths(dto.Duration),
+                PremiumAmount        = finalPremium,
                 InsuredDeclaredValue = idv,
-                Status = "Pending", // Will become "Active" after payment
-                NomineeName = dto.NomineeName,
-                NomineeRelation = dto.NomineeRelation
+                Status               = "Pending",
+                NomineeName          = dto.NomineeName,
+                NomineeRelation      = dto.NomineeRelation
             };
 
             await _repo.AddAsync(policy);
@@ -211,12 +207,12 @@ namespace SmartSure.PolicyService.Services
             {
                 await _repo.AddOrUpdateHomeDetailAsync(new HomeDetail
                 {
-                    HomeDetailId = Guid.NewGuid(),
-                    PolicyId = policy.PolicyId,
-                    Address = dto.HomeDetail.Address,
-                    PropertyType = dto.HomeDetail.PropertyType,
-                    YearBuilt = dto.HomeDetail.YearBuilt,
-                    EstimatedValue = dto.HomeDetail.EstimatedValue,
+                    HomeDetailId     = Guid.NewGuid(),
+                    PolicyId         = policy.PolicyId,
+                    Address          = dto.HomeDetail.Address,
+                    PropertyType     = dto.HomeDetail.PropertyType,
+                    YearBuilt        = dto.HomeDetail.YearBuilt,
+                    EstimatedValue   = dto.HomeDetail.EstimatedValue,
                     SecurityFeatures = dto.HomeDetail.SecurityFeatures
                 });
             }
@@ -225,15 +221,15 @@ namespace SmartSure.PolicyService.Services
             {
                 await _repo.AddOrUpdateVehicleDetailAsync(new VehicleDetail
                 {
-                    VehicleDetailId = Guid.NewGuid(),
-                    PolicyId = policy.PolicyId,
+                    VehicleDetailId    = Guid.NewGuid(),
+                    PolicyId           = policy.PolicyId,
                     RegistrationNumber = dto.VehicleDetail.RegistrationNumber,
-                    Make = dto.VehicleDetail.Make,
-                    Model = dto.VehicleDetail.Model,
-                    ManufactureYear = dto.VehicleDetail.ManufactureYear,
-                    EstimatedValue = dto.VehicleDetail.EstimatedValue,
-                    ChassisNumber = dto.VehicleDetail.ChassisNumber,
-                    EngineNumber = dto.VehicleDetail.EngineNumber
+                    Make               = dto.VehicleDetail.Make,
+                    Model              = dto.VehicleDetail.Model,
+                    ManufactureYear    = dto.VehicleDetail.ManufactureYear,
+                    EstimatedValue     = dto.VehicleDetail.EstimatedValue,
+                    ChassisNumber      = dto.VehicleDetail.ChassisNumber,
+                    EngineNumber       = dto.VehicleDetail.EngineNumber
                 });
             }
 
@@ -244,33 +240,35 @@ namespace SmartSure.PolicyService.Services
 
             return new PolicyDTO
             {
-                PolicyId = policy.PolicyId,
-                UserId = policy.UserId,
-                SubtypeId = policy.SubtypeId,
-                SubtypeName = subtype.Name,
-                TypeName = type?.Name,
-                StartDate = policy.StartDate,
-                EndDate = policy.EndDate,
-                PremiumAmount = policy.PremiumAmount,
+                PolicyId             = policy.PolicyId,
+                UserId               = policy.UserId,
+                SubtypeId            = policy.SubtypeId,
+                SubtypeName          = subtype.Name,
+                TypeName             = type?.Name,
+                StartDate            = policy.StartDate,
+                EndDate              = policy.EndDate,
+                PremiumAmount        = policy.PremiumAmount,
                 InsuredDeclaredValue = policy.InsuredDeclaredValue,
-                Status = policy.Status,
-                NomineeName = policy.NomineeName,
-                NomineeRelation = policy.NomineeRelation
+                Status               = policy.Status,
+                NomineeName          = policy.NomineeName,
+                NomineeRelation      = policy.NomineeRelation
             };
         }
 
         public async Task ActivatePolicyAsync(Guid policyId)
         {
             var policy = await _repo.GetByIdAsync(policyId);
-            if (policy == null) throw new Exception("Policy not found");
+            if (policy == null) throw new NotFoundException("Policy", policyId);
             if (policy.Status == "Active") return; // Already active
 
             policy.Status = "Active";
             await _repo.UpdateAsync(policy);
             await _repo.SaveChangesAsync();
 
-            // Publish event
-            await _bus.Publish(new PolicyActivatedEvent(policy.PolicyId, policy.UserId, policy.Subtype?.TypeId ?? Guid.Empty, policy.SubtypeId, DateTime.UtcNow));
+            await _bus.Publish(new PolicyActivatedEvent(
+                policy.PolicyId, policy.UserId,
+                policy.Subtype?.TypeId ?? Guid.Empty,
+                policy.SubtypeId, DateTime.UtcNow));
 
             _logger.LogInformation("Policy {PolicyId} activated after payment", policyId);
         }
@@ -287,13 +285,13 @@ namespace SmartSure.PolicyService.Services
         public async Task<PolicyDetailDTO> GetPolicyDetailsAsync(Guid policyId)
         {
             var detail = await _repo.GetDetailByPolicyIdAsync(policyId);
-            if (detail == null) return null;
+            if (detail == null) return null!;
             return new PolicyDetailDTO
             {
-                PolicyId = detail.PolicyId,
+                PolicyId           = detail.PolicyId,
                 TermsAndConditions = detail.TermsAndConditions,
-                Inclusions = detail.Inclusions,
-                Exclusions = detail.Exclusions
+                Inclusions         = detail.Inclusions,
+                Exclusions         = detail.Exclusions
             };
         }
 
@@ -301,11 +299,11 @@ namespace SmartSure.PolicyService.Services
         {
             var detail = new PolicyDetail
             {
-                DocumentId = Guid.NewGuid(),
-                PolicyId = policyId,
+                DocumentId         = Guid.NewGuid(),
+                PolicyId           = policyId,
                 TermsAndConditions = dto.TermsAndConditions,
-                Inclusions = dto.Inclusions,
-                Exclusions = dto.Exclusions
+                Inclusions         = dto.Inclusions,
+                Exclusions         = dto.Exclusions
             };
             await _repo.AddOrUpdateDetailAsync(detail);
             await _repo.SaveChangesAsync();
@@ -314,20 +312,20 @@ namespace SmartSure.PolicyService.Services
         public async Task<decimal> GetPremiumAmountAsync(Guid policyId)
         {
             var p = await _repo.GetByIdAsync(policyId);
-            if (p == null) throw new Exception("Policy not found");
+            if (p == null) throw new NotFoundException("Policy", policyId);
             return p.PremiumAmount;
         }
 
         public async Task<CreateHomeDetailDTO> GetHomeDetailAsync(Guid policyId)
         {
             var detail = await _repo.GetHomeDetailByPolicyIdAsync(policyId);
-            if (detail == null) return null;
+            if (detail == null) return null!;
             return new CreateHomeDetailDTO
             {
-                Address = detail.Address,
-                PropertyType = detail.PropertyType,
-                YearBuilt = detail.YearBuilt,
-                EstimatedValue = detail.EstimatedValue,
+                Address          = detail.Address,
+                PropertyType     = detail.PropertyType,
+                YearBuilt        = detail.YearBuilt,
+                EstimatedValue   = detail.EstimatedValue,
                 SecurityFeatures = detail.SecurityFeatures
             };
         }
@@ -336,11 +334,11 @@ namespace SmartSure.PolicyService.Services
         {
             var detail = new HomeDetail
             {
-                PolicyId = policyId,
-                Address = dto.Address,
-                PropertyType = dto.PropertyType,
-                YearBuilt = dto.YearBuilt,
-                EstimatedValue = dto.EstimatedValue,
+                PolicyId         = policyId,
+                Address          = dto.Address,
+                PropertyType     = dto.PropertyType,
+                YearBuilt        = dto.YearBuilt,
+                EstimatedValue   = dto.EstimatedValue,
                 SecurityFeatures = dto.SecurityFeatures
             };
             await _repo.AddOrUpdateHomeDetailAsync(detail);
@@ -350,16 +348,16 @@ namespace SmartSure.PolicyService.Services
         public async Task<CreateVehicleDetailDTO> GetVehicleDetailAsync(Guid policyId)
         {
             var detail = await _repo.GetVehicleDetailByPolicyIdAsync(policyId);
-            if (detail == null) return null;
+            if (detail == null) return null!;
             return new CreateVehicleDetailDTO
             {
                 RegistrationNumber = detail.RegistrationNumber,
-                Make = detail.Make,
-                Model = detail.Model,
-                ManufactureYear = detail.ManufactureYear,
-                EstimatedValue = detail.EstimatedValue,
-                ChassisNumber = detail.ChassisNumber,
-                EngineNumber = detail.EngineNumber
+                Make               = detail.Make,
+                Model              = detail.Model,
+                ManufactureYear    = detail.ManufactureYear,
+                EstimatedValue     = detail.EstimatedValue,
+                ChassisNumber      = detail.ChassisNumber,
+                EngineNumber       = detail.EngineNumber
             };
         }
 
@@ -367,14 +365,14 @@ namespace SmartSure.PolicyService.Services
         {
             var detail = new VehicleDetail
             {
-                PolicyId = policyId,
+                PolicyId           = policyId,
                 RegistrationNumber = dto.RegistrationNumber,
-                Make = dto.Make,
-                Model = dto.Model,
-                ManufactureYear = dto.ManufactureYear,
-                EstimatedValue = dto.EstimatedValue,
-                ChassisNumber = dto.ChassisNumber,
-                EngineNumber = dto.EngineNumber
+                Make               = dto.Make,
+                Model              = dto.Model,
+                ManufactureYear    = dto.ManufactureYear,
+                EstimatedValue     = dto.EstimatedValue,
+                ChassisNumber      = dto.ChassisNumber,
+                EngineNumber       = dto.EngineNumber
             };
             await _repo.AddOrUpdateVehicleDetailAsync(detail);
             await _repo.SaveChangesAsync();
@@ -382,22 +380,22 @@ namespace SmartSure.PolicyService.Services
 
         // ── Private helpers ────────────────────────────────────────────────────
 
-        private PolicyDTO MapToDto(Policy p)
+        private static PolicyDTO MapToDto(Policy p)
         {
             return new PolicyDTO
             {
-                PolicyId = p.PolicyId,
-                UserId = p.UserId,
-                SubtypeId = p.SubtypeId,
-                SubtypeName = p.Subtype?.Name,
-                TypeName = p.Subtype?.Type?.Name,
-                StartDate = p.StartDate,
-                EndDate = p.EndDate,
-                PremiumAmount = p.PremiumAmount,
+                PolicyId             = p.PolicyId,
+                UserId               = p.UserId,
+                SubtypeId            = p.SubtypeId,
+                SubtypeName          = p.Subtype?.Name,
+                TypeName             = p.Subtype?.Type?.Name,
+                StartDate            = p.StartDate,
+                EndDate              = p.EndDate,
+                PremiumAmount        = p.PremiumAmount,
                 InsuredDeclaredValue = p.InsuredDeclaredValue,
-                Status = p.Status,
-                NomineeName = p.NomineeName,
-                NomineeRelation = p.NomineeRelation
+                Status               = p.Status,
+                NomineeName          = p.NomineeName,
+                NomineeRelation      = p.NomineeRelation
             };
         }
     }

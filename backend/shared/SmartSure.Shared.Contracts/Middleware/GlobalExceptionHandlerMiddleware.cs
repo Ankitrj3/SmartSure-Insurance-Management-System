@@ -34,16 +34,29 @@ public class GlobalExceptionHandlerMiddleware
             "Exception caught by global handler | Path: {Path} | Method: {Method} | Message: {Message} | StackTrace: {StackTrace}",
             context.Request.Path, context.Request.Method, exception.Message, exception.StackTrace);
 
-        var (statusCode, message) = exception switch
-        {
-            KeyNotFoundException => (HttpStatusCode.NotFound, exception.Message),
-            UnauthorizedAccessException => (HttpStatusCode.Unauthorized, exception.Message),
-            ArgumentException => (HttpStatusCode.BadRequest, exception.Message),
-            InvalidOperationException => (HttpStatusCode.Conflict, exception.Message),
-            _ => (HttpStatusCode.InternalServerError, "An unexpected error occurred.")
-        };
+        HttpStatusCode statusCode;
+        string message;
 
-        // In development, include full exception details
+        // Handle SmartSure custom exceptions first (they carry their own HTTP status code)
+        if (exception is Exceptions.SmartSureException smartSureEx)
+        {
+            statusCode = (HttpStatusCode)smartSureEx.StatusCode;
+            message    = smartSureEx.Message;
+        }
+        else
+        {
+            // Fall back to standard .NET exception types
+            (statusCode, message) = exception switch
+            {
+                KeyNotFoundException        => (HttpStatusCode.NotFound,            exception.Message),
+                UnauthorizedAccessException => (HttpStatusCode.Unauthorized,        exception.Message),
+                ArgumentException           => (HttpStatusCode.BadRequest,          exception.Message),
+                InvalidOperationException   => (HttpStatusCode.Conflict,            exception.Message),
+                _                           => (HttpStatusCode.InternalServerError, "An unexpected error occurred.")
+            };
+        }
+
+        // In development, expose full detail for 500 errors
         var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
         if (isDevelopment && statusCode == HttpStatusCode.InternalServerError)
         {
@@ -51,14 +64,14 @@ public class GlobalExceptionHandlerMiddleware
         }
 
         context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)statusCode;
+        context.Response.StatusCode  = (int)statusCode;
 
         var response = new
         {
-            success = false,
+            success    = false,
             message,
             statusCode = (int)statusCode,
-            traceId = context.TraceIdentifier
+            traceId    = context.TraceIdentifier
         };
 
         var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
