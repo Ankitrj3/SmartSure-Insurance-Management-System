@@ -85,6 +85,7 @@ builder.Services.AddAuthorization();
 // Services
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IPdfGeneratorService, PdfGeneratorService>();
 
 builder.Services.AddControllers();
 

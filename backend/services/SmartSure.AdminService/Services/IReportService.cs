@@ -7,5 +7,6 @@ namespace SmartSure.AdminService.Services
         Task<ReportResponseDTO> GenerateReportAsync(Guid adminId, ReportRequestDTO dto, string token);
         Task<List<ReportResponseDTO>> GetReportsAsync();
         Task<ReportResponseDTO?> GetReportByIdAsync(Guid reportId);
+        Task<byte[]> GeneratePdfReportAsync(Guid adminId, ReportRequestDTO dto, string token);
     }
 }

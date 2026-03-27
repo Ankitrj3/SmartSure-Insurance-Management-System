@@ -7,9 +7,16 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/Dotnet.gitignore
 
-# Build results
+# Environment variables
 .env
-.vs
+*.env
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# Build results
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
@@ -22,8 +29,11 @@ x86/
 bld/
 [Bb]in/
 [Oo]bj/
+
+# Logs
 [Ll]og/
 [Ll]ogs/
+*.log
 
 # .NET Core
 project.lock.json
@@ -54,3 +64,16 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Angular / Frontend
+node_modules/
+dist/
+.angular/
+*.tsbuildinfo

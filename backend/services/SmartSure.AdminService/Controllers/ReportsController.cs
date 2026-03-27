@@ -49,6 +49,29 @@ namespace SmartSure.AdminService.Controllers
             }
         }
 
+        [HttpPost("pdf")]
+        public async Task<IActionResult> GeneratePdfReport([FromBody] ReportRequestDTO dto)
+        {
+            try
+            {
+                var adminId = GetAdminId();
+                string token = Request.Headers["Authorization"].ToString();
+                
+                var pdfBytes = await _reportService.GeneratePdfReportAsync(adminId, dto, token);
+                
+                var fileName = $"SmartSure_Report_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (SmartSureException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException($"Failed to generate PDF report: {ex.Message}");
+            }
+        }
+
         [HttpGet("{reportId}")]
         public async Task<IActionResult> GetReport(Guid reportId)
         {
