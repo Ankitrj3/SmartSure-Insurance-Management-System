@@ -1,7 +1,7 @@
 <div class="dashboard-container">
   <div class="glass-header">
     <div class="header-content">
-      <h1>Welcome back{{ profile?.firstName ? ', ' + profile.firstName : '' }}!</h1>
+      <h1>Welcome{{ (profile?.firstName || profile?.FirstName) ? ', ' + (profile.firstName || profile.FirstName) : '' }}!</h1>
       <p>Manage your policies, track claims, and profile with ease.</p>
     </div>
     <div class="stats-overview">
@@ -17,10 +17,10 @@
   </div>
 
   <div class="user-nav">
-    <button class="nav-tab" [class.active-tab]="activeTab === 'overview'" (click)="activeTab = 'overview'">Overview</button>
-    <button class="nav-tab" [class.active-tab]="activeTab === 'profile'" (click)="activeTab = 'profile'">Profile</button>
-    <button class="nav-tab" [class.active-tab]="activeTab === 'policies'" (click)="activeTab = 'policies'">Policies</button>
-    <button class="nav-tab" [class.active-tab]="activeTab === 'claims'" (click)="activeTab = 'claims'">Claims</button>
+    <button class="nav-tab" [class.active-tab]="activeTab === 'overview'" (click)="setActiveTab('overview')">Overview</button>
+    <button class="nav-tab" [class.active-tab]="activeTab === 'profile'" (click)="setActiveTab('profile')">Profile</button>
+    <button class="nav-tab" [class.active-tab]="activeTab === 'policies'" (click)="setActiveTab('policies')">Policies</button>
+    <button class="nav-tab" [class.active-tab]="activeTab === 'claims'" (click)="setActiveTab('claims')">Claims</button>
   </div>
 
   <div class="dashboard-grid" *ngIf="!loading">
@@ -30,7 +30,7 @@
       <section class="dashboard-section policies-section">
         <div class="section-header">
           <h2>My Policies</h2>
-          <button class="btn btn-outline btn-sm" (click)="activeTab = 'policies'">View All</button>
+          <button class="btn btn-outline btn-sm" (click)="setActiveTab('policies')">View All</button>
         </div>
         
         <div class="cards-grid">
@@ -66,7 +66,7 @@
       <section class="dashboard-section claims-section">
         <div class="section-header">
           <h2>Recent Claims</h2>
-          <button class="btn btn-outline btn-sm" (click)="activeTab = 'claims'">View All</button>
+          <button class="btn btn-outline btn-sm" (click)="setActiveTab('claims')">View All</button>
         </div>
         
         <div class="claims-list">
@@ -93,16 +93,16 @@
           <div class="profile-card">
             <h3>Update Information</h3>
             <div class="form-group">
-              <label>First Name</label>
-              <input type="text" class="input-base" [(ngModel)]="profile.firstName" />
-            </div>
-            <div class="form-group">
-              <label>Last Name</label>
-              <input type="text" class="input-base" [(ngModel)]="profile.lastName" />
+              <label>Full Name</label>
+              <input type="text" class="input-base" [(ngModel)]="profile.fullName" placeholder="Enter your full name" />
             </div>
             <div class="form-group">
               <label>Phone Number</label>
-              <input type="text" class="input-base" [(ngModel)]="profile.phoneNumber" />
+              <input type="text" class="input-base" [(ngModel)]="profile.phoneNumber" placeholder="Enter phone number" />
+            </div>
+            <div class="form-group">
+              <label>Address (Optional)</label>
+              <input type="text" class="input-base" [(ngModel)]="profile.address" placeholder="Enter your address" />
             </div>
             <button class="btn btn-primary" (click)="updateProfile()">Save Profile</button>
             <p class="action-result" *ngIf="profileMessage">{{ profileMessage }}</p>

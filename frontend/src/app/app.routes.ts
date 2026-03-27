@@ -12,6 +12,10 @@ import { AboutUs } from './pages/about-us/about-us';
 import { ContactUs } from './pages/contact-us/contact-us';
 import { Insurance } from './pages/insurance/insurance';
 
+import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
+import { userGuard } from './core/guards/user.guard';
+
 export const routes: Routes = [
   { path: '', component: Home },
   { path: 'about-us', component: AboutUs },
@@ -21,8 +25,8 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'register', component: Register },
   { path: 'verify-otp', component: VerifyOtp },
-  { path: 'user/dashboard', component: UserDashboard },
+  { path: 'user/dashboard', component: UserDashboard, canActivate: [userGuard] },
   { path: 'user-dashboard', redirectTo: 'user/dashboard', pathMatch: 'full' },
-  { path: 'admin/dashboard', component: AdminDashboard },
+  { path: 'admin/dashboard', component: AdminDashboard, canActivate: [adminGuard] },
   { path: 'auth/google/callback', component: GoogleCallback }
 ];

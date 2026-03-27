@@ -21,8 +21,14 @@ export class AuthService {
       tap(res => {
         if (res.token) {
           localStorage.setItem(this.tokenKey, res.token);
-          localStorage.setItem(this.userRoleKey, res.role);
+          
+          // Ensure role is stored properly
+          const role = res.role || 'User';
+          localStorage.setItem(this.userRoleKey, role);
+          
           this.authStatusSource.next(true);
+          
+          console.log('Login successful - Token and role stored:', { role });
         }
       })
     );
@@ -89,14 +95,31 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    const token = localStorage.getItem(this.tokenKey);
+    return token;
   }
 
   getRole(): string | null {
-    return localStorage.getItem(this.userRoleKey);
+    const role = localStorage.getItem(this.userRoleKey);
+    return role;
   }
 
   hasToken(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    return !!token;
+  }
+
+  isAuthenticated(): boolean {
+    return this.hasToken();
+  }
+
+  isAdmin(): boolean {
+    const role = this.getRole();
+    return role === 'Admin' || role === 'admin';
+  }
+
+  isUser(): boolean {
+    const role = this.getRole();
+    return role === 'User' || role === 'user';
   }
 }

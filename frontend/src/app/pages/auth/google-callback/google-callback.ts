@@ -23,6 +23,7 @@ export class GoogleCallback implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       const token = params['token'];
+      const role = params['role'];
       const errorStr = params['error'];
       
       if (errorStr) {
@@ -33,7 +34,14 @@ export class GoogleCallback implements OnInit {
       
       if (token) {
         localStorage.setItem('smartsure_auth_token', token);
-        this.router.navigate(['/user/dashboard']);
+        localStorage.setItem('smartsure_auth_role', role || 'User');
+        
+        // Navigate based on role
+        if (role === 'Admin' || role === 'admin') {
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          this.router.navigate(['/user/dashboard']);
+        }
       } else {
          this.error = 'No token received from Server.';
          this.loading = false;

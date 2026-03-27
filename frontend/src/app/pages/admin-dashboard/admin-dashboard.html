@@ -3,11 +3,11 @@
   <!-- Header / Sub-Navigation for Dashboard -->
   <header class="admin-header" style="justify-content: flex-start; padding: 0.75rem 2rem;">
     <nav class="admin-nav" style="width: 100%;">
-      <button class="nav-btn" [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">Dashboard</button>
-      <button class="nav-btn" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">Users</button>
-      <button class="nav-btn" [class.active]="activeTab === 'policies'" (click)="activeTab = 'policies'">Policies & Plans</button>
-      <button class="nav-btn" [class.active]="activeTab === 'reports'" (click)="activeTab = 'reports'">Reports & Audit</button>
-      <button class="nav-btn" [class.active]="activeTab === 'claims'" (click)="activeTab = 'claims'">
+      <button class="nav-btn" [class.active]="activeTab === 'overview'" (click)="setActiveTab('overview')">Dashboard</button>
+      <button class="nav-btn" [class.active]="activeTab === 'users'" (click)="setActiveTab('users')">Users</button>
+      <button class="nav-btn" [class.active]="activeTab === 'policies'" (click)="setActiveTab('policies')">Policies & Plans</button>
+      <button class="nav-btn" [class.active]="activeTab === 'reports'" (click)="setActiveTab('reports')">Reports & Audit</button>
+      <button class="nav-btn" [class.active]="activeTab === 'claims'" (click)="setActiveTab('claims')">
         Claims <span class="claim-count" *ngIf="stats.pendingClaims > 0">{{ stats.pendingClaims }}</span>
       </button>
     </nav>
@@ -67,7 +67,7 @@
                   <tr *ngFor="let c of recentClaims">
                     <td><code class="claim-id">{{ c.claimId | slice:0:8 }}…</code></td>
                     <td><span class="status-badge" [ngClass]="getStatusClass(c.status)">{{ c.status }}</span></td>
-                    <td><button class="btn btn-outline btn-sm" (click)="activeTab = 'claims'">View</button></td>
+                    <td><button class="btn btn-outline btn-sm" (click)="setActiveTab('claims')">View</button></td>
                   </tr>
                   <tr *ngIf="recentClaims.length === 0">
                     <td colspan="3" class="empty-td">No recent claims.</td>

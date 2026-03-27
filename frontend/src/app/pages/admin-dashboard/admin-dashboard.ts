@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AdminService } from '../../core/services/admin.service';
 import { ClaimService } from '../../core/services/claim.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -62,13 +63,34 @@ export class AdminDashboard implements OnInit {
     private claimService: ClaimService,
     private policyService: PolicyService,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit() {
+    // Restore active tab from URL query params
+    this.route.queryParams.subscribe(params => {
+      const tab = params['tab'];
+      if (tab && ['overview', 'claims', 'policies', 'users', 'reports'].includes(tab)) {
+        this.activeTab = tab;
+      }
+    });
+
     this.fetchDashboardData();
     this.loadPlans();
     this.loadAuditLogs();
+  }
+
+  // Method to change tab and update URL
+  setActiveTab(tab: 'overview' | 'claims' | 'policies' | 'users' | 'reports') {
+    this.activeTab = tab;
+    // Update URL without reloading the page
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab },
+      queryParamsHandling: 'merge'
+    });
   }
 
   fetchDashboardData() {

@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PolicyService } from '../../core/services/policy.service';
 import { ClaimService } from '../../core/services/claim.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -72,7 +73,9 @@ export class UserDashboard implements OnInit {
     private policyService: PolicyService,
     private claimService: ClaimService,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     const currentYear = new Date().getFullYear();
     for (let i = 0; i <= 30; i++) {
@@ -81,7 +84,26 @@ export class UserDashboard implements OnInit {
   }
 
   ngOnInit() {
+    // Restore active tab from URL query params
+    this.route.queryParams.subscribe(params => {
+      const tab = params['tab'];
+      if (tab && ['overview', 'profile', 'policies', 'claims'].includes(tab)) {
+        this.activeTab = tab;
+      }
+    });
+
     this.fetchData();
+  }
+
+  // Method to change tab and update URL
+  setActiveTab(tab: 'overview' | 'profile' | 'policies' | 'claims') {
+    this.activeTab = tab;
+    // Update URL without reloading the page
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab },
+      queryParamsHandling: 'merge'
+    });
   }
 
   fetchData() {
@@ -94,7 +116,19 @@ export class UserDashboard implements OnInit {
       types: this.policyService.getInsuranceTypes().pipe(catchError(() => of([])))
     }).subscribe({
       next: (result: any) => {
-        this.profile = result.profile || {};
+        const profileData = result.profile || {};
+        
+        this.profile = {
+          fullName: profileData.fullName || profileData.FullName || '',
+          phoneNumber: profileData.phoneNumber || profileData.PhoneNumber || '',
+          address: profileData.address || profileData.Address || '',
+          email: profileData.email || profileData.Email || ''
+        };
+        
+        // Extract first name for welcome message
+        const nameParts = this.profile.fullName.trim().split(' ');
+        this.profile.firstName = nameParts[0] || '';
+        
         this.policies = this.extractData(result.policies);
         this.claims = this.extractData(result.claims);
         const rawTypes = this.extractData(result.types);
@@ -120,12 +154,26 @@ export class UserDashboard implements OnInit {
 
   // --- Profile Management ---
   updateProfile() {
+    if (!this.profile.fullName || !this.profile.fullName.trim()) {
+      this.profileMessage = 'Please enter your full name.';
+      return;
+    }
+    
+    if (!this.profile.phoneNumber || !this.profile.phoneNumber.trim()) {
+      this.profileMessage = 'Please enter your phone number.';
+      return;
+    }
+    
     this.authService.updateProfile({ 
-      firstName: this.profile.firstName, 
-      lastName: this.profile.lastName, 
-      phoneNumber: this.profile.phoneNumber 
+      fullName: this.profile.fullName.trim(),
+      phoneNumber: this.profile.phoneNumber.trim(),
+      address: this.profile.address?.trim() || ''
     }).subscribe({
-      next: () => this.profileMessage = 'Success: Profile updated!',
+      next: () => {
+        this.profileMessage = 'Success: Profile updated!';
+        // Refresh profile data
+        this.fetchData();
+      },
       error: (err) => this.profileMessage = 'Failed to update: ' + (err.error?.message || err.message)
     });
   }

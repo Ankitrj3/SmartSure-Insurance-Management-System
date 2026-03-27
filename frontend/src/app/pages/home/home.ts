@@ -15,6 +15,8 @@ export class Home implements OnInit {
   isLoading = signal(true);
   insuranceTypes = signal<any[]>([]);
   insuranceSubtypes = signal<any[]>([]);
+  showAllVehicleSubtypes = signal(false);
+  showAllHomeSubtypes = signal(false);
 
   constructor(
     private policyService: PolicyService,
@@ -79,6 +81,52 @@ export class Home implements OnInit {
     return this.insuranceSubtypes().filter(s => 
       (s.typeId || s.TypeId) === typeId
     );
+  }
+
+  getVehicleType() {
+    return this.insuranceTypes().find(t => 
+      (t.name || t.Name)?.toLowerCase() === 'vehicle'
+    );
+  }
+
+  getHomeType() {
+    return this.insuranceTypes().find(t => 
+      (t.name || t.Name)?.toLowerCase() === 'home'
+    );
+  }
+
+  getVehicleSubtypes() {
+    const vehicleType = this.getVehicleType();
+    if (!vehicleType) return [];
+    const subtypes = this.getSubtypesForType(vehicleType.typeId || vehicleType.TypeId);
+    return this.showAllVehicleSubtypes() ? subtypes : subtypes.slice(0, 6);
+  }
+
+  getHomeSubtypes() {
+    const homeType = this.getHomeType();
+    if (!homeType) return [];
+    const subtypes = this.getSubtypesForType(homeType.typeId || homeType.TypeId);
+    return this.showAllHomeSubtypes() ? subtypes : subtypes.slice(0, 6);
+  }
+
+  toggleVehicleSubtypes() {
+    this.showAllVehicleSubtypes.set(!this.showAllVehicleSubtypes());
+  }
+
+  toggleHomeSubtypes() {
+    this.showAllHomeSubtypes.set(!this.showAllHomeSubtypes());
+  }
+
+  hasMoreVehicleSubtypes() {
+    const vehicleType = this.getVehicleType();
+    if (!vehicleType) return false;
+    return this.getSubtypesForType(vehicleType.typeId || vehicleType.TypeId).length > 6;
+  }
+
+  hasMoreHomeSubtypes() {
+    const homeType = this.getHomeType();
+    if (!homeType) return false;
+    return this.getSubtypesForType(homeType.typeId || homeType.TypeId).length > 6;
   }
 
   onPurchaseClick() {

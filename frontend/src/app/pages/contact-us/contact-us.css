@@ -1,0 +1,558 @@
+/* Contact Us Page Styles */
+.contact-page {
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #1A1A1A;
+  background: #FFFFFF;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Hero Section */
+.contact-hero {
+  background: linear-gradient(135deg, #E6FAF5 0%, #F8FAFC 100%);
+  padding: 50px 0 60px 0;
+  text-align: center;
+}
+
+.badge-yellow {
+  display: inline-block;
+  background-color: #F7F072;
+  color: #1A1A1A;
+  padding: 8px 20px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+}
+
+.badge-teal {
+  display: inline-block;
+  background-color: #0DB18C;
+  color: white;
+  padding: 8px 20px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  color: #1A1A1A;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: #666666;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Contact Methods */
+.contact-methods {
+  padding: 80px 0;
+  background: white;
+}
+
+.methods-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.method-card {
+  background: white;
+  padding: 50px 40px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-top: 5px solid #0DB18C;
+}
+
+.method-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+}
+
+.method-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 30px;
+  transition: transform 0.3s ease;
+}
+
+.method-card:hover .method-icon {
+  transform: scale(1.1);
+}
+
+.phone-icon {
+  background: linear-gradient(135deg, #E6FAF5 0%, #CFF0E8 100%);
+}
+
+.email-icon {
+  background: linear-gradient(135deg, #FFF9E6 0%, #F7F072 100%);
+}
+
+.method-icon svg {
+  width: 40px;
+  height: 40px;
+  color: #0DB18C;
+}
+
+.email-icon svg {
+  color: #B8A84E;
+}
+
+.method-card h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #1A1A1A;
+}
+
+.method-detail {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0DB18C;
+  margin-bottom: 12px;
+}
+
+.method-desc {
+  font-size: 1rem;
+  color: #666666;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.method-hours {
+  font-size: 0.95rem;
+  color: #999999;
+  line-height: 1.6;
+}
+
+/* Office Locations */
+.office-locations {
+  padding: 80px 0;
+  background: #F8FAFC;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.section-header h2 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: #1A1A1A;
+}
+
+.section-header p {
+  font-size: 1.2rem;
+  color: #666666;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.locations-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.location-card {
+  background: white;
+  padding: 45px 35px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.location-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.location-icon {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, #0DB18C 0%, #0A8E70 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.location-icon svg {
+  width: 36px;
+  height: 36px;
+  color: white;
+}
+
+.location-card h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #1A1A1A;
+}
+
+.location-address {
+  font-size: 1.05rem;
+  color: #666666;
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.location-hours {
+  font-size: 0.95rem;
+  color: #0DB18C;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+/* FAQ Section */
+.faq-section {
+  padding: 80px 0;
+  background: #F8FAFC;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+}
+
+.faq-card {
+  background: white;
+  padding: 35px 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  border-left: 4px solid #0DB18C;
+}
+
+.faq-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.faq-card h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #1A1A1A;
+}
+
+.faq-card p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #666666;
+}
+
+/* CTA Section */
+.contact-cta {
+  background: #1A1A1A;
+  padding: 80px 0;
+  text-align: center;
+  color: white;
+}
+
+.contact-cta h2 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.contact-cta p {
+  font-size: 1.25rem;
+  color: #CCCCCC;
+  margin-bottom: 40px;
+}
+
+.btn-primary {
+  background-color: #0DB18C;
+  color: white;
+  padding: 18px 40px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0A8E70;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(13, 177, 140, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .hero-title {
+    font-size: 3rem;
+  }
+
+  .methods-grid,
+  .locations-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .faq-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header h2 {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-hero,
+  .contact-methods,
+  .office-locations,
+  .faq-section,
+  .contact-cta {
+    padding: 40px 0;
+  }
+
+  .hero-title {
+    font-size: 2.2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .method-card {
+    padding: 35px 28px;
+  }
+
+  .method-icon {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 24px;
+  }
+
+  .method-icon svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .method-card h3 {
+    font-size: 1.4rem;
+  }
+
+  .method-detail {
+    font-size: 1.1rem;
+  }
+
+  .method-desc {
+    font-size: 0.95rem;
+  }
+
+  .method-hours {
+    font-size: 0.9rem;
+  }
+
+  .location-card {
+    padding: 30px 24px;
+  }
+
+  .location-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 20px;
+  }
+
+  .location-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .location-card h3 {
+    font-size: 1.4rem;
+  }
+
+  .location-address {
+    font-size: 1rem;
+  }
+
+  .location-hours {
+    font-size: 0.9rem;
+  }
+
+  .form-intro h2 {
+    font-size: 2rem;
+  }
+
+  .section-header h2 {
+    font-size: 2rem;
+  }
+
+  .section-header p {
+    font-size: 1rem;
+  }
+
+  .faq-card {
+    padding: 28px 24px;
+  }
+
+  .faq-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .faq-card p {
+    font-size: 0.95rem;
+  }
+
+  .contact-cta h2 {
+    font-size: 2rem;
+  }
+
+  .contact-cta p {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-hero {
+    padding: 20px 0 30px 0;
+  }
+
+  .contact-methods,
+  .office-locations,
+  .faq-section,
+  .contact-cta {
+    padding: 30px 0;
+  }
+
+  .hero-title {
+    font-size: 1.75rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .method-card {
+    padding: 28px 20px;
+  }
+
+  .method-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 20px;
+  }
+
+  .method-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .method-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .method-detail {
+    font-size: 1rem;
+  }
+
+  .method-desc {
+    font-size: 0.9rem;
+  }
+
+  .method-hours {
+    font-size: 0.85rem;
+  }
+
+  .location-card {
+    padding: 28px 20px;
+  }
+
+  .location-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 16px;
+  }
+
+  .location-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .location-card h3 {
+    font-size: 1.3rem;
+  }
+
+  .location-address {
+    font-size: 0.95rem;
+  }
+
+  .location-hours {
+    font-size: 0.85rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .section-header p {
+    font-size: 0.95rem;
+  }
+
+  .faq-card {
+    padding: 24px 20px;
+  }
+
+  .faq-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .faq-card p {
+    font-size: 0.9rem;
+  }
+
+  .contact-cta h2 {
+    font-size: 1.6rem;
+  }
+
+  .contact-cta p {
+    font-size: 1rem;
+  }
+
+  .btn-primary {
+    padding: 14px 28px;
+    font-size: 0.85rem;
+    width: 100%;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+}

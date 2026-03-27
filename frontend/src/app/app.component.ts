@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { Navbar } from './components/navbar/navbar';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -68,6 +69,18 @@ import { Navbar } from './components/navbar/navbar';
   `,
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'smartsure-frontend';
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit() {
+    // Initialize auth state from localStorage on app startup
+    const token = this.authService.getToken();
+    const role = this.authService.getRole();
+    
+    if (token && role) {
+      console.log('Auth state restored from localStorage:', { role });
+    }
+  }
 }
