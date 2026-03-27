@@ -28,10 +28,10 @@ namespace SmartSure.PolicyService.DTOs
         public int Duration { get; set; }
 
         // Home detail fields (wizard can submit if it's a home policy)
-        public CreateHomeDetailDTO? HomeDetail { get; set; }
+        public PolicyHomeDetailDTO? HomeDetail { get; set; }
 
         // Vehicle detail fields (wizard can submit if it's a vehicle policy)
-        public CreateVehicleDetailDTO? VehicleDetail { get; set; }
+        public PolicyVehicleDetailDTO? VehicleDetail { get; set; }
 
         public string? CouponCode { get; set; }
 
@@ -39,6 +39,58 @@ namespace SmartSure.PolicyService.DTOs
         public string? NomineeRelation { get; set; }
     }
 
+    /// <summary>
+    /// Home detail for inline policy creation (no PolicyId needed)
+    /// </summary>
+    public class PolicyHomeDetailDTO
+    {
+        [Required(ErrorMessage = "Address is required")]
+        [StringLength(500)]
+        public string Address { get; set; }
+
+        [Required(ErrorMessage = "PropertyType is required")]
+        public string PropertyType { get; set; }
+
+        public int YearBuilt { get; set; }
+
+        [Required]
+        [Range(0, double.MaxValue)]
+        public decimal EstimatedValue { get; set; }
+
+        public string? SecurityFeatures { get; set; }
+    }
+
+    /// <summary>
+    /// Vehicle detail for inline policy creation (no PolicyId needed)
+    /// </summary>
+    public class PolicyVehicleDetailDTO
+    {
+        [Required(ErrorMessage = "RegistrationNumber is required")]
+        [StringLength(50)]
+        public string RegistrationNumber { get; set; }
+
+        [Required(ErrorMessage = "Make is required")]
+        public string Make { get; set; }
+
+        [Required(ErrorMessage = "Model is required")]
+        public string Model { get; set; }
+
+        public int ManufactureYear { get; set; }
+
+        [Required]
+        [Range(0, double.MaxValue)]
+        public decimal EstimatedValue { get; set; }
+
+        [Required]
+        public string ChassisNumber { get; set; }
+
+        [Required]
+        public string EngineNumber { get; set; }
+    }
+
+    /// <summary>
+    /// Home detail for separate save endpoint (requires PolicyId)
+    /// </summary>
     public class CreateHomeDetailDTO
     {
         public Guid? PolicyId { get; set; }
@@ -59,6 +111,9 @@ namespace SmartSure.PolicyService.DTOs
         public string? SecurityFeatures { get; set; }
     }
 
+    /// <summary>
+    /// Vehicle detail for separate save endpoint (requires PolicyId)
+    /// </summary>
     public class CreateVehicleDetailDTO
     {
         public Guid? PolicyId { get; set; }

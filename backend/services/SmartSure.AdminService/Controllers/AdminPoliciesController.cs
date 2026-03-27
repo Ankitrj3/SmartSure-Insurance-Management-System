@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.AdminService.Controllers
 {
@@ -38,12 +39,16 @@ namespace SmartSure.AdminService.Controllers
                     var content = await response.Content.ReadAsStringAsync();
                     return Content(content, "application/json");
                 }
-                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                throw new HttpServiceException(await response.Content.ReadAsStringAsync(), (int)response.StatusCode);
+            }
+            catch (SmartSureException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error calling Policy Service");
-                return StatusCode(500, new { message = "Error communicating with Policy Service" });
+                throw new BusinessRuleException("Error communicating with Policy Service");
             }
         }
     }

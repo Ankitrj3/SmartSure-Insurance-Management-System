@@ -469,9 +469,20 @@ export class AdminDashboard implements OnInit {
   }
 
   generateReport() {
+    // Validate inputs
+    if (!this.reportTitle || this.reportTitle.trim() === '') {
+      alert('Please enter a report title');
+      return;
+    }
+    
+    if (!this.reportType || this.reportType.trim() === '') {
+      alert('Please select a report type');
+      return;
+    }
+    
     this.actionProcessing = true;
     this.adminService.generateReport({
-      title: this.reportTitle,
+      title: this.reportTitle.trim(),
       reportType: this.reportType,
       format: 'PDF',
       dateRangeStart: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString(),
@@ -485,6 +496,10 @@ export class AdminDashboard implements OnInit {
         } else {
           this.reports = [res];
         }
+        // Automatically download the report
+        this.downloadReport(res);
+        // Clear the form
+        this.reportTitle = '';
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -492,6 +507,76 @@ export class AdminDashboard implements OnInit {
         alert('Failed: ' + (err.error?.message || err.message));
       }
     });
+  }
+
+  downloadReport(report: any) {
+    try {
+      let parsed: any;
+      
+      // Parse content if it's a string
+      if (typeof report.content === 'string') {
+        try {
+          parsed = JSON.parse(report.content);
+        } catch (parseError) {
+          // If parsing fails, treat it as plain text
+          const blob = new Blob([report.content], { type: 'text/plain' });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${report.title.replace(/\s+/g, '_')}_${new Date().getTime()}.txt`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+          return;
+        }
+      } else {
+        parsed = report.content;
+      }
+      
+      // Create a formatted text content for the report
+      const reportContent = `
+SmartSure Insurance Management System
+${parsed.title || report.title}
+${'='.repeat(60)}
+
+Report Type: ${parsed.type || report.reportType}
+Generated At: ${new Date(parsed.generatedAt || report.createdAt).toLocaleString()}
+Date Range: ${new Date(parsed.dateRange?.start || report.dateRangeStart).toLocaleDateString()} - ${new Date(parsed.dateRange?.end || report.dateRangeEnd).toLocaleDateString()}
+
+${'='.repeat(60)}
+STATISTICS
+${'='.repeat(60)}
+
+Total Insurance Policies Sold: ${parsed.statistics?.totalInsuranceSell || 0}
+Total Claims Accepted: ${parsed.statistics?.totalClaimAccepted || 0}
+Total Claims Rejected: ${parsed.statistics?.totalClaimRejected || 0}
+
+${'='.repeat(60)}
+SUMMARY
+${'='.repeat(60)}
+
+${parsed.summary || 'No summary available'}
+
+${'='.repeat(60)}
+End of Report
+      `;
+
+      // Create a blob and download
+      const blob = new Blob([reportContent], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${(parsed.title || report.title).replace(/\s+/g, '_')}_${new Date().getTime()}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Error downloading report:', e);
+      // Fallback: just show the view dialog
+      this.viewReport(report);
+    }
   }
 
   viewReport(report: any) {

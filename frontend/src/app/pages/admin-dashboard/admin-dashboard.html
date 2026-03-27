@@ -364,8 +364,8 @@
           </div>
           <div style="display: flex; gap: 1rem; align-items: flex-end;">
             <div class="form-group" style="flex: 1; margin: 0;">
-              <label>Report Title</label>
-              <input type="text" [(ngModel)]="reportTitle" class="form-control" placeholder="e.g. Q1 Financial Performance" />
+              <label>Report Title <span style="color: red;">*</span></label>
+              <input type="text" [(ngModel)]="reportTitle" class="form-control" placeholder="e.g. Q1 Financial Performance" required />
             </div>
             <div class="form-group" style="flex: 1; margin: 0;">
               <label>Report Scope Type</label>
@@ -375,7 +375,7 @@
                 <option value="Claims">Claims Analysis</option>
               </select>
             </div>
-            <button class="btn btn-primary" (click)="generateReport()" [disabled]="actionProcessing" style="height: 42px;">
+            <button class="btn btn-primary" (click)="generateReport()" [disabled]="actionProcessing || !reportTitle" style="height: 42px;">
               {{ actionProcessing ? 'Compiling...' : 'Generate System Report' }}
             </button>
           </div>
@@ -401,7 +401,10 @@
                   <td>System Admin</td>
                   <td>{{ formatDate(r.generatedAt) }}</td>
                   <td><span class="status-badge" style="background:#e8eaf6; color:#3f51b5;">{{ r.format }}</span></td>
-                  <td><button class="btn btn-outline btn-sm" (click)="viewReport(r)">View</button></td>
+                  <td>
+                    <button class="btn btn-outline btn-sm" (click)="viewReport(r)" style="margin-right: 0.5rem;">View</button>
+                    <button class="btn btn-primary btn-sm" (click)="downloadReport(r)">Download</button>
+                  </td>
                 </tr>
                 <tr *ngIf="reports.length === 0">
                   <td colspan="6" class="empty-td">No reports have been generated.</td>

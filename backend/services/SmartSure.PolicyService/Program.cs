@@ -7,6 +7,7 @@ using SmartSure.PolicyService.Services;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using MassTransit;
+using SmartSure.Shared.Contracts.Extensions;
 
 DotNetEnv.Env.Load();
 
@@ -136,6 +137,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseHttpsRedirection(); // Disabled – gateway calls this service via HTTP
+app.UseGlobalExceptionHandler();
 app.UseCors("AllowGateway");
 app.UseAuthentication();
 app.UseAuthorization();

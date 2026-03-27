@@ -5,6 +5,7 @@ using SmartSure.AdminService.DTOs;
 using SmartSure.AdminService.Services;
 using SmartSure.Shared.Contracts.Events;
 using System.Security.Claims;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.AdminService.Controllers
 {
@@ -47,12 +48,16 @@ namespace SmartSure.AdminService.Controllers
                     var content = await response.Content.ReadAsStringAsync();
                     return Content(content, "application/json");
                 }
-                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                throw new HttpServiceException(await response.Content.ReadAsStringAsync(), (int)response.StatusCode);
+            }
+            catch (SmartSureException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error calling Claims Service");
-                return StatusCode(500, new { message = "Error communicating with Claims Service" });
+                throw new BusinessRuleException("Error communicating with Claims Service");
             }
         }
 
@@ -127,12 +132,16 @@ namespace SmartSure.AdminService.Controllers
                     _logger.LogInformation("Admin {AdminId} approved claim {ClaimId} via HTTP", adminId, claimId);
                     return Ok(new { message = "Claim approved successfully" });
                 }
-                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                throw new HttpServiceException(await response.Content.ReadAsStringAsync(), (int)response.StatusCode);
+            }
+            catch (SmartSureException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error calling Claims Service for approval");
-                return StatusCode(500, new { message = "Error communicating with Claims Service" });
+                throw new BusinessRuleException("Error communicating with Claims Service");
             }
         }
 
@@ -155,12 +164,16 @@ namespace SmartSure.AdminService.Controllers
                     _logger.LogInformation("Admin {AdminId} rejected claim {ClaimId} via HTTP", adminId, claimId);
                     return Ok(new { message = "Claim rejected successfully" });
                 }
-                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                throw new HttpServiceException(await response.Content.ReadAsStringAsync(), (int)response.StatusCode);
+            }
+            catch (SmartSureException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error calling Claims Service for rejection");
-                return StatusCode(500, new { message = "Error communicating with Claims Service" });
+                throw new BusinessRuleException("Error communicating with Claims Service");
             }
         }
     }

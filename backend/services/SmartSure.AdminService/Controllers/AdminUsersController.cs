@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.AdminService.Controllers
 {
@@ -39,12 +40,16 @@ namespace SmartSure.AdminService.Controllers
                     var content = await response.Content.ReadAsStringAsync();
                     return Content(content, "application/json");
                 }
-                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                throw new HttpServiceException(await response.Content.ReadAsStringAsync(), (int)response.StatusCode);
+            }
+            catch (SmartSureException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error calling Identity Service");
-                return StatusCode(500, new { message = "Error communicating with Identity Service" });
+                throw new BusinessRuleException("Error communicating with Identity Service");
             }
         }
 
@@ -65,12 +70,16 @@ namespace SmartSure.AdminService.Controllers
                     var content = await response.Content.ReadAsStringAsync();
                     return Content(content, "application/json");
                 }
-                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                throw new HttpServiceException(await response.Content.ReadAsStringAsync(), (int)response.StatusCode);
+            }
+            catch (SmartSureException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error calling Identity Service");
-                return StatusCode(500, new { message = "Error communicating with Identity Service" });
+                throw new BusinessRuleException("Error communicating with Identity Service");
             }
         }
 
@@ -90,12 +99,16 @@ namespace SmartSure.AdminService.Controllers
                 {
                     return Ok(new { message = "User deleted successfully" });
                 }
-                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                throw new HttpServiceException(await response.Content.ReadAsStringAsync(), (int)response.StatusCode);
+            }
+            catch (SmartSureException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error calling Identity Service");
-                return StatusCode(500, new { message = "Error communicating with Identity Service" });
+                throw new BusinessRuleException("Error communicating with Identity Service");
             }
         }
     }

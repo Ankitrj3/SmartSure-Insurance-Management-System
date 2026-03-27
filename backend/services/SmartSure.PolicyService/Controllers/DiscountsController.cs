@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartSure.PolicyService.DTOs;
 using SmartSure.PolicyService.Services;
 using System.Security.Claims;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.PolicyService.Controllers
 {
@@ -41,7 +42,10 @@ namespace SmartSure.PolicyService.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateDiscountDTO dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid) 
+            {
+               return BadRequest(ModelState);
+            }
             var result = await _service.CreateDiscountAsync(dto);
             return Ok(result);
         }
@@ -55,9 +59,13 @@ namespace SmartSure.PolicyService.Controllers
                 await _service.UpdateDiscountAsync(id, dto);
                 return Ok(new { message = "Discount updated successfully" });
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                throw new BusinessRuleException(ex.Message);
             }
         }
 

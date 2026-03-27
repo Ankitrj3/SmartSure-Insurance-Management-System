@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartSure.ClaimsService.Services;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.ClaimsService.Controllers
 {

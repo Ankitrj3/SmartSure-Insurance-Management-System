@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartSure.PolicyService.DTOs;
 using SmartSure.PolicyService.Services;
 using System.Security.Claims;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.PolicyService.Controllers
 {
@@ -62,10 +63,14 @@ namespace SmartSure.PolicyService.Controllers
                 var quote = await _service.CalculateQuoteAsync(dto);
                 return Ok(quote);
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error calculating quote");
-                return BadRequest(new { message = ex.Message });
+                throw new BusinessRuleException(ex.Message);
             }
         }
 
@@ -92,10 +97,14 @@ namespace SmartSure.PolicyService.Controllers
                 var policy = await _service.CreatePolicyAsync(userId, dto);
                 return Ok(policy);
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating policy for user");
-                return BadRequest(new { message = ex.Message });
+                throw new BusinessRuleException(ex.Message);
             }
         }
 
@@ -110,9 +119,13 @@ namespace SmartSure.PolicyService.Controllers
                 await _service.ActivatePolicyAsync(policyId);
                 return Ok(new { message = "Policy activated successfully" });
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                throw new BusinessRuleException(ex.Message);
             }
         }
 
@@ -160,26 +173,12 @@ namespace SmartSure.PolicyService.Controllers
             return Ok(detail);
         }
 
-        [HttpPost("/home-details")]
-        public async Task<IActionResult> SaveHomeDetail(CreateHomeDetailDTO dto)
-        {
-            await _service.SaveHomeDetailAsync(dto.PolicyId.GetValueOrDefault(), dto);
-            return Ok(new { message = "Home detail saved successfully" });
-        }
-
         [HttpGet("/vehicle-details/{policyId}")]
         public async Task<IActionResult> GetVehicleDetail(Guid policyId)
         {
             var detail = await _service.GetVehicleDetailAsync(policyId);
             if (detail == null) return NotFound();
             return Ok(detail);
-        }
-
-        [HttpPost("/vehicle-details")]
-        public async Task<IActionResult> SaveVehicleDetail(CreateVehicleDetailDTO dto)
-        {
-            await _service.SaveVehicleDetailAsync(dto.PolicyId.GetValueOrDefault(), dto);
-            return Ok(new { message = "Vehicle detail saved successfully" });
         }
     }
 }

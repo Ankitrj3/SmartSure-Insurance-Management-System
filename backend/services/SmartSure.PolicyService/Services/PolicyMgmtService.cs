@@ -42,7 +42,7 @@ namespace SmartSure.PolicyService.Services
         ///   4–5 years   → 50%
         ///   > 5 years   → IDV agreed upon (we use 60% here)
         /// </summary>
-        private static decimal CalculateVehicleIdv(CreateVehicleDetailDTO v)
+        private static decimal CalculateVehicleIdv(PolicyVehicleDetailDTO v)
         {
             int currentYear = DateTime.UtcNow.Year;
             int age = currentYear - v.ManufactureYear;
@@ -70,7 +70,7 @@ namespace SmartSure.PolicyService.Services
         ///   - Villa     → 1.10
         /// Age depreciation: 1% per year after construction, capped at 40%.
         /// </summary>
-        private static decimal CalculateHomeInsuranceValue(CreateHomeDetailDTO h)
+        private static decimal CalculateHomeInsuranceValue(PolicyHomeDetailDTO h)
         {
             int currentYear = DateTime.UtcNow.Year;
             int age = currentYear - h.YearBuilt;

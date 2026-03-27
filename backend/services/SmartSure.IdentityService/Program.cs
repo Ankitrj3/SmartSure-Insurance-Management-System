@@ -3,6 +3,7 @@ using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SmartSure.Shared.Contracts.Extensions;
 using System.Text;
 
 DotNetEnv.Env.Load();
@@ -114,6 +115,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseHttpsRedirection(); // Disabled – gateway calls this service via HTTP
+app.UseGlobalExceptionHandler();
 app.UseCors("AllowGateway");
 app.UseAuthentication();
 app.UseAuthorization();

@@ -3,6 +3,7 @@ using IdentityService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace IdentityService.Controllers
 {
@@ -51,9 +52,13 @@ namespace IdentityService.Controllers
                 var result = await _authService.Register(dto);
                 return Ok(new { message = result });
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                throw new BusinessRuleException(ex.Message);
             }
         }
 
@@ -65,9 +70,13 @@ namespace IdentityService.Controllers
                 var result = await _authService.VerifyRegistrationOtp(dto);
                 return Ok(new { message = result });
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                throw new BusinessRuleException(ex.Message);
             }
         }
 
@@ -79,9 +88,13 @@ namespace IdentityService.Controllers
                 var otp = await _otpService.GenerateAndSendOtpAsync(dto.Email);
                 return Ok(new { message = "OTP sent to your registered email successfully" });
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                throw new BusinessRuleException(ex.Message);
             }
         }
 
@@ -93,9 +106,13 @@ namespace IdentityService.Controllers
                 await _authService.ResetPasswordAsync(dto);
                 return Ok(new { message = "Password has been successfully changed" });
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                throw new BusinessRuleException(ex.Message);
             }
         }
 
@@ -107,19 +124,14 @@ namespace IdentityService.Controllers
                 var result = await _authService.Login(dto);
                 return Ok(result);
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return Unauthorized(new { message = ex.Message });
+                throw new UnauthorizedException(ex.Message);
             }
-        }
-
-        [Authorize]
-        [HttpPost("logout")]
-        public IActionResult Logout()
-        {
-            // With JWT, logout is typically handled client-side by deleting the token.
-            // A blacklist could be implemented if necessary.
-            return Ok(new { message = "Logged out successfully" });
         }
 
         [Authorize]
@@ -134,9 +146,13 @@ namespace IdentityService.Controllers
                 var user = await _authService.GetProfile(userId);
                 return Ok(user);
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return NotFound(new { message = ex.Message });
+                throw new NotFoundException("Profile");
             }
         }
 
@@ -154,9 +170,13 @@ namespace IdentityService.Controllers
                 await _authService.UpdateProfile(userId, dto);
                 return Ok(new { message = "Profile updated successfully" });
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                throw new BusinessRuleException(ex.Message);
             }
         }
 
@@ -172,9 +192,13 @@ namespace IdentityService.Controllers
                 await _authService.ChangePassword(userId, dto);
                 return Ok(new { message = "Password changed successfully" });
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                throw new BusinessRuleException(ex.Message);
             }
         }
 
@@ -186,9 +210,13 @@ namespace IdentityService.Controllers
                 var result = await _authService.Refresh(dto.RefreshToken);
                 return Ok(result);
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return Unauthorized(new { message = ex.Message });
+                throw new UnauthorizedException(ex.Message);
             }
         }
     }

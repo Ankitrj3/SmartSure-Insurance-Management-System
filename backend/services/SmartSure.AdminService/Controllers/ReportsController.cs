@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartSure.AdminService.DTOs;
 using SmartSure.AdminService.Services;
 using System.Security.Claims;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.AdminService.Controllers
 {
@@ -31,10 +32,21 @@ namespace SmartSure.AdminService.Controllers
         [HttpPost]
         public async Task<IActionResult> GenerateReport([FromBody] ReportRequestDTO dto)
         {
-            var adminId = GetAdminId();
-            string token = Request.Headers["Authorization"].ToString();
-            var report = await _reportService.GenerateReportAsync(adminId, dto, token);
-            return CreatedAtAction(nameof(GetReport), new { reportId = report.ReportId }, report);
+            try
+            {
+                var adminId = GetAdminId();
+                string token = Request.Headers["Authorization"].ToString();
+                var report = await _reportService.GenerateReportAsync(adminId, dto, token);
+                return CreatedAtAction(nameof(GetReport), new { reportId = report.ReportId }, report);
+            }
+            catch (SmartSureException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException($"Failed to generate report: {ex.Message}");
+            }
         }
 
         [HttpGet("{reportId}")]

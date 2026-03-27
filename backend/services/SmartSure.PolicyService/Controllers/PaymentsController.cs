@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartSure.PolicyService.DTOs;
 using SmartSure.PolicyService.Services;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.PolicyService.Controllers
 {

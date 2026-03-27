@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartSure.ClaimsService.DTOs;
 using SmartSure.ClaimsService.Services;
 using System.Security.Claims;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.ClaimsService.Controllers
 {

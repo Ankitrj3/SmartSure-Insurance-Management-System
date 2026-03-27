@@ -2,6 +2,7 @@ using IdentityService.DTOs;
 using IdentityService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmartSure.Shared.Contracts.Exceptions;
 
 namespace IdentityService.Controllers
 {
@@ -25,9 +26,13 @@ namespace IdentityService.Controllers
                 var users = await _userService.GetUsers();
                 return Ok(users);
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                throw new BusinessRuleException(ex.Message);
             }
         }
 
@@ -40,9 +45,13 @@ namespace IdentityService.Controllers
                 await _userService.AssignRole(userId, dto.RoleId);
                 return Ok(new { message = "Role assigned successfully" });
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                throw new BusinessRuleException(ex.Message);
             }
         }
 
@@ -55,9 +64,13 @@ namespace IdentityService.Controllers
                 await _userService.DeleteUser(userId);
                 return Ok(new { message = "User deleted successfully" });
             }
+            catch (SmartSureException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                throw new BusinessRuleException(ex.Message);
             }
         }
     }

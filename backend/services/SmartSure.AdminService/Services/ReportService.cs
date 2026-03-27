@@ -68,7 +68,10 @@ namespace SmartSure.AdminService.Services
             // In production this would query policy/claims data via HTTP or shared DB views
             var gatewayUrl = _configuration["Gateway:Url"] ?? "http://localhost:5057";
             var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Add("Authorization", token);
+            
+            // Remove "Bearer " prefix if it exists and add it back properly
+            var cleanToken = token.Replace("Bearer ", "").Trim();
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {cleanToken}");
 
             int totalInsuranceSell = 0;
             int totalClaimAccepted = 0;
@@ -76,7 +79,10 @@ namespace SmartSure.AdminService.Services
 
             try
             {
+                _logger.LogInformation("Fetching policies from {Url}", $"{gatewayUrl}/policies/all");
                 var policiesResponse = await client.GetAsync($"{gatewayUrl}/policies/all");
+                _logger.LogInformation("Policies response status: {Status}", policiesResponse.StatusCode);
+                
                 if (policiesResponse.IsSuccessStatusCode)
                 {
                     var policiesStr = await policiesResponse.Content.ReadAsStringAsync();
@@ -86,8 +92,16 @@ namespace SmartSure.AdminService.Services
                         totalInsuranceSell = policies.Length;
                     }
                 }
+                else
+                {
+                    var errorContent = await policiesResponse.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Failed to fetch policies: {Status} - {Content}", policiesResponse.StatusCode, errorContent);
+                }
 
+                _logger.LogInformation("Fetching claims from {Url}", $"{gatewayUrl}/claims/all");
                 var claimsResponse = await client.GetAsync($"{gatewayUrl}/claims/all");
+                _logger.LogInformation("Claims response status: {Status}", claimsResponse.StatusCode);
+                
                 if (claimsResponse.IsSuccessStatusCode)
                 {
                     var claimsStr = await claimsResponse.Content.ReadAsStringAsync();
@@ -98,10 +112,16 @@ namespace SmartSure.AdminService.Services
                         totalClaimRejected = claims.Count(c => c.TryGetProperty("status", out var s) && s.GetString() == "Rejected");
                     }
                 }
+                else
+                {
+                    var errorContent = await claimsResponse.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Failed to fetch claims: {Status} - {Content}", claimsResponse.StatusCode, errorContent);
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching data for report generation");
+                throw; // Re-throw to let the controller handle it
             }
 
             var reportData = new
