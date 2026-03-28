@@ -8,6 +8,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/main/Dotnet.gitignore
 
 # Build results
+frontend/
 backend/
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -56,3 +57,6 @@ nunit-*.xml
 
 # VS Code/Visual Studio user-specific files
 .vs/
+.node_modules/
+.dist/
+.vscode/
