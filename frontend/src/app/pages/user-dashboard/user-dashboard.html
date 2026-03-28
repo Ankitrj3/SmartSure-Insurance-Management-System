@@ -18,13 +18,11 @@
 
   <div class="user-nav">
     <button class="nav-tab" [class.active-tab]="activeTab === 'overview'" (click)="setActiveTab('overview')">Overview</button>
-    <button class="nav-tab" [class.active-tab]="activeTab === 'profile'" (click)="setActiveTab('profile')">Profile</button>
     <button class="nav-tab" [class.active-tab]="activeTab === 'policies'" (click)="setActiveTab('policies')">Policies</button>
     <button class="nav-tab" [class.active-tab]="activeTab === 'claims'" (click)="setActiveTab('claims')">Claims</button>
   </div>
 
   <div class="dashboard-grid" *ngIf="!loading">
-    
     <!-- OVERVIEW TAB -->
     <ng-container *ngIf="activeTab === 'overview'">
       <section class="dashboard-section policies-section">
@@ -81,45 +79,6 @@
           </div>
           <div class="empty-state claim-empty" *ngIf="claims.length === 0">
             <p>You have no recent claims.</p>
-          </div>
-        </div>
-      </section>
-    </ng-container>
-
-    <!-- PROFILE TAB -->
-    <ng-container *ngIf="activeTab === 'profile'">
-      <section class="dashboard-section profile-section full-width">
-        <div class="profile-grid">
-          <div class="profile-card">
-            <h3>Update Information</h3>
-            <div class="form-group">
-              <label>Full Name</label>
-              <input type="text" class="input-base" [(ngModel)]="profile.fullName" placeholder="Enter your full name" />
-            </div>
-            <div class="form-group">
-              <label>Phone Number</label>
-              <input type="text" class="input-base" [(ngModel)]="profile.phoneNumber" placeholder="Enter phone number" />
-            </div>
-            <div class="form-group">
-              <label>Address (Optional)</label>
-              <input type="text" class="input-base" [(ngModel)]="profile.address" placeholder="Enter your address" />
-            </div>
-            <button class="btn btn-primary" (click)="updateProfile()">Save Profile</button>
-            <p class="action-result" *ngIf="profileMessage">{{ profileMessage }}</p>
-          </div>
-
-          <div class="profile-card">
-            <h3>Change Password</h3>
-            <div class="form-group">
-              <label>Current Password</label>
-              <input type="password" class="input-base" [(ngModel)]="passwordData.currentPassword" />
-            </div>
-            <div class="form-group">
-              <label>New Password</label>
-              <input type="password" class="input-base" [(ngModel)]="passwordData.newPassword" />
-            </div>
-            <button class="btn btn-outline" style="color: #DC2626; border-color: #FEE2E2;" (click)="changePassword()">Update Password</button>
-            <p class="action-result" *ngIf="passwordMessage">{{ passwordMessage }}</p>
           </div>
         </div>
       </section>

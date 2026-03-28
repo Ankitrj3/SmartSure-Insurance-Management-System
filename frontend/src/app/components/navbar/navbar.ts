@@ -14,6 +14,7 @@ import { Subscription, filter } from 'rxjs';
 export class Navbar implements OnInit, OnDestroy {
   isLoggedIn = false;
   isAdmin = false;
+  showDropdown = false;
   private subs = new Subscription();
 
   constructor(
@@ -50,7 +51,30 @@ export class Navbar implements OnInit, OnDestroy {
     this.subs.unsubscribe();
   }
 
+  toggleDropdown(event: Event) {
+    event.stopPropagation();
+    this.showDropdown = !this.showDropdown;
+    
+    if (this.showDropdown) {
+      setTimeout(() => {
+        document.addEventListener('click', this.closeDropdownOnClickOutside);
+      }, 0);
+    }
+  }
+
+  closeDropdown() {
+    this.showDropdown = false;
+    document.removeEventListener('click', this.closeDropdownOnClickOutside);
+  }
+
+  private closeDropdownOnClickOutside = () => {
+    this.showDropdown = false;
+    this.cdr.detectChanges();
+    document.removeEventListener('click', this.closeDropdownOnClickOutside);
+  }
+
   logout() {
+    this.closeDropdown();
     this.authService.logout();
     this.router.navigate(['/login']);
   }

@@ -22,9 +22,9 @@ export class UserDashboard implements OnInit {
   profile: any = {};
   loading = true;
 
-  activeTab: 'overview' | 'profile' | 'policies' | 'claims' = 'overview';
+  activeTab: 'overview' | 'policies' | 'claims' = 'overview';
 
-  // Profile Form
+  // Profile Form - removed (now in separate profile page)
   passwordData = { currentPassword: '', newPassword: '' };
   profileMessage = '';
   passwordMessage = '';
@@ -87,7 +87,7 @@ export class UserDashboard implements OnInit {
     // Restore active tab from URL query params
     this.route.queryParams.subscribe(params => {
       const tab = params['tab'];
-      if (tab && ['overview', 'profile', 'policies', 'claims'].includes(tab)) {
+      if (tab && ['overview', 'policies', 'claims'].includes(tab)) {
         this.activeTab = tab;
       }
     });
@@ -96,7 +96,7 @@ export class UserDashboard implements OnInit {
   }
 
   // Method to change tab and update URL
-  setActiveTab(tab: 'overview' | 'profile' | 'policies' | 'claims') {
+  setActiveTab(tab: 'overview' | 'policies' | 'claims') {
     this.activeTab = tab;
     // Update URL without reloading the page
     this.router.navigate([], {
@@ -152,41 +152,7 @@ export class UserDashboard implements OnInit {
     return [];
   }
 
-  // --- Profile Management ---
-  updateProfile() {
-    if (!this.profile.fullName || !this.profile.fullName.trim()) {
-      this.profileMessage = 'Please enter your full name.';
-      return;
-    }
-    
-    if (!this.profile.phoneNumber || !this.profile.phoneNumber.trim()) {
-      this.profileMessage = 'Please enter your phone number.';
-      return;
-    }
-    
-    this.authService.updateProfile({ 
-      fullName: this.profile.fullName.trim(),
-      phoneNumber: this.profile.phoneNumber.trim(),
-      address: this.profile.address?.trim() || ''
-    }).subscribe({
-      next: () => {
-        this.profileMessage = 'Success: Profile updated!';
-        // Refresh profile data
-        this.fetchData();
-      },
-      error: (err) => this.profileMessage = 'Failed to update: ' + (err.error?.message || err.message)
-    });
-  }
-
-  changePassword() {
-    this.authService.changePassword(this.passwordData).subscribe({
-      next: () => {
-        this.passwordMessage = 'Success: Password changed.';
-        this.passwordData = { currentPassword: '', newPassword: '' };
-      },
-      error: (err) => this.passwordMessage = 'Failed to change password: ' + (err.error?.message || err.message)
-    });
-  }
+  // --- Profile Management - Removed (now in separate profile page) ---
 
   // --- Buy Policy Flow ---
   openBuyPolicyModal() {

@@ -1,0 +1,269 @@
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: calc(100vh - 80px);
+}
+
+.profile-header {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.profile-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1F2937;
+  margin-bottom: 10px;
+}
+
+.profile-header p {
+  font-size: 1.1rem;
+  color: #6B7280;
+}
+
+.profile-content {
+  width: 100%;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 30px;
+}
+
+.profile-card {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.profile-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.08), 0 16px 24px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #F3F4F6;
+}
+
+.card-icon {
+  width: 28px;
+  height: 28px;
+  color: #0DB18C;
+}
+
+.card-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.input-base {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #E5E7EB;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.2s;
+  background: white;
+}
+
+.input-base:focus {
+  outline: none;
+  border-color: #0DB18C;
+  box-shadow: 0 0 0 3px rgba(13, 177, 140, 0.1);
+}
+
+.input-base:disabled {
+  background-color: #F9FAFB;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.input-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #9CA3AF;
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0DB18C 0%, #0A8E70 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(13, 177, 140, 0.3);
+}
+
+.btn-outline {
+  background: white;
+  border: 2px solid #E5E7EB;
+  color: #374151;
+}
+
+.btn-outline:hover {
+  border-color: #0DB18C;
+  color: #0DB18C;
+}
+
+.btn-danger {
+  border-color: #FEE2E2;
+  color: #DC2626;
+}
+
+.btn-danger:hover {
+  border-color: #DC2626;
+  background: #FEF2F2;
+}
+
+.action-result {
+  margin-top: 15px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.action-result.success {
+  background: #D1FAE5;
+  color: #065F46;
+  border: 1px solid #6EE7B7;
+}
+
+.action-result.error {
+  background: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FCA5A5;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 20px;
+}
+
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #F3F4F6;
+  border-top-color: #0DB18C;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-state p {
+  color: #6B7280;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 1024px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-container {
+    padding: 20px 15px;
+  }
+
+  .profile-header h1 {
+    font-size: 2rem;
+  }
+
+  .profile-card {
+    padding: 20px;
+  }
+
+  .card-header h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Info Row Styles for Read-only View */
+.info-row {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.info-row:last-of-type {
+  border-bottom: none;
+  margin-bottom: 25px;
+}
+
+.info-row label {
+  display: block;
+  font-weight: 600;
+  color: #6B7280;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-size: 1.05rem;
+  color: #1F2937;
+  font-weight: 500;
+  margin: 0;
+  padding: 8px 0;
+}
+
+/* Button with icon */
+.btn svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Flex buttons */
+.btn-group {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-group .btn {
+  flex: 1;
+}

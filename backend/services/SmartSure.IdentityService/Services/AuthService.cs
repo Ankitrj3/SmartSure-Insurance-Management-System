@@ -63,9 +63,11 @@ namespace IdentityService.Services
 
             return new UserDTO
             {
-                UserId   = user.UserId,
-                Email    = user.Email,
-                FullName = user.FullName
+                UserId      = user.UserId,
+                Email       = user.Email,
+                FullName    = user.FullName,
+                PhoneNumber = user.PhoneNumber,
+                Address     = user.Address
             };
         }
 
@@ -74,9 +76,11 @@ namespace IdentityService.Services
             var users = await _repo.GetAllAsync();
             return users.Select(user => new UserDTO
             {
-                UserId   = user.UserId,
-                Email    = user.Email,
-                FullName = user.FullName
+                UserId      = user.UserId,
+                Email       = user.Email,
+                FullName    = user.FullName,
+                PhoneNumber = user.PhoneNumber,
+                Address     = user.Address
             }).ToList();
         }
 

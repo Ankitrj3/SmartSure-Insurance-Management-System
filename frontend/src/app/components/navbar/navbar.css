@@ -252,3 +252,142 @@
     padding: 0.35rem 0.6rem;
   }
 }
+
+/* Dropdown Styles */
+.dropdown-wrapper {
+  position: relative;
+}
+
+.btn-icon-user {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0DB18C 0%, #0A8E70 100%);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(13, 177, 140, 0.2);
+}
+
+.btn-icon-user:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 177, 140, 0.3);
+}
+
+.btn-icon-user svg {
+  width: 22px;
+  height: 22px;
+  color: white;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+  min-width: 200px;
+  padding: 8px;
+  z-index: 1000;
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #374151;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: #F3F4F6;
+  color: #0DB18C;
+}
+
+.dropdown-item svg {
+  width: 18px;
+  height: 18px;
+  color: currentColor;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #E5E7EB;
+  margin: 6px 0;
+}
+
+/* Mobile Dropdown Adjustments */
+@media (max-width: 768px) {
+  .btn-icon-user {
+    width: 38px;
+    height: 38px;
+  }
+
+  .btn-icon-user svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .dropdown-menu {
+    min-width: 180px;
+  }
+
+  .dropdown-item {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-icon-user {
+    width: 36px;
+    height: 36px;
+  }
+
+  .btn-icon-user svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .dropdown-menu {
+    min-width: 160px;
+    right: -10px;
+  }
+
+  .dropdown-item {
+    padding: 9px 12px;
+    font-size: 0.85rem;
+    gap: 10px;
+  }
+
+  .dropdown-item svg {
+    width: 16px;
+    height: 16px;
+  }
+}
