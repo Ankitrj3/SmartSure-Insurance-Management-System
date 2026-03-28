@@ -31,7 +31,12 @@ builder.Services.AddCors(options =>
 
 // Database
 builder.Services.AddDbContext<PolicyDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("PolicyConnDb")));
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("PolicyConnDb"));
+    // Suppress pending model changes warning during startup
+    options.ConfigureWarnings(warnings => 
+        warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+});
 
 // MassTransit / RabbitMQ
 builder.Services.AddMassTransit(x =>
@@ -65,7 +70,9 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        RoleClaimType = System.Security.Claims.ClaimTypes.Role,
+        NameClaimType = System.Security.Claims.ClaimTypes.NameIdentifier
     };
 });
 

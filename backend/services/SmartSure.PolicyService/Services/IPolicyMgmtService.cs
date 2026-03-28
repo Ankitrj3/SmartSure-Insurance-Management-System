@@ -31,5 +31,10 @@ namespace SmartSure.PolicyService.Services
         /// Activate a pending policy after successful payment.
         /// </summary>
         Task ActivatePolicyAsync(Guid policyId);
+
+        /// <summary>
+        /// Terminate a policy (used for theft/total loss claims).
+        /// </summary>
+        Task TerminatePolicyAsync(Guid policyId);
     }
 }

@@ -180,5 +180,26 @@ namespace SmartSure.PolicyService.Controllers
             if (detail == null) return NotFound();
             return Ok(detail);
         }
+
+        /// <summary>
+        /// Terminate a policy (used for theft/total loss claims)
+        /// </summary>
+        [HttpPatch("/policies/{policyId}/terminate")]
+        public async Task<IActionResult> TerminatePolicy(Guid policyId)
+        {
+            try
+            {
+                await _service.TerminatePolicyAsync(policyId);
+                return Ok(new { message = "Policy terminated successfully" });
+            }
+            catch (SmartSureException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException(ex.Message);
+            }
+        }
     }
 }

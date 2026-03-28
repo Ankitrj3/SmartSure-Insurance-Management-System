@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
@@ -19,7 +19,8 @@ export class Login implements OnInit {
   constructor(
     private authService: AuthService, 
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -40,17 +41,22 @@ export class Login implements OnInit {
   onSubmit() {
     this.isLoading = true;
     this.errorMessage = '';
+    this.cdr.detectChanges();
     
     this.authService.login(this.credentials).subscribe({
       next: (res) => {
         this.isLoading = false;
+        this.cdr.detectChanges();
+        
+        // Get role from localStorage (already stored by auth service)
+        const role = this.authService.getRole();
         
         // If there's a return URL and it's not login/register, use it
         if (this.returnUrl && this.returnUrl !== '/' && !this.returnUrl.includes('login') && !this.returnUrl.includes('register')) {
           this.router.navigateByUrl(this.returnUrl);
         } else {
           // Otherwise redirect based on role
-          if (res.role === 'Admin' || res.role === 'admin') {
+          if (role === 'Admin' || role === 'admin') {
             this.router.navigate(['/admin/dashboard']);
           } else {
             this.router.navigate(['/user/dashboard']);
@@ -60,6 +66,7 @@ export class Login implements OnInit {
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = err.error?.message || 'Invalid email or password.';
+        this.cdr.detectChanges();
       }
     });
   }

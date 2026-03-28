@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SmartSure.ClaimsService.Data;
 using SmartSure.ClaimsService.Services;
+using SmartSure.ClaimsService.Repositories;
 using SmartSure.Shared.Contracts.Extensions;
 using System.Text;
 using MassTransit;
@@ -70,7 +71,9 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        RoleClaimType = System.Security.Claims.ClaimTypes.Role,
+        NameClaimType = System.Security.Claims.ClaimTypes.NameIdentifier
     };
 });
 
@@ -79,6 +82,15 @@ builder.Services.AddAuthorization();
 // Services
 builder.Services.AddScoped<IClaimService, ClaimService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+// HTTP Client for cross-service calls
+builder.Services.AddHttpClient();
+
+// Repositories
+builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
+builder.Services.AddScoped<IClaimStatusHistoryRepository, ClaimStatusHistoryRepository>();
+builder.Services.AddScoped<IClaimDocumentRepository, ClaimDocumentRepository>();
 
 builder.Services.AddControllers();
 

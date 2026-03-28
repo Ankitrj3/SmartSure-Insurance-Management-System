@@ -58,6 +58,16 @@ export class AdminService {
     return this.api.put<any>(`admin/claims/${claimId}/reject`, { reason });
   }
 
+  // PUT /claims/:claimId/status → ClaimsController (set to UnderReview)
+  setClaimUnderReview(claimId: string, notes: string = ''): Observable<any> {
+    return this.api.put<any>(`claims/${claimId}/status`, { status: 'UnderReview', notes });
+  }
+
+  // PUT /claims/:claimId/status → ClaimsController (set to Closed)
+  setClaimClosed(claimId: string, notes: string = ''): Observable<any> {
+    return this.api.put<any>(`claims/${claimId}/status`, { status: 'Closed', notes });
+  }
+
   // ── Policy Management ────────────────────────────────────────────────────────
   // GET /policies/all → PoliciesController (Admin role required)
   getAllPolicies(): Observable<any[]> {

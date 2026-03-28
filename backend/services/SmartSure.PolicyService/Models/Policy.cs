@@ -37,6 +37,16 @@ namespace SmartSure.PolicyService.Models
         [StringLength(50)]
         public string Status { get; set; } // "Pending", "Active", "Cancelled", "Expired"
 
+        /// <summary>
+        /// Number of approved claims made against this policy
+        /// </summary>
+        public int ApprovedClaimsCount { get; set; } = 0;
+
+        /// <summary>
+        /// Indicates if the policy has been terminated due to theft/total loss
+        /// </summary>
+        public bool IsTerminated { get; set; } = false;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties

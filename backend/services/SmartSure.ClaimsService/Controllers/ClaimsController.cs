@@ -100,5 +100,20 @@ namespace SmartSure.ClaimsService.Controllers
             var claims = await _claimService.GetClaimsByPolicyAsync(policyId);
             return Ok(claims);
         }
+
+        [HttpPut("{claimId}/status")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateClaimStatus(Guid claimId, [FromBody] UpdateClaimStatusDTO dto)
+        {
+            var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Admin";
+            await _claimService.UpdateClaimStatusAsync(claimId, dto.Status, dto.Notes, adminId);
+            return Ok(new { message = $"Claim status updated to {dto.Status}" });
+        }
+    }
+
+    public class UpdateClaimStatusDTO
+    {
+        public string Status { get; set; } = "";
+        public string? Notes { get; set; }
     }
 }

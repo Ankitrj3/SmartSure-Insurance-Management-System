@@ -16,7 +16,8 @@ export const userGuard: CanActivateFn = (route, state) => {
 
   const role = authService.getRole();
   
-  if (role === 'User' || role === 'user' || role === 'Admin' || role === 'admin') {
+  // Allow User, Customer, and Admin roles
+  if (role === 'User' || role === 'user' || role === 'Customer' || role === 'customer' || role === 'Admin' || role === 'admin') {
     return true;
   }
 

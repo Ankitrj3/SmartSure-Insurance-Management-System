@@ -54,6 +54,11 @@ namespace IdentityService.Repositories
             return await _context.Roles.FindAsync(roleId);
         }
 
+        public async Task<Role> GetRoleByNameAsync(string roleName)
+        {
+            return await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == roleName);
+        }
+
         public async Task AddUserRoleAsync(UserRole userRole)
         {
             await _context.UserRoles.AddAsync(userRole);

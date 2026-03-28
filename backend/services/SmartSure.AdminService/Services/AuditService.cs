@@ -1,18 +1,17 @@
-using Microsoft.EntityFrameworkCore;
-using SmartSure.AdminService.Data;
 using SmartSure.AdminService.DTOs;
 using SmartSure.AdminService.Models;
+using SmartSure.AdminService.Repositories;
 
 namespace SmartSure.AdminService.Services
 {
     public class AuditService : IAuditService
     {
-        private readonly AdminDbContext _context;
+        private readonly IAuditLogRepository _repository;
         private readonly ILogger<AuditService> _logger;
 
-        public AuditService(AdminDbContext context, ILogger<AuditService> logger)
+        public AuditService(IAuditLogRepository repository, ILogger<AuditService> logger)
         {
-            _context = context;
+            _repository = repository;
             _logger = logger;
         }
 
@@ -28,19 +27,15 @@ namespace SmartSure.AdminService.Services
                 Details = details
             };
 
-            _context.AuditLogs.Add(log);
-            await _context.SaveChangesAsync();
+            await _repository.AddAsync(log);
+            await _repository.SaveChangesAsync();
 
             _logger.LogInformation("Audit: {Action} on {EntityType} [{EntityId}] by {ActorId}", action, entityType, entityId, actorId);
         }
 
         public async Task<List<AuditLogDTO>> GetAuditLogsAsync(int page, int pageSize)
         {
-            var logs = await _context.AuditLogs
-                .OrderByDescending(l => l.Timestamp)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var logs = await _repository.GetPagedAsync(page, pageSize);
 
             return logs.Select(l => new AuditLogDTO
             {
@@ -56,7 +51,7 @@ namespace SmartSure.AdminService.Services
 
         public async Task<int> GetTotalAuditLogsCountAsync()
         {
-            return await _context.AuditLogs.CountAsync();
+            return await _repository.GetTotalCountAsync();
         }
     }
 }

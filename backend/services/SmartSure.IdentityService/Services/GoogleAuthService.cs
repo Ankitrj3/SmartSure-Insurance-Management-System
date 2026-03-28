@@ -1,10 +1,9 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
-using IdentityService.Data;
 using IdentityService.Models;
 using IdentityService.Helpers;
+using IdentityService.Repositories;
 using MassTransit;
-using Microsoft.EntityFrameworkCore;
 using SmartSure.Shared.Contracts.Events;
 
 namespace IdentityService.Services
@@ -12,15 +11,20 @@ namespace IdentityService.Services
     public class GoogleAuthService : IGoogleAuthService
     {
         private readonly IConfiguration _config;
-        private readonly IdentityDbContext _context;
+        private readonly IUserRepository _userRepository;
         private readonly TokenService _tokenService;
         private readonly IBus _bus;
         private readonly HttpClient _httpClient;
 
-        public GoogleAuthService(IConfiguration config, IdentityDbContext context, TokenService tokenService, IBus bus, HttpClient httpClient)
+        public GoogleAuthService(
+            IConfiguration config, 
+            IUserRepository userRepository, 
+            TokenService tokenService, 
+            IBus bus, 
+            HttpClient httpClient)
         {
             _config = config;
-            _context = context;
+            _userRepository = userRepository;
             _tokenService = tokenService;
             _bus = bus;
             _httpClient = httpClient;
@@ -68,7 +72,7 @@ namespace IdentityService.Services
             var googleSubjectId = payload["sub"].ToString()!;
 
             // Check if user exists
-            var user = await _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefaultAsync(u => u.Email == email);
+            var user = await _userRepository.GetByEmailAsync(email);
             if (user == null)
             {
                 user = new User
@@ -85,7 +89,7 @@ namespace IdentityService.Services
                 user.Password.UserId = user.UserId;
 
                 // Assign default role (Customer)
-                var defaultRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Customer");
+                var defaultRole = await _userRepository.GetRoleByNameAsync("Customer");
                 if (defaultRole != null)
                 {
                     user.UserRoles = new List<UserRole>
@@ -94,8 +98,8 @@ namespace IdentityService.Services
                     };
                 }
 
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
+                await _userRepository.AddAsync(user);
+                await _userRepository.SaveChangesAsync();
 
                 // Publish Event
                 await _bus.Publish(new UserRegisteredEvent(user.UserId, user.Email, user.FullName, "", DateTime.UtcNow, true));

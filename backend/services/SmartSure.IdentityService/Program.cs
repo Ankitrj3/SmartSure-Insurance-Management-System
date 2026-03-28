@@ -33,6 +33,7 @@ builder.Services.AddCors(options =>
 // Internal Services
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IdentityService.Repositories.IUserRepository, IdentityService.Repositories.UserRepository>();
+builder.Services.AddScoped<IdentityService.Repositories.IOtpRepository, IdentityService.Repositories.OtpRepository>();
 builder.Services.AddScoped<IdentityService.Services.IAuthService, IdentityService.Services.AuthService>();
 builder.Services.AddScoped<IdentityService.Services.IUserService, IdentityService.Services.UserService>();
 builder.Services.AddScoped<IdentityService.Services.IEmailService, IdentityService.Services.EmailService>();

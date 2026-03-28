@@ -15,5 +15,6 @@ namespace SmartSure.ClaimsService.Services
         Task TransitionStatusAsync(Guid claimId, string newStatus, string changedBy, string? notes = null);
         Task ApproveClaimAsync(Guid claimId, decimal approvedAmount, string? notes, string adminId);
         Task RejectClaimAsync(Guid claimId, string reason, string adminId);
+        Task UpdateClaimStatusAsync(Guid claimId, string newStatus, string? notes, string changedBy);
     }
 }

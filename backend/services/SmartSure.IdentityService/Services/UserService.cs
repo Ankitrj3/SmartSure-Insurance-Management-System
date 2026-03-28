@@ -41,9 +41,14 @@ namespace IdentityService.Services
             var users = await _repo.GetAllAsync();
             return users.Select(u => new UserDTO
             {
-                UserId   = u.UserId,
-                Email    = u.Email,
-                FullName = u.FullName
+                UserId      = u.UserId,
+                Email       = u.Email,
+                FullName    = u.FullName,
+                PhoneNumber = u.PhoneNumber,
+                Address     = u.Address,
+                Roles       = u.UserRoles?.Where(ur => ur.Role != null)
+                                         .Select(ur => ur.Role.RoleName)
+                                         .ToList() ?? new List<string>()
             }).ToList();
         }
     }

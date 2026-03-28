@@ -1,17 +1,18 @@
-using IdentityService.Data;
 using IdentityService.Models;
-using Microsoft.EntityFrameworkCore;
+using IdentityService.Repositories;
 
 namespace IdentityService.Services
 {
     public class OtpService : IOtpService
     {
-        private readonly IdentityDbContext _context;
+        private readonly IUserRepository _userRepository;
+        private readonly IOtpRepository _otpRepository;
         private readonly IEmailService _emailService;
 
-        public OtpService(IdentityDbContext context, IEmailService emailService)
+        public OtpService(IUserRepository userRepository, IOtpRepository otpRepository, IEmailService emailService)
         {
-            _context = context;
+            _userRepository = userRepository;
+            _otpRepository = otpRepository;
             _emailService = emailService;
         }
 
@@ -20,7 +21,7 @@ namespace IdentityService.Services
             var random = new Random();
             string otp = random.Next(100000, 999999).ToString();
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var user = await _userRepository.GetByEmailAsync(email);
             if (user == null) throw new Exception("User not found");
 
             var otpRecord = new OtpRecord
@@ -32,14 +33,14 @@ namespace IdentityService.Services
                 Attempts = 0
             };
 
-            var existingOtps = _context.Set<OtpRecord>().Where(o => o.Email == email).ToList();
+            var existingOtps = await _otpRepository.GetAllByEmailAsync(email);
             if (existingOtps.Any())
             {
-                _context.Set<OtpRecord>().RemoveRange(existingOtps);
+                await _otpRepository.RemoveRangeAsync(existingOtps);
             }
 
-            _context.Set<OtpRecord>().Add(otpRecord);
-            await _context.SaveChangesAsync();
+            await _otpRepository.AddAsync(otpRecord);
+            await _otpRepository.SaveChangesAsync();
 
             await _emailService.SendEmailAsync(email, "Your Password Reset OTP", $"Your 6-digit OTP is: <b>{otp}</b>. It expires in 10 minutes.");
             return otp;
@@ -47,25 +48,25 @@ namespace IdentityService.Services
 
         public async Task<bool> ValidateOtpAsync(string email, string otp)
         {
-            var record = await _context.Set<OtpRecord>().FirstOrDefaultAsync(o => o.Email == email);
+            var record = await _otpRepository.GetByEmailAsync(email);
             if (record == null || record.ExpirationTime < DateTime.UtcNow) return false;
 
             if (record.Attempts >= 3)
             {
-                _context.Set<OtpRecord>().Remove(record);
-                await _context.SaveChangesAsync();
+                await _otpRepository.RemoveAsync(record);
+                await _otpRepository.SaveChangesAsync();
                 return false;
             }
 
             if (record.Otp == otp)
             {
-                _context.Set<OtpRecord>().Remove(record);
-                await _context.SaveChangesAsync();
+                await _otpRepository.RemoveAsync(record);
+                await _otpRepository.SaveChangesAsync();
                 return true;
             }
 
             record.Attempts++;
-            await _context.SaveChangesAsync();
+            await _otpRepository.SaveChangesAsync();
             return false;
         }
     }

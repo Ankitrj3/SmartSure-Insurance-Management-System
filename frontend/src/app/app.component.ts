@@ -2,13 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { Navbar } from './components/navbar/navbar';
 import { AuthService } from './core/services/auth.service';
+import { ToastComponent } from './shared/components/toast/toast.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, Navbar, RouterLink],
+  imports: [RouterOutlet, Navbar, RouterLink, ToastComponent],
   template: `
     <app-navbar></app-navbar>
+    <app-toast></app-toast>
     <main class="page-content">
       <router-outlet></router-outlet>
     </main>

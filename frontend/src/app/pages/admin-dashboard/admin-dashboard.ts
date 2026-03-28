@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,7 +7,7 @@ import { ClaimService } from '../../core/services/claim.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PolicyService } from '../../core/services/policy.service';
 import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, timeout } from 'rxjs/operators';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -45,7 +45,7 @@ export class AdminDashboard implements OnInit {
   reviewNotes = '';
   rejectionReason = '';
   approvedAmount: number | null = null;
-  reviewAction: 'approve' | 'reject' | null = null;
+  reviewAction: 'approve' | 'reject' | 'underReview' | 'closed' | null = null;
   actionProcessing = false;
   actionMessage = '';
 
@@ -65,7 +65,8 @@ export class AdminDashboard implements OnInit {
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit() {
@@ -95,18 +96,26 @@ export class AdminDashboard implements OnInit {
 
   fetchDashboardData() {
     this.loading = true;
+    this.cdr.detectChanges();
 
     forkJoin({
       stats: this.adminService.getDashboardStats().pipe(catchError(() => of(null))),
       users: this.adminService.getAllUsers().pipe(catchError(() => of([]))),
       policies: this.adminService.getAllPolicies().pipe(catchError(() => of([]))),
-      claims: this.adminService.getAllClaims().pipe(catchError(() => of([]))),
+      claims: this.adminService.getAllClaims().pipe(catchError((err) => {
+        console.error('Error fetching claims:', err);
+        return of([]);
+      })),
       reports: this.adminService.getAllReports().pipe(catchError(() => of([])))
     }).subscribe({
       next: ({ stats, users, policies, claims, reports }) => {
         if (stats) this.stats = { ...this.stats, ...stats };
 
-        this.allUsers = Array.isArray(users) ? users : [];
+        // Map users and extract role from roles array
+        this.allUsers = Array.isArray(users) ? users.map(u => ({
+          ...u,
+          role: u.roles && u.roles.length > 0 ? (u.roles.includes('Admin') ? 'Admin' : u.roles[0]) : 'User'
+        })) : [];
         this.stats.totalUsers = this.allUsers.length;
 
         const pList = Array.isArray(policies) ? policies : [];
@@ -116,20 +125,43 @@ export class AdminDashboard implements OnInit {
         this.stats.activePolicies = pList.filter((p: any) => p.status === 'Active').length;
         this.stats.totalRevenue = pList.reduce((sum: number, p: any) => sum + (p.premiumAmount || 0), 0);
 
-        const cList = Array.isArray(claims) ? claims : [];
+        // Extract claims data properly
+        const claimsData: any = claims;
+        let cList: any[] = [];
+        if (Array.isArray(claimsData)) {
+          cList = claimsData;
+        } else if (claimsData && typeof claimsData === 'object') {
+          if (claimsData.$values) {
+            cList = claimsData.$values;
+          } else if (claimsData.value) {
+            cList = claimsData.value;
+          } else if (claimsData.items) {
+            cList = claimsData.items;
+          }
+        }
+        
         this.allClaims = cList;
         this.recentClaims = cList.slice(0, 5);
         this.stats.totalClaims = cList.length;
-        this.stats.pendingClaims = cList.filter((c: any) => c.status === 'Submitted').length;
-        this.stats.approvedClaims = cList.filter((c: any) => c.status === 'Approved').length;
-        this.stats.rejectedClaims = cList.filter((c: any) => c.status === 'Rejected').length;
+        this.stats.pendingClaims = cList.filter((c: any) => {
+          const status = c.status || c.Status;
+          return status === 'Submitted';
+        }).length;
+        this.stats.approvedClaims = cList.filter((c: any) => {
+          const status = c.status || c.Status;
+          return status === 'Approved';
+        }).length;
+        this.stats.rejectedClaims = cList.filter((c: any) => {
+          const status = c.status || c.Status;
+          return status === 'Rejected';
+        }).length;
 
         this.reports = Array.isArray(reports) ? reports : [];
-
-        this.loading = false;
-        this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Dashboard data fetch error:', err);
+      },
+      complete: () => {
         this.loading = false;
         this.cdr.detectChanges();
       }
@@ -381,15 +413,39 @@ export class AdminDashboard implements OnInit {
     this.cdr.detectChanges();
 
     // Fetch documents for this claim
+    console.log('Fetching documents for claim:', claim.claimId);
     this.claimService.getClaimDocuments(claim.claimId).subscribe({
-      next: (docs) => {
-        this.selectedClaimDocuments = Array.isArray(docs) ? docs : [];
+      next: (response) => {
+        console.log('Raw documents response:', response);
+        
+        // Handle different response formats
+        let docsArray: any[] = [];
+        
+        if (Array.isArray(response)) {
+          docsArray = response;
+        } else if (response && typeof response === 'object') {
+          const responseData: any = response;
+          if (responseData.$values && Array.isArray(responseData.$values)) {
+            docsArray = responseData.$values;
+          } else if (responseData.value && Array.isArray(responseData.value)) {
+            docsArray = responseData.value;
+          }
+        }
+        
+        console.log('Processed documents array:', docsArray);
+        console.log('Documents count:', docsArray.length);
+        
+        this.selectedClaimDocuments = docsArray;
         this.loadingDocuments = false;
+        
+        // Force change detection
         this.cdr.detectChanges();
       },
-      error: () => { 
-        this.loadingDocuments = false; 
-        this.cdr.detectChanges(); 
+      error: (err) => {
+        console.error('Error loading documents:', err);
+        this.loadingDocuments = false;
+        this.selectedClaimDocuments = [];
+        this.cdr.detectChanges();
       }
     });
   }
@@ -399,12 +455,10 @@ export class AdminDashboard implements OnInit {
     this.selectedClaim = null;
     this.selectedClaimDocuments = [];
     this.actionMessage = '';
-    this.cdr.detectChanges();
   }
 
-  setReviewAction(action: 'approve' | 'reject') {
+  setReviewAction(action: 'approve' | 'reject' | 'underReview' | 'closed') {
     this.reviewAction = action;
-    this.cdr.detectChanges();
   }
 
   submitReview() {
@@ -420,20 +474,20 @@ export class AdminDashboard implements OnInit {
           this.actionMessage = 'Success: Claim officially approved.';
           this.actionProcessing = false;
           this.selectedClaim.status = 'Approved';
-          // Update list
           const c = this.allClaims.find(x => x.claimId === claimId);
           if (c) c.status = 'Approved';
           this.refreshStats();
-          this.cdr.detectChanges();
-          setTimeout(() => this.closeReviewModal(), 1000);
+          
+          // Close modal immediately
+          this.showReviewModal = false;
+          this.fetchDashboardData();
         },
         error: (err) => {
           this.actionMessage = 'Failed to approve: ' + (err.error?.message ?? err.message);
           this.actionProcessing = false;
-          this.cdr.detectChanges();
         }
       });
-    } else {
+    } else if (this.reviewAction === 'reject') {
       if (!this.rejectionReason.trim()) {
         this.actionMessage = 'Warning: Please provide a structured rejection reason.';
         this.actionProcessing = false;
@@ -447,26 +501,74 @@ export class AdminDashboard implements OnInit {
           const c = this.allClaims.find(x => x.claimId === claimId);
           if (c) c.status = 'Rejected';
           this.refreshStats();
-          this.cdr.detectChanges();
-          setTimeout(() => this.closeReviewModal(), 1000);
+          
+          // Close modal immediately
+          this.showReviewModal = false;
+          this.fetchDashboardData();
         },
         error: (err) => {
           this.actionMessage = 'Failed to reject: ' + (err.error?.message ?? err.message);
           this.actionProcessing = false;
-          this.cdr.detectChanges();
+        }
+      });
+    } else if (this.reviewAction === 'underReview') {
+      this.adminService.setClaimUnderReview(claimId, this.reviewNotes).subscribe({
+        next: () => {
+          this.actionMessage = 'Success: Claim set to Under Review.';
+          this.actionProcessing = false;
+          this.selectedClaim.status = 'UnderReview';
+          const c = this.allClaims.find(x => x.claimId === claimId);
+          if (c) c.status = 'UnderReview';
+          this.refreshStats();
+          
+          // Close modal immediately
+          this.showReviewModal = false;
+          this.fetchDashboardData();
+        },
+        error: (err) => {
+          this.actionMessage = 'Failed to set under review: ' + (err.error?.message ?? err.message);
+          this.actionProcessing = false;
+        }
+      });
+    } else if (this.reviewAction === 'closed') {
+      this.adminService.setClaimClosed(claimId, this.reviewNotes).subscribe({
+        next: () => {
+          this.actionMessage = 'Success: Claim closed.';
+          this.actionProcessing = false;
+          this.selectedClaim.status = 'Closed';
+          const c = this.allClaims.find(x => x.claimId === claimId);
+          if (c) c.status = 'Closed';
+          this.refreshStats();
+          
+          // Close modal immediately
+          this.showReviewModal = false;
+          this.fetchDashboardData();
+        },
+        error: (err) => {
+          this.actionMessage = 'Failed to close claim: ' + (err.error?.message ?? err.message);
+          this.actionProcessing = false;
         }
       });
     }
   }
 
   refreshStats() {
-    this.stats.pendingClaims = this.allClaims.filter((c: any) => c.status === 'Submitted').length;
-    this.stats.approvedClaims = this.allClaims.filter((c: any) => c.status === 'Approved').length;
-    this.stats.rejectedClaims = this.allClaims.filter((c: any) => c.status === 'Rejected').length;
+    this.stats.pendingClaims = this.allClaims.filter((c: any) => {
+      const status = c.status || c.Status;
+      return status === 'Submitted';
+    }).length;
+    this.stats.approvedClaims = this.allClaims.filter((c: any) => {
+      const status = c.status || c.Status;
+      return status === 'Approved';
+    }).length;
+    this.stats.rejectedClaims = this.allClaims.filter((c: any) => {
+      const status = c.status || c.Status;
+      return status === 'Rejected';
+    }).length;
   }
 
   canReview(status: string): boolean {
-    return status === 'Submitted' || status === 'Draft';
+    return status === 'Submitted' || status === 'Draft' || status === 'UnderReview';
   }
 
   getStatusClass(status: string): string {

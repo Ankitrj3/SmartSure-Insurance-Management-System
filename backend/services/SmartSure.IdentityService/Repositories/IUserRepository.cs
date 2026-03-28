@@ -11,6 +11,7 @@ namespace IdentityService.Repositories
         Task SaveChangesAsync();
         void Delete(User user);
         Task<Role> GetRoleByIdAsync(Guid roleId);
+        Task<Role> GetRoleByNameAsync(string roleName);
         Task AddUserRoleAsync(UserRole userRole);
     }
 }

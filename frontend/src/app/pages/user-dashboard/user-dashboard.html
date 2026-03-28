@@ -193,7 +193,7 @@
         <label>Select Vehicle Make (Company)</label>
         <select class="input-base" [(ngModel)]="vehicleMakeFilter" (change)="onVehicleMakeChange()">
           <option value="">-- Choose Company --</option>
-          <option *ngFor="let s of subtypes" [value]="s.name">{{ s.name }}</option>
+          <option *ngFor="let make of uniqueVehicleMakes" [value]="make">{{ make }}</option>
         </select>
       </div>
 
@@ -219,24 +219,26 @@
     <div *ngIf="buyPolicyStep === 2">
       <div *ngIf="isHomeType()">
         <div class="form-group">
-          <label>Property Address</label>
-          <input type="text" class="input-base" [(ngModel)]="homeDetails.address" placeholder="e.g. 123 Emerald Ave" />
+          <label>Property Address <span style="color: red;">*</span></label>
+          <input type="text" class="input-base" [(ngModel)]="homeDetails.address" placeholder="e.g. 123 Emerald Ave" required />
+          <span *ngIf="!homeDetails.address && formSubmitted" style="color: red; font-size: 0.85rem;">Property address is required</span>
         </div>
         <div class="form-group">
-          <label>Property Type</label>
-          <select class="input-base" [(ngModel)]="homeDetails.propertyType">
+          <label>Property Type <span style="color: red;">*</span></label>
+          <select class="input-base" [(ngModel)]="homeDetails.propertyType" required>
             <option value="House">Independent House</option>
             <option value="Apartment">Apartment</option>
             <option value="Villa">Villa</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Current Market Value (₹)</label>
-          <input type="number" class="input-base" [(ngModel)]="homeDetails.estimatedValue" />
+          <label>Current Market Value (₹) <span style="color: red;">*</span></label>
+          <input type="number" class="input-base" [(ngModel)]="homeDetails.estimatedValue" required />
+          <span *ngIf="(!homeDetails.estimatedValue || homeDetails.estimatedValue <= 0) && formSubmitted" style="color: red; font-size: 0.85rem;">Property value is required</span>
         </div>
         <div class="form-group">
-          <label>Year Built</label>
-          <select class="input-base" [(ngModel)]="homeDetails.yearBuilt">
+          <label>Year Built <span style="color: red;">*</span></label>
+          <select class="input-base" [(ngModel)]="homeDetails.yearBuilt" required>
             <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
           </select>
         </div>
@@ -244,29 +246,44 @@
 
       <div *ngIf="isVehicleType()">
         <div class="form-group">
-          <label>Registration Number</label>
-          <input type="text" class="input-base" [(ngModel)]="vehicleDetails.registrationNumber" placeholder="MH-XX-XX-XXXX" />
+          <label>Registration Number <span style="color: red;">*</span></label>
+          <input type="text" class="input-base" [(ngModel)]="vehicleDetails.registrationNumber" placeholder="MH-XX-XX-XXXX" required />
+          <span *ngIf="!vehicleDetails.registrationNumber && formSubmitted" style="color: red; font-size: 0.85rem;">Registration number is required</span>
         </div>
         <div class="form-grid">
            <div class="form-group">
-             <label>Make (Company)</label>
+             <label>Make (Company) <span style="color: red;">*</span></label>
              <input type="text" class="input-base" [(ngModel)]="vehicleDetails.make" readonly style="background-color: #f3f4f6; cursor: not-allowed; opacity: 0.8;" title="Company make is auto-filled from previous selection" />
            </div>
            <div class="form-group">
-             <label>Model</label>
-             <input type="text" class="input-base" [(ngModel)]="vehicleDetails.model" />
+             <label>Model <span style="color: red;">*</span></label>
+             <input type="text" class="input-base" [(ngModel)]="vehicleDetails.model" required />
+             <span *ngIf="!vehicleDetails.model && formSubmitted" style="color: red; font-size: 0.85rem;">Model is required</span>
            </div>
         </div>
         <div class="form-grid">
            <div class="form-group">
-             <label>Ex-Showroom Price (₹)</label>
-             <input type="number" class="input-base" [(ngModel)]="vehicleDetails.estimatedValue" />
+             <label>Ex-Showroom Price (₹) <span style="color: red;">*</span></label>
+             <input type="number" class="input-base" [(ngModel)]="vehicleDetails.estimatedValue" required />
+             <span *ngIf="(!vehicleDetails.estimatedValue || vehicleDetails.estimatedValue <= 0) && formSubmitted" style="color: red; font-size: 0.85rem;">Ex-Showroom price is required</span>
            </div>
            <div class="form-group">
-             <label>Manufacture Year</label>
-             <select class="input-base" [(ngModel)]="vehicleDetails.manufactureYear">
+             <label>Manufacture Year <span style="color: red;">*</span></label>
+             <select class="input-base" [(ngModel)]="vehicleDetails.manufactureYear" required>
                <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
              </select>
+           </div>
+        </div>
+        <div class="form-grid">
+           <div class="form-group">
+             <label>Chassis Number <span style="color: red;">*</span></label>
+             <input type="text" class="input-base" [(ngModel)]="vehicleDetails.chassisNumber" placeholder="e.g. MA3ERLF3S00123456" required />
+             <span *ngIf="!vehicleDetails.chassisNumber && formSubmitted" style="color: red; font-size: 0.85rem;">Chassis number is required</span>
+           </div>
+           <div class="form-group">
+             <label>Engine Number <span style="color: red;">*</span></label>
+             <input type="text" class="input-base" [(ngModel)]="vehicleDetails.engineNumber" placeholder="e.g. K10BN1234567" required />
+             <span *ngIf="!vehicleDetails.engineNumber && formSubmitted" style="color: red; font-size: 0.85rem;">Engine number is required</span>
            </div>
         </div>
       </div>
@@ -274,11 +291,11 @@
       <!-- Common Fields for both Vehicle & Home -->
       <div class="form-grid">
          <div class="form-group">
-            <label>Nominee Name</label>
+            <label>Nominee Name <span style="color: #999; font-size: 0.85rem;">(Optional)</span></label>
             <input type="text" class="input-base" [(ngModel)]="policyForm.nomineeName" placeholder="Full Name" />
          </div>
          <div class="form-group">
-            <label>Nominee Relation</label>
+            <label>Nominee Relation <span style="color: #999; font-size: 0.85rem;">(Optional)</span></label>
             <input type="text" class="input-base" [(ngModel)]="policyForm.nomineeRelation" placeholder="e.g. Spouse, Son" />
          </div>
       </div>
@@ -406,7 +423,9 @@
       <label>Upload Supporting Document (Optional)</label>
       <input type="file" class="input-base" (change)="onFileSelected($event)" accept=".pdf,.jpg,.png" style="padding: 10px;" />
     </div>
-    <button class="btn btn-primary full-width" style="margin-top: 15px;" (click)="submitClaim()">Submit Claim Request</button>
+    <button class="btn btn-primary full-width claim-submit-btn" style="margin-top: 15px;" (click)="submitClaim()" [disabled]="claimProcessing">
+      {{ claimProcessing ? 'Processing...' : 'Submit Claim Request' }}
+    </button>
     <p class="action-result" *ngIf="claimMessage" [class.error]="claimMessage.includes('Failed') || claimMessage.includes('Please')">{{ claimMessage }}</p>
   </div>
 </div>

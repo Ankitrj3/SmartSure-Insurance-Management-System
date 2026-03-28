@@ -5,6 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PolicyService } from '../../core/services/policy.service';
 import { ClaimService } from '../../core/services/claim.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
+import { PdfService } from '../../core/services/pdf.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -54,6 +56,7 @@ export class UserDashboard implements OnInit {
   // filtering
   vehicleMakeFilter = '';
   filteredSubtypes: any[] = [];
+  uniqueVehicleMakes: string[] = [];
   availableYears: number[] = [];
 
   // Claim Form
@@ -62,6 +65,7 @@ export class UserDashboard implements OnInit {
   claimMessage = '';
   selectedFile: File | null = null;
   selectedPolicyForClaim = '';
+  claimProcessing = false;
 
   // Payment Form
   showPaymentModal = false;
@@ -75,7 +79,9 @@ export class UserDashboard implements OnInit {
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService,
+    private pdfService: PdfService
   ) {
     const currentYear = new Date().getFullYear();
     for (let i = 0; i <= 30; i++) {
@@ -174,6 +180,7 @@ export class UserDashboard implements OnInit {
     this.policyService.getSubtypesByType(this.selectedType).subscribe({
       next: (data: any) => {
         this.subtypes = this.extractData(data);
+        this.extractUniqueVehicleMakes();
         this.filterSubtypes();
         this.updateSelectedPlanName();
       }
@@ -186,6 +193,23 @@ export class UserDashboard implements OnInit {
       this.filteredSubtypes = this.subtypes.filter(s => (s.name || s.Name || '').toLowerCase().startsWith(filterLower) || (s.name || s.Name || '').toLowerCase().includes(filterLower));
     } else {
       this.filteredSubtypes = this.subtypes;
+    }
+  }
+
+  extractUniqueVehicleMakes() {
+    if (this.isVehicleType() && this.subtypes.length > 0) {
+      const makes = new Set<string>();
+      this.subtypes.forEach(s => {
+        const name = s.name || s.Name || '';
+        // Extract the first word as the make (e.g., "Maruti" from "Maruti Suzuki Comprehensive")
+        const firstWord = name.split(' ')[0];
+        if (firstWord) {
+          makes.add(firstWord);
+        }
+      });
+      this.uniqueVehicleMakes = Array.from(makes).sort();
+    } else {
+      this.uniqueVehicleMakes = [];
     }
   }
 
@@ -214,17 +238,24 @@ export class UserDashboard implements OnInit {
     return name.toLowerCase().includes('home') || false;
   }
 
+  // Add formSubmitted flag
+  formSubmitted = false;
+
   proceedToReview() {
-    if (!this.policyForm.nomineeName || !this.policyForm.nomineeRelation) {
-      this.policyMessage = 'Please enter nominee details.';
-      return;
-    }
-    if (this.isHomeType() && (!this.homeDetails.address || !this.homeDetails.propertyType || !this.homeDetails.estimatedValue)) {
+    this.formSubmitted = true;
+    
+    // Nominee fields are now optional, so remove this validation
+    // if (!this.policyForm.nomineeName || !this.policyForm.nomineeRelation) {
+    //   this.policyMessage = 'Please enter nominee details.';
+    //   return;
+    // }
+    
+    if (this.isHomeType() && (!this.homeDetails.address || !this.homeDetails.propertyType || !this.homeDetails.estimatedValue || this.homeDetails.estimatedValue <= 0)) {
       this.policyMessage = 'Please fill all required home details.';
       return;
     }
-    if (this.isVehicleType() && (!this.vehicleDetails.registrationNumber || !this.vehicleDetails.make || !this.vehicleDetails.model || !this.vehicleDetails.estimatedValue)) {
-      this.policyMessage = 'Please fill all required vehicle details.';
+    if (this.isVehicleType() && (!this.vehicleDetails.registrationNumber || !this.vehicleDetails.make || !this.vehicleDetails.model || !this.vehicleDetails.chassisNumber || !this.vehicleDetails.engineNumber || !this.vehicleDetails.estimatedValue || this.vehicleDetails.estimatedValue <= 0)) {
+      this.policyMessage = 'Please fill all required vehicle details including chassis and engine numbers.';
       return;
     }
     if (this.isVehicleType()) {
@@ -233,9 +264,18 @@ export class UserDashboard implements OnInit {
         this.policyMessage = 'Registration Number must be in a valid format (e.g. MH-12-AB-1234 or MH12AB1234)';
         return;
       }
+      if (this.vehicleDetails.chassisNumber.length < 10) {
+        this.policyMessage = 'Chassis Number must be at least 10 characters long.';
+        return;
+      }
+      if (this.vehicleDetails.engineNumber.length < 6) {
+        this.policyMessage = 'Engine Number must be at least 6 characters long.';
+        return;
+      }
     }
 
     this.policyMessage = '';
+    this.formSubmitted = false; // Reset after validation passes
     this.quoteLoading = true;
     this.buyPolicyStep = 3;
 
@@ -350,6 +390,8 @@ export class UserDashboard implements OnInit {
         this.policyMessage = 'Policy created! Processing payment...';
         const pId = res.policyId || res.PolicyId;
         const pAmount = res.premiumAmount || res.PremiumAmount;
+        const createdPolicy = res; // Store the created policy
+        
         // Step 2: Process payment (this will also activate the policy in backend)
         this.policyService.processPayment(pId, {
           policyId: pId,
@@ -359,17 +401,25 @@ export class UserDashboard implements OnInit {
           next: () => {
             this.paymentProcessing = false;
             this.buyPolicyStep = 5; // Success Step
+            this.toastService.success('Policy purchased successfully!');
+            
+            // Generate and download PDF invoice
+            const policyDetails = this.isVehicleType() ? this.vehicleDetails : this.homeDetails;
+            this.pdfService.generatePolicyInvoice(createdPolicy, policyDetails);
+            
             this.fetchData();
           },
           error: (err) => {
             this.paymentProcessing = false;
             this.policyMessage = 'Policy created, but payment failed: ' + (err.error?.message || err.message);
+            this.toastService.error('Payment failed: ' + (err.error?.message || err.message));
           }
         });
       },
       error: (err) => {
         this.paymentProcessing = false;
         this.policyMessage = 'Failed to create policy: ' + (err.error?.message || err.message);
+        this.toastService.error('Failed to create policy: ' + (err.error?.message || err.message));
       }
     });
   }
@@ -410,11 +460,16 @@ export class UserDashboard implements OnInit {
   }
 
   submitClaim() {
+    // Prevent double submission
+    if (this.claimProcessing) return;
+    
     if (!this.claimForm.policyId || !this.claimForm.description) {
       this.claimMessage = 'Please fill all required fields.';
       return;
     }
     
+    this.claimProcessing = true;
+    this.claimMessage = 'Processing your claim...';
     const selectedPolicy = this.policies.find(p => p.policyId === this.claimForm.policyId);
     if (!selectedPolicy) return;
     
@@ -452,27 +507,68 @@ export class UserDashboard implements OnInit {
         const cId = res.claimId || res.ClaimId;
         // Upload document if selected
         if (this.selectedFile) {
+          this.claimMessage = 'Uploading document...';
           const formData = new FormData();
           formData.append('file', this.selectedFile);
           this.claimService.uploadDocument(cId, formData).subscribe({
             next: () => {
-               this.claimService.submitClaimToReview(cId).subscribe(() => {
-                 this.claimMessage = 'Success: Claim and document submitted to review.';
-                 this.fetchData();
-                 setTimeout(() => this.showClaimModal = false, 1500);
+               this.claimMessage = 'Submitting to review...';
+               this.claimService.submitClaimToReview(cId).subscribe({
+                 next: () => {
+                   this.claimMessage = 'Success: Claim and document submitted to review.';
+                   this.toastService.success('Claim and document submitted successfully!');
+                   this.fetchData();
+                   setTimeout(() => {
+                     this.showClaimModal = false;
+                     this.claimMessage = '';
+                     this.resetClaimForm();
+                     this.claimProcessing = false;
+                   }, 2000);
+                 },
+                 error: (err) => {
+                   const errorMessage = err.error?.message || err.message || 'Failed to submit claim';
+                   this.claimMessage = 'Error: ' + errorMessage;
+                   this.toastService.error(errorMessage, 5000);
+                   this.claimProcessing = false;
+                 }
                });
             },
-            error: () => this.claimMessage = 'Claim created, but document upload failed.'
+            error: (err) => {
+              const errorMessage = err.error?.message || err.message || 'Document upload failed';
+              this.claimMessage = 'Document upload failed: ' + errorMessage;
+              this.toastService.error(errorMessage, 5000);
+              this.claimProcessing = false;
+            }
           });
         } else {
-           this.claimService.submitClaimToReview(cId).subscribe(() => {
-             this.claimMessage = 'Success: Claim submitted to review.';
-             this.fetchData();
-             setTimeout(() => this.showClaimModal = false, 1500);
+           this.claimMessage = 'Submitting to review...';
+           this.claimService.submitClaimToReview(cId).subscribe({
+             next: () => {
+               this.claimMessage = 'Success: Claim submitted to review.';
+               this.toastService.success('Claim submitted successfully!');
+               this.fetchData();
+               setTimeout(() => {
+                 this.showClaimModal = false;
+                 this.claimMessage = '';
+                 this.resetClaimForm();
+                 this.claimProcessing = false;
+               }, 2000);
+             },
+             error: (err) => {
+               const errorMessage = err.error?.message || err.message || 'Failed to submit claim';
+               this.claimMessage = 'Error: ' + errorMessage;
+               this.toastService.error(errorMessage, 5000);
+               this.claimProcessing = false;
+             }
            });
         }
       },
-      error: (err) => this.claimMessage = 'Failed to submit claim: ' + (err.error?.message || err.message)
+      error: (err) => {
+        const errorMessage = err.error?.message || err.message || 'Failed to submit claim';
+        this.claimMessage = 'Error: ' + errorMessage;
+        this.toastService.error(errorMessage, 5000);
+        this.claimProcessing = false;
+      }
     });
   }
 
@@ -511,5 +607,10 @@ export class UserDashboard implements OnInit {
     } else {
        this.claimForm.claimAmount = 0;
     }
+  }
+
+  resetClaimForm() {
+    this.claimForm = { policyId: '', description: '', claimAmount: 0, claimType: 'Accident', isCompletelyDamaged: false };
+    this.selectedFile = null;
   }
 }

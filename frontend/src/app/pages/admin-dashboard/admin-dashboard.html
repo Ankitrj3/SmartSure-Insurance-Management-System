@@ -481,25 +481,28 @@
     </div>
 
     <!-- Documents -->
-    <div class="form-group" *ngIf="selectedClaimDocuments.length > 0">
+    <div class="form-group" *ngIf="!loadingDocuments && selectedClaimDocuments.length > 0">
       <label>Supporting Evidences</label>
       <div style="display: flex; flex-direction: column; gap: 0.5rem;">
         <div *ngFor="let doc of selectedClaimDocuments" style="display: flex; flex-direction: column; align-items: center; padding: 1.5rem; border: 1px dashed #4caf50; background: #e8f5e9; border-radius: 6px;">
-          <span style="font-size: 0.95rem; color: #2e7d32; margin-bottom: 0.75rem; font-weight: 600;">Secure document is ready for download.</span>
-          <a [href]="doc.fileUrl || '#'" target="_blank" class="btn btn-primary" style="padding: 0.6rem 2rem; border-radius: 8px; text-decoration: none;">Download to Review</a>
+          <span style="font-size: 0.95rem; color: #2e7d32; margin-bottom: 0.75rem; font-weight: 600;">{{ doc.fileName || 'Document' }}</span>
+          <a [href]="doc.fileUrl || doc.FileUrl || '#'" target="_blank" class="btn btn-primary" style="padding: 0.6rem 2rem; border-radius: 8px; text-decoration: none;">Download Document</a>
         </div>
       </div>
     </div>
     <div class="form-group" *ngIf="loadingDocuments">
-      <p style="color: #666; font-size: 0.9rem; font-style: italic;">Loading securely deposited items...</p>
+      <p style="color: #666; font-size: 0.9rem; font-style: italic;">Loading documents...</p>
+    </div>
+    <div class="form-group" *ngIf="!loadingDocuments && selectedClaimDocuments.length === 0">
+      <p style="color: #999; font-size: 0.9rem; font-style: italic;">No documents uploaded for this claim.</p>
     </div>
 
     <!-- Core Form Actions -->
     <div class="action-form" *ngIf="canReview(selectedClaim?.status)">
       <div class="form-group">
         <label>Select Determination Action</label>
-        <div style="display: flex; gap: 1rem;">
-          <label style="flex:1; border: 2px solid transparent; padding: 1rem; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s;" 
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <label style="border: 2px solid transparent; padding: 1rem; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s;" 
                  [style.borderColor]="reviewAction === 'approve' ? '#4caf50' : '#e0f2e1'" 
                  [style.backgroundColor]="reviewAction === 'approve' ? '#e8f5e9' : '#fafdfa'"
                  (click)="setReviewAction('approve')">
@@ -507,12 +510,28 @@
             <span style="font-size:0.8rem; color:#666;">Authorize compensation</span>
           </label>
           
-          <label style="flex:1; border: 2px solid transparent; padding: 1rem; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s;" 
+          <label style="border: 2px solid transparent; padding: 1rem; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s;" 
                  [style.borderColor]="reviewAction === 'reject' ? '#f44336' : '#e0f2e1'"
                  [style.backgroundColor]="reviewAction === 'reject' ? '#ffebee' : '#fafdfa'"
                  (click)="setReviewAction('reject')">
             <h4 style="margin: 0 0 0.5rem; color:#b71c1c;">Reject</h4>
             <span style="font-size:0.8rem; color:#666;">Decline payout</span>
+          </label>
+
+          <label style="border: 2px solid transparent; padding: 1rem; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s;" 
+                 [style.borderColor]="reviewAction === 'underReview' ? '#ff9800' : '#e0f2e1'"
+                 [style.backgroundColor]="reviewAction === 'underReview' ? '#fff3e0' : '#fafdfa'"
+                 (click)="setReviewAction('underReview')">
+            <h4 style="margin: 0 0 0.5rem; color:#e65100;">Under Review</h4>
+            <span style="font-size:0.8rem; color:#666;">Needs investigation</span>
+          </label>
+
+          <label style="border: 2px solid transparent; padding: 1rem; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s;" 
+                 [style.borderColor]="reviewAction === 'closed' ? '#9e9e9e' : '#e0f2e1'"
+                 [style.backgroundColor]="reviewAction === 'closed' ? '#f5f5f5' : '#fafdfa'"
+                 (click)="setReviewAction('closed')">
+            <h4 style="margin: 0 0 0.5rem; color:#424242;">Close</h4>
+            <span style="font-size:0.8rem; color:#666;">Archive claim</span>
           </label>
         </div>
       </div>
@@ -537,10 +556,30 @@
         </div>
       </div>
 
+      <!-- Under Review Fields -->
+      <div *ngIf="reviewAction === 'underReview'">
+        <div class="form-group">
+          <label>Investigation Notes (Optional)</label>
+          <textarea [(ngModel)]="reviewNotes" class="form-control" rows="2" placeholder="Reason for further investigation..."></textarea>
+        </div>
+      </div>
+
+      <!-- Closed Fields -->
+      <div *ngIf="reviewAction === 'closed'">
+        <div class="form-group">
+          <label>Closure Notes (Optional)</label>
+          <textarea [(ngModel)]="reviewNotes" class="form-control" rows="2" placeholder="Reason for closing this claim..."></textarea>
+        </div>
+      </div>
+
       <!-- Submit Section -->
       <div class="form-actions" *ngIf="reviewAction && !actionMessage.startsWith('Success')">
         <button class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 1rem;" (click)="submitReview()" [disabled]="actionProcessing">
-          {{ actionProcessing ? 'Finalizing...' : (reviewAction === 'approve' ? 'Finalize Approval Request' : 'Confirm Complete Rejection') }}
+          {{ actionProcessing ? 'Processing...' : 
+             (reviewAction === 'approve' ? 'Finalize Approval' : 
+              reviewAction === 'reject' ? 'Confirm Rejection' :
+              reviewAction === 'underReview' ? 'Set Under Review' :
+              'Close Claim') }}
         </button>
       </div>
       

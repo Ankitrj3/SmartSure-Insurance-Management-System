@@ -1,7 +1,6 @@
-using Microsoft.EntityFrameworkCore;
-using SmartSure.ClaimsService.Data;
 using SmartSure.ClaimsService.DTOs;
 using SmartSure.ClaimsService.Models;
+using SmartSure.ClaimsService.Repositories;
 using CG.Web.MegaApiClient;
 using SmartSure.Shared.Contracts.Exceptions;
 
@@ -9,20 +8,26 @@ namespace SmartSure.ClaimsService.Services
 {
     public class DocumentService : IDocumentService
     {
-        private readonly ClaimsDbContext _context;
+        private readonly IClaimRepository _claimRepository;
+        private readonly IClaimDocumentRepository _documentRepository;
         private readonly ILogger<DocumentService> _logger;
         private readonly IConfiguration _config;
 
-        public DocumentService(ClaimsDbContext context, ILogger<DocumentService> logger, IConfiguration config)
+        public DocumentService(
+            IClaimRepository claimRepository,
+            IClaimDocumentRepository documentRepository,
+            ILogger<DocumentService> logger, 
+            IConfiguration config)
         {
-            _context = context;
-            _logger  = logger;
-            _config  = config;
+            _claimRepository = claimRepository;
+            _documentRepository = documentRepository;
+            _logger = logger;
+            _config = config;
         }
 
         public async Task<DocumentResponseDTO> AddDocumentAsync(Guid claimId, IFormFile file)
         {
-            var claim = await _context.Claims.FindAsync(claimId);
+            var claim = await _claimRepository.GetByIdAsync(claimId);
             if (claim == null) throw new NotFoundException("Claim", claimId);
 
             string? megaEmail    = _config["Mega:Email"];
@@ -51,8 +56,8 @@ namespace SmartSure.ClaimsService.Services
                 FileSize    = file.Length
             };
 
-            _context.ClaimDocuments.Add(document);
-            await _context.SaveChangesAsync();
+            await _documentRepository.AddAsync(document);
+            await _documentRepository.SaveChangesAsync();
 
             _logger.LogInformation("Document {FileName} uploaded to Mega.nz for claim {ClaimId}. URL: {FileUrl}",
                 file.FileName, claimId, document.FileUrl);
@@ -71,10 +76,7 @@ namespace SmartSure.ClaimsService.Services
 
         public async Task<List<DocumentResponseDTO>> GetDocumentsAsync(Guid claimId)
         {
-            var documents = await _context.ClaimDocuments
-                .Where(d => d.ClaimId == claimId)
-                .OrderByDescending(d => d.UploadedAt)
-                .ToListAsync();
+            var documents = await _documentRepository.GetByClaimIdAsync(claimId);
 
             return documents.Select(d => new DocumentResponseDTO
             {
@@ -90,13 +92,11 @@ namespace SmartSure.ClaimsService.Services
 
         public async Task DeleteDocumentAsync(Guid claimId, Guid documentId)
         {
-            var document = await _context.ClaimDocuments
-                .FirstOrDefaultAsync(d => d.DocumentId == documentId && d.ClaimId == claimId);
-
+            var document = await _documentRepository.GetByIdAsync(documentId, claimId);
             if (document == null) throw new NotFoundException("Document", documentId);
 
-            _context.ClaimDocuments.Remove(document);
-            await _context.SaveChangesAsync();
+            await _documentRepository.DeleteAsync(document);
+            await _documentRepository.SaveChangesAsync();
 
             _logger.LogInformation("Document {DocumentId} deleted from claim {ClaimId}", documentId, claimId);
         }

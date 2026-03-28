@@ -1,35 +1,90 @@
 using MassTransit;
-using Microsoft.EntityFrameworkCore;
-using SmartSure.ClaimsService.Data;
 using SmartSure.ClaimsService.DTOs;
 using SmartSure.ClaimsService.Models;
+using SmartSure.ClaimsService.Repositories;
 using SmartSure.Shared.Contracts.Constants;
 using SmartSure.Shared.Contracts.Events;
 using SmartSure.Shared.Contracts.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace SmartSure.ClaimsService.Services
 {
     public class ClaimService : IClaimService
     {
-        private readonly ClaimsDbContext _context;
+        private readonly IClaimRepository _claimRepository;
+        private readonly IClaimStatusHistoryRepository _historyRepository;
         private readonly IBus _bus;
         private readonly ILogger<ClaimService> _logger;
+        private readonly IEmailService _emailService;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
 
-        public ClaimService(ClaimsDbContext context, IBus bus, ILogger<ClaimService> logger)
+        public ClaimService(
+            IClaimRepository claimRepository,
+            IClaimStatusHistoryRepository historyRepository,
+            IBus bus, 
+            ILogger<ClaimService> logger,
+            IEmailService emailService,
+            IHttpClientFactory httpClientFactory,
+            IConfiguration configuration)
         {
-            _context = context;
-            _bus     = bus;
-            _logger  = logger;
+            _claimRepository = claimRepository;
+            _historyRepository = historyRepository;
+            _bus = bus;
+            _logger = logger;
+            _emailService = emailService;
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
+        }
+
+        private async Task<(string Email, string FullName)> GetUserDetailsAsync(Guid userId)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                var gatewayUrl = _configuration["Gateway:Url"] ?? "http://localhost:5057";
+                var response = await client.GetAsync($"{gatewayUrl}/auth/users/{userId}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var user = System.Text.Json.JsonDocument.Parse(content);
+                    var email = user.RootElement.GetProperty("email").GetString() ?? "";
+                    var fullName = user.RootElement.GetProperty("fullName").GetString() ?? "Valued Customer";
+                    return (email, fullName);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to fetch user details for {UserId}", userId);
+            }
+            
+            return ("", "Valued Customer");
         }
 
         public async Task<ClaimResponseDTO> CreateClaimAsync(Guid userId, CreateClaimDTO dto)
         {
-            var pendingClaimExists = await _context.Claims.AnyAsync(c =>
-                c.PolicyId == dto.PolicyId &&
-                (c.Status == ClaimStatus.Draft || c.Status == ClaimStatus.Submitted || c.Status == ClaimStatus.UnderReview));
+            var existingClaims = await _claimRepository.GetByPolicyIdAsync(dto.PolicyId);
+            
+            // Check for pending claims
+            var pendingClaimExists = existingClaims.Any(c =>
+                c.Status == ClaimStatus.Draft || 
+                c.Status == ClaimStatus.Submitted || 
+                c.Status == ClaimStatus.UnderReview);
 
             if (pendingClaimExists)
                 throw new ConflictException("You already filed a claim for this insurance. It is currently under review.");
+
+            // Check approved claims count (max 3 per policy)
+            var approvedClaimsCount = existingClaims.Count(c => c.Status == ClaimStatus.Approved);
+            if (approvedClaimsCount >= 3)
+                throw new ConflictException("Maximum claim limit reached. You can only file 3 claims per insurance policy.");
+
+            // Check if policy was terminated due to theft/total loss
+            var hasTheftClaim = existingClaims.Any(c => 
+                c.ClaimType == "Stolen" && c.Status == ClaimStatus.Approved);
+            if (hasTheftClaim)
+                throw new ConflictException("This policy has been terminated due to a previous theft claim. No further claims can be filed.");
 
             var claim = new Claim
             {
@@ -52,8 +107,8 @@ namespace SmartSure.ClaimsService.Services
                 Notes      = "Claim created"
             });
 
-            _context.Claims.Add(claim);
-            await _context.SaveChangesAsync();
+            await _claimRepository.AddAsync(claim);
+            await _claimRepository.SaveChangesAsync();
 
             _logger.LogInformation("Claim {ClaimId} created for policy {PolicyId} by user {UserId}",
                 claim.ClaimId, dto.PolicyId, userId);
@@ -63,49 +118,82 @@ namespace SmartSure.ClaimsService.Services
 
         public async Task<ClaimResponseDTO?> GetClaimByIdAsync(Guid claimId)
         {
-            var claim = await _context.Claims
-                .Include(c => c.Documents)
-                .Include(c => c.StatusHistory)
-                .FirstOrDefaultAsync(c => c.ClaimId == claimId);
-
+            var claim = await _claimRepository.GetByIdAsync(claimId);
             return claim == null ? null : MapToDto(claim);
         }
 
         public async Task<List<ClaimResponseDTO>> GetUserClaimsAsync(Guid userId)
         {
-            var claims = await _context.Claims
-                .Include(c => c.Documents)
-                .Where(c => c.UserId == userId)
-                .OrderByDescending(c => c.CreatedAt)
-                .ToListAsync();
-
+            var claims = await _claimRepository.GetByUserIdAsync(userId);
             return claims.Select(MapToDto).ToList();
         }
 
         public async Task<List<ClaimResponseDTO>> GetAllClaimsAsync()
         {
-            var claims = await _context.Claims
-                .Include(c => c.Documents)
-                .OrderByDescending(c => c.CreatedAt)
-                .ToListAsync();
-
+            var claims = await _claimRepository.GetAllAsync();
             return claims.Select(MapToDto).ToList();
         }
 
         public async Task<List<ClaimResponseDTO>> GetClaimsByPolicyAsync(Guid policyId)
         {
-            var claims = await _context.Claims
-                .Include(c => c.Documents)
-                .Where(c => c.PolicyId == policyId)
-                .OrderByDescending(c => c.CreatedAt)
-                .ToListAsync();
-
+            var claims = await _claimRepository.GetByPolicyIdAsync(policyId);
             return claims.Select(MapToDto).ToList();
+        }
+
+        public async Task UpdateClaimStatusAsync(Guid claimId, string newStatus, string? notes, string changedBy)
+        {
+            var claim = await _claimRepository.GetByIdAsync(claimId);
+            if (claim == null) throw new NotFoundException("Claim", claimId);
+
+            var oldStatus = claim.Status;
+            claim.Status = newStatus;
+            claim.UpdatedAt = DateTime.UtcNow;
+
+            claim.StatusHistory.Add(new ClaimStatusHistory
+            {
+                ClaimId = claimId,
+                OldStatus = oldStatus,
+                NewStatus = newStatus,
+                ChangedBy = changedBy,
+                Notes = notes ?? $"Status changed to {newStatus}"
+            });
+
+            await _claimRepository.SaveChangesAsync();
+
+            await _bus.Publish(new ClaimStatusChangedEvent(
+                claimId, oldStatus, newStatus, changedBy, DateTime.UtcNow, claim.UserId));
+
+            _logger.LogInformation("Claim {ClaimId} status changed from {OldStatus} to {NewStatus} by {ChangedBy}",
+                claimId, oldStatus, newStatus, changedBy);
+
+            // Send email notification asynchronously (fire-and-forget)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var (email, fullName) = await GetUserDetailsAsync(claim.UserId);
+                    if (!string.IsNullOrEmpty(email))
+                    {
+                        if (newStatus == ClaimStatus.UnderReview)
+                        {
+                            await _emailService.SendClaimUnderReviewEmailAsync(email, fullName, claimId.ToString());
+                        }
+                        else if (newStatus == ClaimStatus.Closed)
+                        {
+                            await _emailService.SendClaimClosedEmailAsync(email, fullName, claimId.ToString());
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send status change email for claim {ClaimId}", claimId);
+                }
+            });
         }
 
         public async Task<ClaimResponseDTO> UpdateClaimAsync(Guid claimId, UpdateClaimDTO dto)
         {
-            var claim = await _context.Claims.FindAsync(claimId);
+            var claim = await _claimRepository.GetByIdAsync(claimId);
             if (claim == null) throw new NotFoundException("Claim", claimId);
 
             if (claim.Status != ClaimStatus.Draft)
@@ -118,7 +206,7 @@ namespace SmartSure.ClaimsService.Services
                 claim.ClaimAmount = dto.ClaimAmount.Value;
 
             claim.UpdatedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+            await _claimRepository.SaveChangesAsync();
 
             _logger.LogInformation("Claim {ClaimId} updated", claimId);
             return MapToDto(claim);
@@ -126,10 +214,7 @@ namespace SmartSure.ClaimsService.Services
 
         public async Task SubmitClaimAsync(Guid claimId, Guid userId)
         {
-            var claim = await _context.Claims
-                .Include(c => c.StatusHistory)
-                .FirstOrDefaultAsync(c => c.ClaimId == claimId);
-
+            var claim = await _claimRepository.GetByIdAsync(claimId);
             if (claim == null) throw new NotFoundException("Claim", claimId);
             if (claim.Status != ClaimStatus.Draft)
                 throw new BusinessRuleException("Only draft claims can be submitted.");
@@ -147,7 +232,7 @@ namespace SmartSure.ClaimsService.Services
                 Notes     = "Claim submitted for review"
             });
 
-            await _context.SaveChangesAsync();
+            await _claimRepository.SaveChangesAsync();
 
             await _bus.Publish(new ClaimSubmittedEvent(
                 claimId, claim.PolicyId, claim.UserId, claim.Description, DateTime.UtcNow));
@@ -160,10 +245,7 @@ namespace SmartSure.ClaimsService.Services
 
         public async Task<List<ClaimStatusHistoryDTO>> GetClaimHistoryAsync(Guid claimId)
         {
-            var history = await _context.ClaimStatusHistory
-                .Where(h => h.ClaimId == claimId)
-                .OrderByDescending(h => h.ChangedAt)
-                .ToListAsync();
+            var history = await _historyRepository.GetByClaimIdAsync(claimId);
 
             return history.Select(h => new ClaimStatusHistoryDTO
             {
@@ -178,11 +260,26 @@ namespace SmartSure.ClaimsService.Services
 
         public async Task ApproveClaimAsync(Guid claimId, decimal approvedAmount, string? notes, string adminId)
         {
-            var claim = await _context.Claims
-                .Include(c => c.StatusHistory)
-                .FirstOrDefaultAsync(c => c.ClaimId == claimId);
-
+            var claim = await _claimRepository.GetByIdAsync(claimId);
             if (claim == null) throw new NotFoundException("Claim", claimId);
+
+            // For theft claims, automatically set approved amount to full IDV
+            if (claim.ClaimType == "Stolen")
+            {
+                try
+                {
+                    var policyIdv = await GetPolicyIDVAsync(claim.PolicyId);
+                    if (policyIdv > 0)
+                    {
+                        approvedAmount = policyIdv;
+                        _logger.LogInformation("Theft claim {ClaimId} - Setting approved amount to full IDV: {IDV}", claimId, policyIdv);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to fetch policy IDV for theft claim {ClaimId}, using provided amount", claimId);
+                }
+            }
 
             claim.Status         = ClaimStatus.Approved;
             claim.ApprovedAmount = approvedAmount;
@@ -197,18 +294,49 @@ namespace SmartSure.ClaimsService.Services
                 Notes     = notes ?? "Approved by administrator"
             });
 
-            await _context.SaveChangesAsync();
+            await _claimRepository.SaveChangesAsync();
+
+            // If theft claim, terminate the policy
+            if (claim.ClaimType == "Stolen")
+            {
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await TerminatePolicyAsync(claim.PolicyId);
+                        _logger.LogInformation("Policy {PolicyId} terminated due to theft claim {ClaimId}", claim.PolicyId, claimId);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to terminate policy {PolicyId} for theft claim {ClaimId}", claim.PolicyId, claimId);
+                    }
+                });
+            }
 
             await _bus.Publish(new ClaimStatusChangedEvent(
                 claimId, ClaimStatus.Submitted, ClaimStatus.Approved, adminId, DateTime.UtcNow, claim.UserId));
+
+            // Send email notification asynchronously (fire-and-forget)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var (email, fullName) = await GetUserDetailsAsync(claim.UserId);
+                    if (!string.IsNullOrEmpty(email))
+                    {
+                        await _emailService.SendClaimApprovedEmailAsync(email, fullName, claimId.ToString(), approvedAmount);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send approval email for claim {ClaimId}", claimId);
+                }
+            });
         }
 
         public async Task RejectClaimAsync(Guid claimId, string reason, string adminId)
         {
-            var claim = await _context.Claims
-                .Include(c => c.StatusHistory)
-                .FirstOrDefaultAsync(c => c.ClaimId == claimId);
-
+            var claim = await _claimRepository.GetByIdAsync(claimId);
             if (claim == null) throw new NotFoundException("Claim", claimId);
 
             claim.Status          = ClaimStatus.Rejected;
@@ -224,18 +352,32 @@ namespace SmartSure.ClaimsService.Services
                 Notes     = reason
             });
 
-            await _context.SaveChangesAsync();
+            await _claimRepository.SaveChangesAsync();
 
             await _bus.Publish(new ClaimStatusChangedEvent(
                 claimId, ClaimStatus.Submitted, ClaimStatus.Rejected, adminId, DateTime.UtcNow, claim.UserId, reason));
+
+            // Send email notification asynchronously (fire-and-forget)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var (email, fullName) = await GetUserDetailsAsync(claim.UserId);
+                    if (!string.IsNullOrEmpty(email))
+                    {
+                        await _emailService.SendClaimRejectedEmailAsync(email, fullName, claimId.ToString(), reason);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to send rejection email for claim {ClaimId}", claimId);
+                }
+            });
         }
 
         public async Task TransitionStatusAsync(Guid claimId, string newStatus, string changedBy, string? notes = null)
         {
-            var claim = await _context.Claims
-                .Include(c => c.StatusHistory)
-                .FirstOrDefaultAsync(c => c.ClaimId == claimId);
-
+            var claim = await _claimRepository.GetByIdAsync(claimId);
             if (claim == null) throw new NotFoundException("Claim", claimId);
 
             var oldStatus   = claim.Status;
@@ -251,7 +393,7 @@ namespace SmartSure.ClaimsService.Services
                 Notes     = notes
             });
 
-            await _context.SaveChangesAsync();
+            await _claimRepository.SaveChangesAsync();
 
             await _bus.Publish(new ClaimStatusChangedEvent(
                 claimId, oldStatus, newStatus, changedBy, DateTime.UtcNow, claim.UserId));
@@ -286,6 +428,63 @@ namespace SmartSure.ClaimsService.Services
                     UploadedAt  = d.UploadedAt
                 }).ToList() ?? new()
             };
+        }
+
+        private async Task<decimal> GetPolicyIDVAsync(Guid policyId)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                var gatewayUrl = _configuration["Gateway:Url"] ?? "http://localhost:5057";
+                var response = await client.GetAsync($"{gatewayUrl}/policies/{policyId}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var jsonDoc = System.Text.Json.JsonDocument.Parse(content);
+                    
+                    if (jsonDoc.RootElement.TryGetProperty("insuredDeclaredValue", out var idvElement))
+                    {
+                        return idvElement.GetDecimal();
+                    }
+                }
+                
+                _logger.LogWarning("Failed to fetch policy IDV for policy {PolicyId}", policyId);
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching policy IDV for policy {PolicyId}", policyId);
+                return 0;
+            }
+        }
+
+        private async Task TerminatePolicyAsync(Guid policyId)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                var gatewayUrl = _configuration["Gateway:Url"] ?? "http://localhost:5057";
+                
+                // Call policy service to mark policy as terminated
+                var content = new StringContent(
+                    System.Text.Json.JsonSerializer.Serialize(new { isTerminated = true }),
+                    System.Text.Encoding.UTF8,
+                    "application/json");
+                
+                var response = await client.PatchAsync($"{gatewayUrl}/policies/{policyId}/terminate", content);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to terminate policy {PolicyId}. Status: {StatusCode}", 
+                        policyId, response.StatusCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error terminating policy {PolicyId}", policyId);
+                throw;
+            }
         }
     }
 }

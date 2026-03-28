@@ -89,17 +89,13 @@ namespace SmartSure.PolicyService.Services
         }
 
         /// <summary>
-        /// Premium = BasePremium × (duration / 12) + IDV-based risk component.
-        /// Risk component: 2.5% of IDV per year for vehicles, 0.15% per year for homes.
+        /// Premium = BasePremium × (duration / 12) - Simple calculation based on plan's base premium
         /// </summary>
         private static decimal CalculatePremium(decimal basePremium, int durationMonths, decimal idv, bool isVehicle)
         {
-            decimal years    = durationMonths / 12.0m;
-            decimal basePart = basePremium * years;
-            decimal riskRate = isVehicle ? 0.025m : 0.0015m;
-            decimal riskPart = idv * riskRate * years;
-            decimal total    = basePart + riskPart;
-            return Math.Round(total, 2);
+            decimal years = durationMonths / 12.0m;
+            decimal premium = basePremium * years;
+            return Math.Round(premium, 2);
         }
 
         // ── Quote ──────────────────────────────────────────────────────────────
@@ -130,6 +126,9 @@ namespace SmartSure.PolicyService.Services
             }
 
             decimal premium = CalculatePremium(subtype.BasePremium, dto.Duration, idv, isVehicle);
+
+            _logger.LogInformation("Quote calculated: BasePremium=₹{BasePremium}, Duration={Duration} months, IDV=₹{IDV}, FinalPremium=₹{Premium}", 
+                subtype.BasePremium, dto.Duration, idv, premium);
 
             return new PolicyQuoteDTO
             {
@@ -397,6 +396,20 @@ namespace SmartSure.PolicyService.Services
                 NomineeName          = p.NomineeName,
                 NomineeRelation      = p.NomineeRelation
             };
+        }
+
+        public async Task TerminatePolicyAsync(Guid policyId)
+        {
+            var policy = await _repo.GetByIdAsync(policyId);
+            if (policy == null)
+                throw new NotFoundException("Policy", policyId);
+
+            policy.IsTerminated = true;
+            policy.Status = "Cancelled";
+            
+            await _repo.SaveChangesAsync();
+            
+            _logger.LogInformation("Policy {PolicyId} has been terminated", policyId);
         }
     }
 }
