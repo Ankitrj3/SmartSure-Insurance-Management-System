@@ -7,6 +7,7 @@ namespace SmartSure.AdminService.Services
 
     public class SalesReportData
     {
+        public string ReportType { get; set; } = "Financial";
         public DateTime DateRangeStart { get; set; }
         public DateTime DateRangeEnd { get; set; }
         public int TotalPoliciesSold { get; set; }

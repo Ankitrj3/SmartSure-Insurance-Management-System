@@ -23,30 +23,38 @@ namespace SmartSure.AdminService.Services
                     page.PageColor(Colors.White);
                     page.DefaultTextStyle(x => x.FontSize(11).FontFamily("Arial"));
 
-                    page.Header().Element(ComposeHeader);
+                    page.Header().Element(header => ComposeHeader(header, data));
                     page.Content().Element(content => ComposeContent(content, data));
                     page.Footer().Element(ComposeFooter);
                 });
             }).GeneratePdf();
         }
 
-        private void ComposeHeader(IContainer container)
+        private void ComposeHeader(IContainer container, SalesReportData data)
         {
+            var logoSvg = @"<svg viewBox=""0 0 32 32"" fill=""none"">
+                <path d=""M16 0L32 8V24L16 32L0 24V8L16 0Z"" fill=""#1A1A1A""/>
+                <path d=""M16 5V27L4 21V11L16 5Z"" fill=""#0DB18C""/>
+                <path d=""M16 5L28 11V21L16 27V5Z"" fill=""#0A8E70""/>
+            </svg>";
+
             container.Row(row =>
             {
+                row.ConstantItem(45).Height(45).Svg(logoSvg);
+                row.ConstantItem(15); // Gap
+
                 row.RelativeItem().Column(column =>
                 {
-                    column.Item().Text("SmartSure Insurance")
-                        .FontSize(24)
-                        .Bold()
-                        .FontColor("#0DB18C");
+                    column.Item().Text(text =>
+                    {
+                        text.Span("SMART").FontSize(24).ExtraBold().FontColor("#1A1A1A");
+                        text.Span("SURE").FontSize(24).ExtraBold().FontColor("#0DB18C");
+                    });
 
-                    column.Item().Text("Sales & Analytics Report")
+                    column.Item().Text($"{data.ReportType} Report")
                         .FontSize(14)
-                        .FontColor("#666666");
+                        .FontColor("#0DB18C"); // Highlighting report type in brand teal
                 });
-
-                row.ConstantItem(100).Height(50).Placeholder();
             });
         }
 
@@ -59,23 +67,31 @@ namespace SmartSure.AdminService.Services
                 // Report Info Section
                 column.Item().Element(c => ComposeReportInfo(c, data));
 
-                // Key Metrics Section
-                column.Item().Element(c => ComposeKeyMetrics(c, data));
+                // Conditional Subsections based on Scope Type
+                var type = data.ReportType?.ToLower() ?? "";
 
-                // Policy Breakdown Section
-                if (data.PolicyBreakdown.Any())
+                if (type.Contains("claims"))
                 {
-                    column.Item().Element(c => ComposePolicyBreakdown(c, data));
+                    column.Item().Element(c => ComposeClaimsAnalysis(c, data));
+                    if (data.MonthlyTrends.Any())
+                        column.Item().Element(c => ComposeMonthlyTrends(c, data));
                 }
-
-                // Monthly Trends Section
-                if (data.MonthlyTrends.Any())
+                else if (type.Contains("operational"))
                 {
-                    column.Item().Element(c => ComposeMonthlyTrends(c, data));
+                    column.Item().Element(c => ComposeKeyMetrics(c, data));
+                    if (data.PolicyBreakdown.Any())
+                        column.Item().Element(c => ComposePolicyBreakdown(c, data));
                 }
-
-                // Claims Analysis Section
-                column.Item().Element(c => ComposeClaimsAnalysis(c, data));
+                else // Default to Financial Metrics or "All"
+                {
+                    column.Item().Element(c => ComposeKeyMetrics(c, data));
+                    
+                    if (data.PolicyBreakdown.Any())
+                        column.Item().Element(c => ComposePolicyBreakdown(c, data));
+                    
+                    if (data.MonthlyTrends.Any())
+                        column.Item().Element(c => ComposeMonthlyTrends(c, data));
+                }
             });
         }
 

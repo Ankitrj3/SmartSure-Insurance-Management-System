@@ -7,6 +7,7 @@ namespace SmartSure.AdminService.Repositories
         Task<List<Report>> GetAllAsync();
         Task<Report> GetByIdAsync(Guid reportId);
         Task AddAsync(Report report);
+        Task DeleteAsync(Report report);
         Task SaveChangesAsync();
     }
 }

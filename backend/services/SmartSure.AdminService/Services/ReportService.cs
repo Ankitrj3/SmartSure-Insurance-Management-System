@@ -69,6 +69,7 @@ namespace SmartSure.AdminService.Services
 
             var reportData = new SalesReportData
             {
+                ReportType = dto.ReportType,
                 DateRangeStart = dto.DateRangeStart,
                 DateRangeEnd = dto.DateRangeEnd
             };
@@ -82,10 +83,16 @@ namespace SmartSure.AdminService.Services
                 if (policiesResponse.IsSuccessStatusCode)
                 {
                     var policiesStr = await policiesResponse.Content.ReadAsStringAsync();
-                    var policiesArray = JsonSerializer.Deserialize<JsonElement[]>(policiesStr);
-                    if (policiesArray != null)
+                    using var doc = JsonDocument.Parse(policiesStr);
+                    if (doc.RootElement.ValueKind == JsonValueKind.Array)
                     {
-                        allPolicies = policiesArray.ToList();
+                        allPolicies = doc.RootElement.EnumerateArray().Select(e => e.Clone()).ToList();
+                    }
+                    else if (doc.RootElement.ValueKind == JsonValueKind.Object && 
+                             doc.RootElement.TryGetProperty("$values", out var vals) && 
+                             vals.ValueKind == JsonValueKind.Array)
+                    {
+                        allPolicies = vals.EnumerateArray().Select(e => e.Clone()).ToList();
                     }
                 }
 
@@ -192,10 +199,16 @@ namespace SmartSure.AdminService.Services
                 if (claimsResponse.IsSuccessStatusCode)
                 {
                     var claimsStr = await claimsResponse.Content.ReadAsStringAsync();
-                    var claimsArray = JsonSerializer.Deserialize<JsonElement[]>(claimsStr);
-                    if (claimsArray != null)
+                    using var doc = JsonDocument.Parse(claimsStr);
+                    if (doc.RootElement.ValueKind == JsonValueKind.Array)
                     {
-                        allClaims = claimsArray.ToList();
+                        allClaims = doc.RootElement.EnumerateArray().Select(e => e.Clone()).ToList();
+                    }
+                    else if (doc.RootElement.ValueKind == JsonValueKind.Object && 
+                             doc.RootElement.TryGetProperty("$values", out var vals) && 
+                             vals.ValueKind == JsonValueKind.Array)
+                    {
+                        allClaims = vals.EnumerateArray().Select(e => e.Clone()).ToList();
                     }
                 }
 
@@ -286,10 +299,16 @@ namespace SmartSure.AdminService.Services
                 if (usersResponse.IsSuccessStatusCode)
                 {
                     var usersStr = await usersResponse.Content.ReadAsStringAsync();
-                    var usersArray = JsonSerializer.Deserialize<JsonElement[]>(usersStr);
-                    if (usersArray != null)
+                    using var doc = JsonDocument.Parse(usersStr);
+                    if (doc.RootElement.ValueKind == JsonValueKind.Array)
                     {
-                        reportData.TotalUsers = usersArray.Length;
+                        reportData.TotalUsers = doc.RootElement.GetArrayLength();
+                    }
+                    else if (doc.RootElement.ValueKind == JsonValueKind.Object && 
+                             doc.RootElement.TryGetProperty("$values", out var vals) && 
+                             vals.ValueKind == JsonValueKind.Array)
+                    {
+                        reportData.TotalUsers = vals.GetArrayLength();
                     }
                 }
             }
@@ -411,6 +430,18 @@ namespace SmartSure.AdminService.Services
                 DateRangeEnd = report.DateRangeEnd,
                 CreatedAt = report.CreatedAt
             };
+        }
+
+        public async Task<bool> DeleteReportAsync(Guid reportId)
+        {
+            var report = await _repository.GetByIdAsync(reportId);
+            if (report == null)
+            {
+                return false;
+            }
+
+            await _repository.DeleteAsync(report);
+            return true;
         }
     }
 }

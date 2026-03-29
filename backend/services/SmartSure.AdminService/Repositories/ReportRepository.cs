@@ -30,6 +30,12 @@ namespace SmartSure.AdminService.Repositories
             await _context.Reports.AddAsync(report);
         }
 
+        public async Task DeleteAsync(Report report)
+        {
+            _context.Reports.Remove(report);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

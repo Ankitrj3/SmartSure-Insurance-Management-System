@@ -89,13 +89,15 @@ namespace SmartSure.PolicyService.Services
         }
 
         /// <summary>
-        /// Premium = BasePremium × (duration / 12) - Simple calculation based on plan's base premium
+        /// Premium = BasePremium × (duration / 12) + 18% GST (9% CGST + 9% SGST)
         /// </summary>
         private static decimal CalculatePremium(decimal basePremium, int durationMonths, decimal idv, bool isVehicle)
         {
             decimal years = durationMonths / 12.0m;
-            decimal premium = basePremium * years;
-            return Math.Round(premium, 2);
+            decimal baseAmount = basePremium * years;
+            // Add 18% GST
+            decimal premiumWithGst = baseAmount * 1.18m;
+            return Math.Round(premiumWithGst, 2);
         }
 
         // ── Quote ──────────────────────────────────────────────────────────────

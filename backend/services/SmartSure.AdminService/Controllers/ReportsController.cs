@@ -79,5 +79,13 @@ namespace SmartSure.AdminService.Controllers
             if (report == null) return NotFound(new { message = "Report not found" });
             return Ok(report);
         }
+
+        [HttpDelete("{reportId}")]
+        public async Task<IActionResult> DeleteReport(Guid reportId)
+        {
+            var success = await _reportService.DeleteReportAsync(reportId);
+            if (!success) return NotFound(new { message = "Report not found or could not be deleted" });
+            return NoContent();
+        }
     }
 }
