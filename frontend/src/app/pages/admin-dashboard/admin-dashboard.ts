@@ -58,6 +58,18 @@ export class AdminDashboard implements OnInit {
   reportTitle = '';
   reportType = 'Financial';
 
+  // Show More pagination state
+  showAllClaims = false;
+  showAllReports = false;
+
+  get visibleClaims(): any[] {
+    return this.showAllClaims ? this.allClaims : this.allClaims.slice(0, 6);
+  }
+
+  get visibleReports(): any[] {
+    return this.showAllReports ? this.reports : this.reports.slice(0, 6);
+  }
+
   constructor(
     private adminService: AdminService,
     private claimService: ClaimService,
@@ -605,116 +617,104 @@ export class AdminDashboard implements OnInit {
     }
     
     this.actionProcessing = true;
-    this.adminService.generateReport({
+    this.adminService.generatePdfReport({
       title: this.reportTitle.trim(),
       reportType: this.reportType,
       format: 'PDF',
       dateRangeStart: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString(),
       dateRangeEnd: new Date().toISOString()
     }).subscribe({
-      next: (res) => {
+      next: (blob: Blob) => {
         this.actionProcessing = false;
-        alert('Report generated successfully!');
-        if (Array.isArray(this.reports)) {
-          this.reports.push(res);
-        } else {
-          this.reports = [res];
-        }
-        // Automatically download the report
-        this.downloadReport(res);
+        alert('PDF Report generated successfully!');
+        
+        // Background refresh reports table to get the newly stored report metadata
+        this.adminService.getAllReports().subscribe(r => this.reports = Array.isArray(r) ? r : []);
+
+        // Automatically download the real PDF
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${this.reportTitle.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
         // Clear the form
         this.reportTitle = '';
         this.cdr.detectChanges();
       },
       error: (err) => {
         this.actionProcessing = false;
-        alert('Failed: ' + (err.error?.message || err.message));
+        if (err.error instanceof Blob) {
+          err.error.text().then((text: string) => {
+            try {
+              const errorObj = JSON.parse(text);
+              alert('Failed to generate PDF: ' + (errorObj.message || errorObj.title || 'Internal Server Error'));
+            } catch (e) {
+              alert('Failed to generate PDF: ' + text);
+            }
+          });
+        } else {
+          alert('Failed to generate PDF: ' + (err.error?.message || err.message || 'Internal Server Error'));
+        }
       }
     });
   }
 
-  downloadReport(report: any) {
-    try {
-      let parsed: any;
-      
-      // Parse content if it's a string
-      if (typeof report.content === 'string') {
-        try {
-          parsed = JSON.parse(report.content);
-        } catch (parseError) {
-          // If parsing fails, treat it as plain text
-          const blob = new Blob([report.content], { type: 'text/plain' });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `${report.title.replace(/\s+/g, '_')}_${new Date().getTime()}.txt`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-          return;
+  viewReport(report: any) {
+    this.actionProcessing = true;
+    this.adminService.generatePdfReport({
+      title: report.title,
+      reportType: report.reportType || report.type || 'Financial',
+      format: 'PDF',
+      dateRangeStart: report.dateRangeStart || new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString(),
+      dateRangeEnd: report.dateRangeEnd || new Date().toISOString()
+    }).subscribe({
+      next: (blob: Blob) => {
+        this.actionProcessing = false;
+        const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+        window.open(url, '_blank');
+        setTimeout(() => window.URL.revokeObjectURL(url), 10000);
+      },
+      error: (err) => {
+        this.actionProcessing = false;
+        if (err.error instanceof Blob) {
+          err.error.text().then((text: string) => {
+            try {
+              const errorObj = JSON.parse(text);
+              alert('Failed to generate PDF: ' + (errorObj.message || errorObj.title || 'Internal Server Error'));
+            } catch (e) {
+              alert('Failed to generate PDF: ' + text);
+            }
+          });
+        } else {
+          alert('Failed to fetch and view PDF: ' + (err.error?.message || err.message));
         }
-      } else {
-        parsed = report.content;
       }
-      
-      // Create a formatted text content for the report
-      const reportContent = `
-SmartSure Insurance Management System
-${parsed.title || report.title}
-${'='.repeat(60)}
-
-Report Type: ${parsed.type || report.reportType}
-Generated At: ${new Date(parsed.generatedAt || report.createdAt).toLocaleString()}
-Date Range: ${new Date(parsed.dateRange?.start || report.dateRangeStart).toLocaleDateString()} - ${new Date(parsed.dateRange?.end || report.dateRangeEnd).toLocaleDateString()}
-
-${'='.repeat(60)}
-STATISTICS
-${'='.repeat(60)}
-
-Total Insurance Policies Sold: ${parsed.statistics?.totalInsuranceSell || 0}
-Total Claims Accepted: ${parsed.statistics?.totalClaimAccepted || 0}
-Total Claims Rejected: ${parsed.statistics?.totalClaimRejected || 0}
-
-${'='.repeat(60)}
-SUMMARY
-${'='.repeat(60)}
-
-${parsed.summary || 'No summary available'}
-
-${'='.repeat(60)}
-End of Report
-      `;
-
-      // Create a blob and download
-      const blob = new Blob([reportContent], { type: 'text/plain' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${(parsed.title || report.title).replace(/\s+/g, '_')}_${new Date().getTime()}.txt`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (e) {
-      console.error('Error downloading report:', e);
-      // Fallback: just show the view dialog
-      this.viewReport(report);
-    }
+    });
   }
 
-  viewReport(report: any) {
-    if (report.content) {
-       try {
-          const parsed = typeof report.content === 'string' ? JSON.parse(report.content) : report.content;
-          if (parsed.statistics) {
-             alert(`Report: ${parsed.title}\nTotal Insurance Sell: ${parsed.statistics.totalInsuranceSell}\nTotal Claim Accepted: ${parsed.statistics.totalClaimAccepted}\nTotal Claim Rejected: ${parsed.statistics.totalClaimRejected}`);
-          } else {
-             alert(JSON.stringify(parsed, null, 2));
-          }
-       } catch (e) {
-          alert(report.content);
-       }
+  toggleShowMoreClaims() {
+    this.showAllClaims = !this.showAllClaims;
+  }
+
+  toggleShowMoreReports() {
+    this.showAllReports = !this.showAllReports;
+  }
+
+  deleteReport(report: any) {
+    if (!confirm(`Are you sure you want to delete the report "${report.title}"? This cannot be undone.`)) {
+      return;
     }
+    this.adminService.deleteReport(report.reportId).subscribe({
+      next: () => {
+        this.reports = this.reports.filter(r => r.reportId !== report.reportId);
+      },
+      error: (err) => {
+        alert('Failed to delete report: ' + (err.error?.message || err.message || 'Unknown error'));
+      }
+    });
   }
 }

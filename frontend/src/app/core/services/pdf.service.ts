@@ -44,414 +44,362 @@ export class PdfService {
       day: 'numeric' 
     });
 
+    const totalPremium = policy.premiumAmount || 0;
+    const basePremium = totalPremium / 1.18;
+    const cgstAmount = basePremium * 0.09;
+    const sgstAmount = basePremium * 0.09;
+
     return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Policy Certificate - ${policy.policyId}</title>
+  <title>Tax Invoice & Policy Certificate - ${policy.policyId}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
-      font-family: 'Arial', 'Helvetica', sans-serif; 
-      padding: 30px; 
-      background: white;
-      color: #333;
-      line-height: 1.6;
+      font-family: 'Inter', sans-serif; 
+      padding: 0; 
+      background: #f8fafc;
+      color: #1e293b;
+      line-height: 1.5;
     }
-    .certificate-container {
-      max-width: 900px;
-      margin: 0 auto;
+    .print-wrapper {
+      max-width: 800px;
+      margin: 40px auto;
       background: white;
-      border: 3px solid #0DB18C;
-      padding: 0;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    .header-bar {
-      background: linear-gradient(135deg, #0DB18C 0%, #0a9170 100%);
-      padding: 25px 40px;
+    .header {
+      background: #0DB18C;
       color: white;
+      padding: 40px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
     }
-    .logo-section {
+    .logo-container {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 16px;
     }
-    .logo-shield {
-      width: 60px;
-      height: 60px;
+    .logo-box {
+      width: 48px;
+      height: 48px;
       background: white;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      font-weight: bold;
       color: #0DB18C;
-    }
-    .company-info h1 {
-      font-size: 28px;
-      font-weight: bold;
-      margin-bottom: 3px;
-      letter-spacing: 1px;
-    }
-    .company-info p {
-      font-size: 12px;
-      opacity: 0.95;
-      margin: 0;
-    }
-    .cert-number {
-      text-align: right;
-    }
-    .cert-number h2 {
-      font-size: 16px;
-      font-weight: normal;
-      opacity: 0.9;
-      margin-bottom: 5px;
-    }
-    .cert-number .number {
-      font-size: 14px;
-      font-family: 'Courier New', monospace;
-      background: rgba(255,255,255,0.2);
-      padding: 5px 10px;
-      border-radius: 4px;
-    }
-    .content-area {
-      padding: 40px;
-    }
-    .certificate-title {
-      text-align: center;
-      margin-bottom: 30px;
-      padding-bottom: 20px;
-      border-bottom: 2px solid #e0e0e0;
-    }
-    .certificate-title h2 {
-      font-size: 32px;
-      color: #0DB18C;
-      margin-bottom: 8px;
-      font-weight: bold;
-    }
-    .certificate-title p {
-      font-size: 14px;
-      color: #666;
-    }
-    .section {
-      margin-bottom: 30px;
-    }
-    .section-title {
-      font-size: 16px;
-      font-weight: bold;
-      color: #0DB18C;
-      margin-bottom: 15px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #0DB18C;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .info-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px 30px;
-      margin-bottom: 20px;
-    }
-    .info-item {
-      display: flex;
-      flex-direction: column;
-    }
-    .info-label {
-      font-size: 11px;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 5px;
-      font-weight: 600;
-    }
-    .info-value {
-      font-size: 15px;
-      color: #000;
-      font-weight: 500;
-    }
-    .coverage-box {
-      background: #f8f9fa;
-      border-left: 4px solid #0DB18C;
-      padding: 25px;
-      margin: 25px 0;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    .coverage-item {
-      text-align: center;
-    }
-    .coverage-label {
-      font-size: 12px;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-    .coverage-amount {
-      font-size: 28px;
-      font-weight: bold;
-      color: #0DB18C;
-    }
-    .terms-section {
-      background: #f8f9fa;
-      padding: 25px;
-      border-radius: 8px;
-      margin: 25px 0;
-    }
-    .terms-list {
-      list-style: none;
-      padding: 0;
-      margin: 15px 0 0 0;
-    }
-    .terms-list li {
-      padding: 10px 0;
-      padding-left: 30px;
-      position: relative;
-      font-size: 13px;
-      color: #444;
-      line-height: 1.6;
-    }
-    .terms-list li:before {
-      content: "✓";
-      position: absolute;
-      left: 0;
-      color: #0DB18C;
-      font-weight: bold;
-      font-size: 16px;
-    }
-    .warning-box {
-      background: white;
-      border: 2px solid #d32f2f;
-      border-radius: 4px;
-      margin: 30px 0;
-      overflow: hidden;
-    }
-    .warning-header {
-      background: #d32f2f;
-      color: white;
-      padding: 15px 25px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    .warning-icon {
-      width: 35px;
-      height: 35px;
-      background: white;
-      color: #d32f2f;
-      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 24px;
-      font-weight: bold;
-      flex-shrink: 0;
+      font-weight: 700;
+      border-radius: 0;
     }
-    .warning-title {
-      font-size: 16px;
-      font-weight: bold;
+    .company-name {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+    .company-tag {
+      font-size: 12px;
+      opacity: 0.9;
+      text-transform: uppercase;
       letter-spacing: 1px;
     }
-    .warning-content {
-      padding: 25px;
-      background: #fafafa;
+    .invoice-title {
+      text-align: right;
     }
-    .warning-item {
-      padding: 15px;
-      margin-bottom: 12px;
-      background: white;
-      border-left: 4px solid #d32f2f;
-      font-size: 13px;
-      line-height: 1.7;
-      color: #333;
+    .invoice-title h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -1px;
     }
-    .warning-item:last-child {
-      margin-bottom: 0;
+    .invoice-title p {
+      font-size: 14px;
+      opacity: 0.9;
     }
-    .warning-item strong {
-      color: #d32f2f;
-      display: block;
-      margin-bottom: 6px;
-      font-size: 13px;
+    .content {
+      padding: 40px;
     }
-    .footer-section {
-      margin-top: 40px;
-      padding-top: 25px;
-      border-top: 2px solid #e0e0e0;
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #e2e8f0;
     }
-    .footer-info {
-      text-align: center;
-      padding: 25px;
-      background: #f8f9fa;
-      border-radius: 8px;
+    .meta-col {
+      flex: 1;
     }
-    .footer-info p {
+    .meta-label {
       font-size: 11px;
-      color: #666;
-      margin: 5px 0;
+      text-transform: uppercase;
+      color: #64748b;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
     }
-    .footer-info strong {
-      color: #0DB18C;
+    .meta-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 20px;
+      padding-left: 12px;
+      border-left: 4px solid #0DB18C;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    .grid-item {
+      background: #f8fafc;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+    }
+    .table-container {
+      margin-bottom: 40px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      background: #1e293b;
+      color: white;
+      text-align: left;
+      padding: 12px 16px;
       font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
     }
-    .watermark {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-45deg);
-      font-size: 120px;
-      color: rgba(13, 177, 140, 0.05);
-      font-weight: bold;
-      z-index: -1;
-      pointer-events: none;
+    td {
+      padding: 16px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 14px;
+      color: #334155;
+    }
+    td.amount {
+      text-align: right;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    th.amount {
+      text-align: right;
+    }
+    .total-row {
+      background: #f8fafc;
+    }
+    .total-row td {
+      font-weight: 700;
+      font-size: 16px;
+      color: #0DB18C;
+      border-bottom: 2px solid #0DB18C;
+    }
+    .total-row td.amount {
+      font-size: 20px;
+    }
+    .terms {
+      margin-bottom: 40px;
+      font-size: 12px;
+      color: #475569;
+    }
+    .terms ul {
+      list-style: none;
+      margin-top: 12px;
+    }
+    .terms li {
+      margin-bottom: 8px;
+      padding-left: 16px;
+      position: relative;
+    }
+    .terms li::before {
+      content: '■';
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: #0DB18C;
+      font-size: 10px;
+    }
+    .footer {
+      border-top: 2px solid #e2e8f0;
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #64748b;
+    }
+    .authorized-sign {
+      text-align: right;
+      margin-top: -20px;
+    }
+    .sign-box {
+      width: 160px;
+      height: 60px;
+      border-bottom: 1px solid #94a3b8;
+      margin-bottom: 8px;
+      margin-left: auto;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: #0DB18C;
+      font-family: 'Brush Script MT', cursive;
+      font-size: 24px;
     }
     @media print {
-      body { padding: 0; background: white; }
-      .certificate-container { border: 2px solid #0DB18C; }
+      body { background: white; padding: 0; }
+      .print-wrapper { margin: 0; box-shadow: none; max-width: 100%; border: 1px solid #e2e8f0; }
+      .grid-item { border-color: #cbd5e1; }
     }
   </style>
 </head>
 <body>
-  <div class="watermark">SMARTSURE</div>
-  <div class="certificate-container">
+  <div class="print-wrapper">
     <!-- Header -->
-    <div class="header-bar">
-      <div class="logo-section">
-        <div class="logo-shield">S</div>
-        <div class="company-info">
-          <h1>SMARTSURE</h1>
-          <p>Insurance Management Platform</p>
-          <p>IRDAI Registration No: IRDA/DB/2024/001</p>
+    <div class="header">
+      <div class="logo-container">
+        <div class="logo-box">
+          <svg viewBox="0 0 32 32" fill="none" style="width: 32px; height: 32px;">
+            <path d="M16 0L32 8V24L16 32L0 24V8L16 0Z" fill="#1A1A1A"/>
+            <path d="M16 5V27L4 21V11L16 5Z" fill="#0DB18C"/>
+            <path d="M16 5L28 11V21L16 27V5Z" fill="#0A8E70"/>
+          </svg>
+        </div>
+        <div>
+          <div class="company-name">SMART<span style="color: #1A1A1A;">SURE</span></div>
+          <div class="company-tag">Insurance Management</div>
         </div>
       </div>
-      <div class="cert-number">
-        <h2>Policy Certificate</h2>
-        <div class="number">${policy.policyId.substring(0, 13).toUpperCase()}</div>
-        <p style="margin-top: 8px; font-size: 11px;">Issue Date: ${currentDate}</p>
+      <div class="invoice-title">
+        <h1>TAX INVOICE</h1>
+        <p>Original for Recipient</p>
       </div>
     </div>
 
-    <!-- Content -->
-    <div class="content-area">
-      <div class="certificate-title">
-        <h2>INSURANCE POLICY CERTIFICATE</h2>
-        <p>This certifies that the policy holder is covered under the terms and conditions stated herein</p>
-      </div>
-
-      <!-- Policy Information -->
-      <div class="section">
-        <div class="section-title">Policy Details</div>
-        <div class="info-grid">
-          <div class="info-item">
-            <div class="info-label">Policy Number</div>
-            <div class="info-value">${policy.policyId.substring(0, 13).toUpperCase()}</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Policy Type</div>
-            <div class="info-value">${policy.typeName} Insurance</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Plan</div>
-            <div class="info-value">${policy.subtypeName}</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Policy Status</div>
-            <div class="info-value" style="color: #0DB18C;">${policy.status}</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Period of Insurance</div>
-            <div class="info-value">${policyStartDate}</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Policy Expiry Date</div>
-            <div class="info-value">${policyEndDate}</div>
-          </div>
-          ${policy.nomineeName ? `
-          <div class="info-item">
-            <div class="info-label">Nominee Name</div>
-            <div class="info-value">${policy.nomineeName}</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Nominee Relationship</div>
-            <div class="info-value">${policy.nomineeRelation || 'Not Specified'}</div>
-          </div>
-          ` : ''}
+    <div class="content">
+      <!-- Meta Information -->
+      <div class="meta-row">
+        <div class="meta-col">
+          <div class="meta-label">Policy Number</div>
+          <div class="meta-value">${policy.policyId.toUpperCase()}</div>
+        </div>
+        <div class="meta-col">
+          <div class="meta-label">Date of Issue</div>
+          <div class="meta-value">${currentDate}</div>
+        </div>
+        <div class="meta-col">
+          <div class="meta-label">IRDAI Reg. No</div>
+          <div class="meta-value">IRDA/DB/2024/001</div>
+        </div>
+        <div class="meta-col" style="text-align: right;">
+          <div class="meta-label">Status</div>
+          <div class="meta-value" style="color: #0DB18C; text-transform: uppercase;">${policy.status}</div>
         </div>
       </div>
 
+      <!-- Policy Details -->
+      <div class="section-title">Coverage Information</div>
+      <div class="grid">
+        <div class="grid-item">
+          <div class="meta-label">Policy Type</div>
+          <div class="meta-value">${policy.typeName} Insurance - ${policy.subtypeName}</div>
+        </div>
+        <div class="grid-item">
+          <div class="meta-label">Period of Insurance</div>
+          <div class="meta-value">${policyStartDate} to ${policyEndDate}</div>
+        </div>
+        ${policy.nomineeName ? `
+        <div class="grid-item">
+          <div class="meta-label">Nominee Name</div>
+          <div class="meta-value">${policy.nomineeName}</div>
+        </div>
+        <div class="grid-item">
+          <div class="meta-label">Nominee Relationship</div>
+          <div class="meta-value">${policy.nomineeRelation || 'N/A'}</div>
+        </div>
+        ` : ''}
+      </div>
+
+      <!-- Specific Details -->
       ${isVehicle ? this.getVehicleDetailsHTML(details) : this.getHomeDetailsHTML(details)}
 
-      <!-- Coverage Amount -->
-      <div class="coverage-box">
-        <div class="coverage-item">
-          <div class="coverage-label">Sum Insured (IDV)</div>
-          <div class="coverage-amount">₹${policy.insuredDeclaredValue?.toLocaleString('en-IN')}</div>
-        </div>
-        <div class="coverage-item">
-          <div class="coverage-label">Annual Premium</div>
-          <div class="coverage-amount">₹${policy.premiumAmount?.toLocaleString('en-IN')}</div>
-        </div>
+      <!-- Premium Breakdown -->
+      <div class="section-title">Premium Summary</div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th class="amount">Sum Insured (IDV)</th>
+              <th class="amount">Premium Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Basic Premium for ${policy.typeName} Cover</td>
+              <td class="amount">₹${policy.insuredDeclaredValue?.toLocaleString('en-IN') || '0'}</td>
+              <td class="amount">₹${basePremium.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            </tr>
+            <tr>
+              <td>CGST (9%)</td>
+              <td class="amount">-</td>
+              <td class="amount">₹${cgstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            </tr>
+            <tr>
+              <td>SGST (9%)</td>
+              <td class="amount">-</td>
+              <td class="amount">₹${sgstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            </tr>
+            <tr class="total-row">
+              <td>Total Payable Premium</td>
+              <td class="amount"></td>
+              <td class="amount">₹${totalPremium.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <!-- Terms & Conditions -->
-      <div class="terms-section">
-        <div class="section-title">Coverage Terms & Claim Policy</div>
-        <ul class="terms-list">
-          <li><strong>Claim Limit:</strong> Maximum of 3 approved claims allowed during the policy period.</li>
-          <li><strong>Claim Amount:</strong> ${isVehicle ? 
-            'For accidents, up to 75% of IDV. For theft or total loss, full IDV amount is payable.' : 
-            'Claims are subject to actual loss assessment and policy terms.'}</li>
-          <li><strong>Theft/Total Loss:</strong> ${isVehicle ? 
-            'In case of vehicle theft, full IDV will be paid and policy will be terminated.' : 
-            'Requires police FIR and investigation report.'}</li>
-          <li><strong>Documentation:</strong> All claims must be supported by proper documentation including photographs, repair bills, and police reports where applicable.</li>
-          <li><strong>Claim Processing:</strong> Claims are typically processed within 7-15 business days after document verification and approval.</li>
-          <li><strong>Premium Payment:</strong> Timely premium payment is mandatory to keep the policy active and maintain coverage.</li>
-          <li><strong>Modifications:</strong> Any modifications to the ${isVehicle ? 'vehicle' : 'property'} must be reported to maintain valid coverage.</li>
+      <!-- Terms -->
+      <div class="terms">
+        <div class="section-title">Terms & Conditions</div>
+        <ul>
+          <li>This document serves as both a tax invoice and policy certificate under applicable GST rules.</li>
+          <li>Coverage is subject to the realization of the full premium amount.</li>
+          <li>For detailed terms, conditions, and exclusions, refer to the master policy document.</li>
+          <li>In case of a claim, notify SmartSure within 24 hours of the incident.</li>
+          <li>This is a computer-generated document and does not require a physical signature.</li>
         </ul>
       </div>
 
-      <!-- Important Notices -->
-      <div class="warning-box">
-        <div class="warning-header">
-          <div class="warning-icon">!</div>
-          <div class="warning-title">IMPORTANT POLICY CONDITIONS</div>
+      <!-- Footer -->
+      <div class="authorized-sign">
+        <div class="sign-box">SmartSure Auth</div>
+        <div class="meta-label">Authorized Signatory</div>
+      </div>
+      
+      <div class="footer">
+        <div>
+          <strong>SmartSure Insurance Management</strong><br>
+          Tower A, Tech Park, Mumbai - 400001
         </div>
-        <div class="warning-content">
-          <div class="warning-item">
-            <strong>1. Fraudulent Claims:</strong> Any attempt to file false or fraudulent claims will result in immediate policy cancellation, forfeiture of all premiums paid, and may lead to legal prosecution under applicable insurance laws and regulations.
-          </div>
-          <div class="warning-item">
-            <strong>2. Claim Rejection Policy:</strong> If three consecutive claims are rejected due to submission of false information or fraudulent documentation, the policy will be automatically terminated without any refund of premiums.
-          </div>
-          <div class="warning-item">
-            <strong>3. Incident Reporting:</strong> All incidents, accidents, or losses must be reported to the relevant authorities (police, fire department, or other applicable agencies) within 24 hours of occurrence. Failure to do so may result in claim rejection.
-          </div>
-          <div class="warning-item">
-            <strong>4. Policy Terms:</strong> This insurance policy is governed by the terms and conditions outlined in the policy document. The policyholder is advised to read and understand all terms, conditions, exclusions, and limitations before filing any claim.
-          </div>
-          <div class="warning-item">
-            <strong>5. Premium Payment:</strong> Timely payment of premiums is mandatory. Non-payment or delayed payment beyond the grace period will result in policy lapse and loss of coverage. No claims will be entertained during the lapsed period.
-          </div>
+        <div style="text-align: right;">
+          support@smartsure.com<br>
+          1800-SMART-SURE
         </div>
       </div>
 
-      <!-- Footer -->
-      <div class="footer-section">
-        <div class="footer-info">
-          <p><strong>SmartSure Insurance Management Platform</strong></p>
-          <p>Registered Office: SmartSure Tower, Insurance District, Mumbai - 400001, India</p>
-          <p>Customer Care: 1800-XXX-XXXX | Email: support@smartsure.com | Web: www.smartsure.com</p>
-          <p style="margin-top: 15px; font-size: 11px; font-weight: 600; color: #0DB18C;">This is a digitally generated certificate and is valid without physical signature.</p>
-          <p style="font-size: 10px; margin-top: 5px;">© ${new Date().getFullYear()} SmartSure. All rights reserved. | IRDAI Reg. No: IRDA/DB/2024/001</p>
-        </div>
-      </div>
     </div>
   </div>
 </body>
@@ -461,67 +409,61 @@ export class PdfService {
 
   private getVehicleDetailsHTML(details: any): string {
     return `
-    <div class="section">
       <div class="section-title">Vehicle Details</div>
-      <div class="info-grid">
-        <div class="info-item">
-          <div class="info-label">Registration Number</div>
-          <div class="info-value">${details.registrationNumber || 'N/A'}</div>
+      <div class="grid">
+        <div class="grid-item">
+          <div class="meta-label">Registration Number</div>
+          <div class="meta-value">${details.registrationNumber || 'N/A'}</div>
         </div>
-        <div class="info-item">
-          <div class="info-label">Make & Model</div>
-          <div class="info-value">${details.make || 'N/A'} ${details.model || 'N/A'}</div>
+        <div class="grid-item">
+          <div class="meta-label">Make & Model</div>
+          <div class="meta-value">${details.make || 'N/A'} ${details.model || 'N/A'}</div>
         </div>
-        <div class="info-item">
-          <div class="info-label">Manufacture Year</div>
-          <div class="info-value">${details.manufactureYear || 'N/A'}</div>
+        <div class="grid-item">
+          <div class="meta-label">Engine Number</div>
+          <div class="meta-value">${details.engineNumber || 'N/A'}</div>
         </div>
-        <div class="info-item">
-          <div class="info-label">Ex-Showroom Price</div>
-          <div class="info-value">₹${details.estimatedValue?.toLocaleString('en-IN') || 'N/A'}</div>
+        <div class="grid-item">
+          <div class="meta-label">Chassis Number</div>
+          <div class="meta-value">${details.chassisNumber || 'N/A'}</div>
         </div>
-        <div class="info-item">
-          <div class="info-label">Chassis Number</div>
-          <div class="info-value">${details.chassisNumber || 'N/A'}</div>
+        <div class="grid-item">
+          <div class="meta-label">Manufacture Year</div>
+          <div class="meta-value">${details.manufactureYear || 'N/A'}</div>
         </div>
-        <div class="info-item">
-          <div class="info-label">Engine Number</div>
-          <div class="info-value">${details.engineNumber || 'N/A'}</div>
+        <div class="grid-item">
+          <div class="meta-label">Ex-Showroom Price</div>
+          <div class="meta-value">₹${details.estimatedValue?.toLocaleString('en-IN') || 'N/A'}</div>
         </div>
       </div>
-    </div>
     `;
   }
 
   private getHomeDetailsHTML(details: any): string {
     return `
-    <div class="section">
       <div class="section-title">Property Details</div>
-      <div class="info-grid">
-        <div class="info-item">
-          <div class="info-label">Property Address</div>
-          <div class="info-value">${details.address || 'N/A'}</div>
+      <div class="grid">
+        <div class="grid-item" style="grid-column: span 2;">
+          <div class="meta-label">Property Address</div>
+          <div class="meta-value">${details.address || 'N/A'}</div>
         </div>
-        <div class="info-item">
-          <div class="info-label">Property Type</div>
-          <div class="info-value">${details.propertyType || 'N/A'}</div>
+        <div class="grid-item">
+          <div class="meta-label">Property Type</div>
+          <div class="meta-value">${details.propertyType || 'N/A'}</div>
         </div>
-        <div class="info-item">
-          <div class="info-label">Year Built</div>
-          <div class="info-value">${details.yearBuilt || 'N/A'}</div>
+        <div class="grid-item">
+          <div class="meta-label">Year Built</div>
+          <div class="meta-value">${details.yearBuilt || 'N/A'}</div>
         </div>
-        <div class="info-item">
-          <div class="info-label">Estimated Value</div>
-          <div class="info-value">₹${details.estimatedValue?.toLocaleString('en-IN') || 'N/A'}</div>
+        <div class="grid-item">
+          <div class="meta-label">Estimated Value</div>
+          <div class="meta-value">₹${details.estimatedValue?.toLocaleString('en-IN') || 'N/A'}</div>
         </div>
-        ${details.securityFeatures ? `
-        <div class="info-item" style="grid-column: 1 / -1;">
-          <div class="info-label">Security Features</div>
-          <div class="info-value">${details.securityFeatures}</div>
+        <div class="grid-item">
+          <div class="meta-label">Security Features</div>
+          <div class="meta-value">${details.securityFeatures || 'N/A'}</div>
         </div>
-        ` : ''}
       </div>
-    </div>
     `;
   }
 }

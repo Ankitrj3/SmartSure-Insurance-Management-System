@@ -38,4 +38,8 @@ export class ApiService {
   postFormData<T>(endpoint: string, formData: FormData): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}/${endpoint}`, formData);
   }
+
+  postBlob(endpoint: string, body: any): Observable<Blob> {
+    return this.http.post(`${this.baseUrl}/${endpoint}`, body, { responseType: 'blob' });
+  }
 }

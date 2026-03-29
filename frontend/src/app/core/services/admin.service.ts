@@ -96,6 +96,16 @@ export class AdminService {
     return this.api.post<any>('admin/reports', requestData);
   }
 
+  // POST /admin/reports/pdf → ReportsController (native PDF download)
+  generatePdfReport(requestData: any): Observable<Blob> {
+    return this.api.postBlob('admin/reports/pdf', requestData);
+  }
+
+  // DELETE /admin/reports/:reportId → ReportsController
+  deleteReport(reportId: string): Observable<void> {
+    return this.api.delete<void>(`admin/reports/${reportId}`);
+  }
+
   // ── Audit Logs ───────────────────────────────────────────────────────────────
   // GET /admin/audit-logs → AuditLogsController
   getAuditLogs(page: number = 1, pageSize: number = 20): Observable<any> {

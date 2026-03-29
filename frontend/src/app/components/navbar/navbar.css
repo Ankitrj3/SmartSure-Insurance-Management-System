@@ -1,7 +1,12 @@
+/* ============================================================
+   SmartSure Navbar — Professional Clean
+   NO gradients, solid colors only.
+   ============================================================ */
+
 .smartsure-navbar {
   height: 90px;
-  background-color: white;
-  border-bottom: 1px solid #E5E5E5;
+  background-color: #FFFFFF;
+  border-bottom: 2px solid #F0F0F0;
   display: flex;
   align-items: center;
   position: sticky;
@@ -17,6 +22,7 @@
   width: 100%;
 }
 
+/* ── Brand ── */
 .brand {
   display: flex;
   align-items: center;
@@ -31,30 +37,55 @@
 }
 
 .brand-text {
-  font-size: 1.8rem;
+  font-size: 1.75rem;
   font-weight: 800;
   color: #1A1A1A;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   margin: 0;
 }
 
-.nav-links {
-  display: flex;
-  gap: 30px;
-}
-
-.nav-links a {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #1A1A1A;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.nav-links a:hover, .nav-links a.active {
+.text-teal {
   color: #0DB18C;
 }
 
+/* ── Nav Links ── */
+.nav-links {
+  display: flex;
+  gap: 36px;
+}
+
+.nav-links a {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #444444;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  position: relative;
+  padding-bottom: 4px;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #0DB18C;
+  transition: width 0.25s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: #0DB18C;
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+  width: 100%;
+}
+
+/* ── Auth Section ── */
 .auth-section {
   display: flex;
   align-items: center;
@@ -64,14 +95,15 @@
 .user-menu {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
 }
 
 .role-text {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: #666;
+  color: #888888;
   text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .btn-text {
@@ -79,8 +111,10 @@
   border: none;
   font-size: 1rem;
   font-weight: 600;
-  color: #1A1A1A;
+  color: #444444;
   cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 0;
 }
 
 .btn-text:hover {
@@ -93,20 +127,109 @@
   padding: 12px 24px;
   font-weight: 700;
   border: none;
-  border-radius: 4px;
+  border-radius: 0;
   cursor: pointer;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
 }
 
 .btn-quote-nav:hover {
   background-color: #0A8E70;
 }
 
-/* ──────────────────────────────────────────────────────────
-   RESPONSIVE STYLES
-   ────────────────────────────────────────────────────────── */
+/* ── Dropdown ── */
+.dropdown-wrapper {
+  position: relative;
+}
 
-/* Tablet View (768px - 1024px) */
+.btn-icon-user {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #0DB18C;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(13, 177, 140, 0.25);
+}
+
+.btn-icon-user:hover {
+  background: #0A8E70;
+  box-shadow: 0 4px 14px rgba(13, 177, 140, 0.35);
+}
+
+.btn-icon-user svg {
+  width: 20px;
+  height: 20px;
+  color: white;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  background: white;
+  border: 1px solid #E5E5E5;
+  border-radius: 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+  min-width: 200px;
+  padding: 8px;
+  z-index: 1000;
+  animation: dropdownFadeIn 0.18s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: #333333;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: #F5F5F5;
+  color: #0DB18C;
+}
+
+.dropdown-item svg {
+  width: 17px;
+  height: 17px;
+  color: currentColor;
+  flex-shrink: 0;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #EEEEEE;
+  margin: 6px 0;
+}
+
+/* ── Responsive Tablet ── */
 @media (max-width: 1024px) {
   .smartsure-navbar {
     height: 80px;
@@ -121,12 +244,12 @@
   }
 
   .brand-icon {
-    width: 35px;
-    height: 35px;
+    width: 34px;
+    height: 34px;
   }
 
   .nav-links {
-    gap: 20px;
+    gap: 24px;
   }
 
   .nav-links a {
@@ -134,16 +257,16 @@
   }
 
   .auth-section {
-    gap: 15px;
+    gap: 14px;
   }
 
   .btn-quote-nav {
     padding: 10px 20px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 }
 
-/* Mobile View (max-width: 768px) */
+/* ── Responsive Mobile ── */
 @media (max-width: 768px) {
   .smartsure-navbar {
     height: auto;
@@ -167,23 +290,23 @@
   }
 
   .brand-icon {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
   }
 
   .nav-links {
     order: 3;
     width: 100%;
     justify-content: center;
-    gap: 12px;
+    gap: 16px;
     padding-top: 0.5rem;
-    border-top: 1px solid #E5E5E5;
+    border-top: 1px solid #EEEEEE;
     flex-wrap: wrap;
   }
 
   .nav-links a {
     font-size: 0.9rem;
-    padding: 0.25rem 0.5rem;
+    padding: 0.2rem 0.4rem;
   }
 
   .auth-section {
@@ -193,12 +316,11 @@
   }
 
   .btn-text {
-    font-size: 0.85rem;
-    padding: 0.4rem 0.75rem;
+    font-size: 0.9rem;
   }
 
   .btn-quote-nav {
-    padding: 8px 16px;
+    padding: 9px 18px;
     font-size: 0.8rem;
   }
 
@@ -207,11 +329,11 @@
   }
 
   .role-text {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
 }
 
-/* Small Mobile (max-width: 480px) */
+/* ── Responsive Small Mobile ── */
 @media (max-width: 480px) {
   .smartsure-navbar {
     min-height: 60px;
@@ -219,7 +341,7 @@
   }
 
   .navbar-container {
-    padding: 0 0.75rem;
+    padding: 0 0.875rem;
     gap: 0.5rem;
   }
 
@@ -233,138 +355,22 @@
   }
 
   .nav-links {
-    gap: 8px;
-    padding-top: 0.5rem;
+    gap: 10px;
   }
 
   .nav-links a {
     font-size: 0.85rem;
-    padding: 0.25rem 0.4rem;
   }
 
   .btn-quote-nav {
-    padding: 7px 14px;
+    padding: 8px 14px;
     font-size: 0.75rem;
   }
 
   .btn-text {
     font-size: 0.8rem;
-    padding: 0.35rem 0.6rem;
-  }
-}
-
-/* Dropdown Styles */
-.dropdown-wrapper {
-  position: relative;
-}
-
-.btn-icon-user {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #0DB18C 0%, #0A8E70 100%);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(13, 177, 140, 0.2);
-}
-
-.btn-icon-user:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(13, 177, 140, 0.3);
-}
-
-.btn-icon-user svg {
-  width: 22px;
-  height: 22px;
-  color: white;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
-  min-width: 200px;
-  padding: 8px;
-  z-index: 1000;
-  animation: dropdownFadeIn 0.2s ease;
-}
-
-@keyframes dropdownFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #374151;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  background: transparent;
-  width: 100%;
-  text-align: left;
-}
-
-.dropdown-item:hover {
-  background: #F3F4F6;
-  color: #0DB18C;
-}
-
-.dropdown-item svg {
-  width: 18px;
-  height: 18px;
-  color: currentColor;
-}
-
-.dropdown-divider {
-  height: 1px;
-  background: #E5E7EB;
-  margin: 6px 0;
-}
-
-/* Mobile Dropdown Adjustments */
-@media (max-width: 768px) {
-  .btn-icon-user {
-    width: 38px;
-    height: 38px;
   }
 
-  .btn-icon-user svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .dropdown-menu {
-    min-width: 180px;
-  }
-
-  .dropdown-item {
-    padding: 10px 14px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
   .btn-icon-user {
     width: 36px;
     height: 36px;
@@ -376,18 +382,18 @@
   }
 
   .dropdown-menu {
-    min-width: 160px;
-    right: -10px;
+    min-width: 170px;
+    right: -8px;
   }
 
   .dropdown-item {
-    padding: 9px 12px;
+    padding: 10px 12px;
     font-size: 0.85rem;
     gap: 10px;
   }
 
   .dropdown-item svg {
-    width: 16px;
-    height: 16px;
+    width: 15px;
+    height: 15px;
   }
 }

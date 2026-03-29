@@ -1,5 +1,5 @@
 <div class="smartsure-home">
-  <!-- Hero Section -->
+  <!-- ── Hero Section ── -->
   <section class="smartsure-hero">
     <div class="container hero-container">
       <div class="hero-content">
@@ -10,98 +10,104 @@
         <p class="hero-text">
           Explore our tailored insurance solutions and experience the peace of mind that comes with knowing you're covered.
         </p>
-        <button class="btn btn-primary btn-quote" (click)="onHeroAction()">GET A QUOTE <span class="arrow">→</span></button>
+        <button class="btn-quote" (click)="onHeroAction()">GET A QUOTE <span class="arrow">→</span></button>
       </div>
-      
+
       <div class="hero-visual">
-         <div class="insurance-visual-grid">
-            <!-- Car Insurance Card -->
-            <div class="insurance-visual-card car-card">
-              <div class="card-image-wrapper">
-                <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=600&h=400&fit=crop&q=90" alt="Car Insurance" />
-                <div class="card-overlay">
-                  <div class="card-badge">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M5 17h14v-5l-1.5-4.5h-11L5 12v5z"></path>
-                      <circle cx="7.5" cy="17.5" r="1.5"></circle>
-                      <circle cx="16.5" cy="17.5" r="1.5"></circle>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              <div class="card-content">
-                <h4>Vehicle Insurance</h4>
-                <p>Complete protection for your automobile</p>
-                <div class="card-features">
-                  <span>✓ Collision Coverage</span>
-                  <span>✓ Theft Protection</span>
+        <div class="insurance-visual-grid">
+          <!-- Car Insurance Card -->
+          <div class="insurance-visual-card car-card">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=600&h=400&fit=crop&q=90" alt="Car Insurance" />
+              <div class="card-overlay">
+                <div class="card-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 17h14v-5l-1.5-4.5h-11L5 12v5z"></path>
+                    <circle cx="7.5" cy="17.5" r="1.5"></circle>
+                    <circle cx="16.5" cy="17.5" r="1.5"></circle>
+                  </svg>
                 </div>
               </div>
             </div>
+            <div class="card-content">
+              <h4>Vehicle Insurance</h4>
+              <p>Complete protection for your automobile</p>
+              <div class="card-features">
+                <span>✓ Collision Coverage</span>
+                <span>✓ Theft Protection</span>
+              </div>
+            </div>
+          </div>
 
-            <!-- Home Insurance Card -->
-            <div class="insurance-visual-card home-card">
-              <div class="card-image-wrapper">
-                <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&h=400&fit=crop&q=90" alt="Home Insurance" />
-                <div class="card-overlay">
-                  <div class="card-badge">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                      <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              <div class="card-content">
-                <h4>Home Protection</h4>
-                <p>Safeguard your property and belongings</p>
-                <div class="card-features">
-                  <span>✓ Property Damage</span>
-                  <span>✓ Natural Disasters</span>
+          <!-- Home Insurance Card -->
+          <div class="insurance-visual-card home-card">
+            <div class="card-image-wrapper">
+              <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&h=400&fit=crop&q=90" alt="Home Insurance" />
+              <div class="card-overlay">
+                <div class="card-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                  </svg>
                 </div>
               </div>
             </div>
+            <div class="card-content">
+              <h4>Home Protection</h4>
+              <p>Safeguard your property and belongings</p>
+              <div class="card-features">
+                <span>✓ Property Damage</span>
+                <span>✓ Natural Disasters</span>
+              </div>
+            </div>
+          </div>
 
-            <!-- Stats Card -->
-            <div class="insurance-visual-card stats-card">
-              <div class="stats-grid">
-                <div class="stat-item">
-                  <div class="stat-icon-wrapper">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="9" cy="7" r="4"></circle>
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                  </div>
-                  <div class="stat-details">
-                    <span class="stat-value">10,000+</span>
-                    <span class="stat-title">Happy Customers</span>
-                  </div>
+          <!-- Stats Card -->
+          <div class="insurance-visual-card stats-card">
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-icon-wrapper">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
                 </div>
-                <div class="stat-divider"></div>
-                <div class="stat-item">
-                  <div class="stat-icon-wrapper">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                      <path d="M9 12l2 2 4-4"></path>
-                    </svg>
-                  </div>
-                  <div class="stat-details">
-                    <span class="stat-value">99.9%</span>
-                    <span class="stat-title">Claim Success Rate</span>
-                  </div>
+                <div class="stat-details">
+                  <span class="stat-value">100%</span>
+                  <span class="stat-title">Digital Process</span>
+                </div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <div class="stat-icon-wrapper">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    <path d="M9 12l2 2 4-4"></path>
+                  </svg>
+                </div>
+                <div class="stat-details">
+                  <span class="stat-value">Zero</span>
+                  <span class="stat-title">Paperwork Needed</span>
                 </div>
               </div>
             </div>
-         </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Offerings Section -->
+  <!-- ── Offerings Section ── -->
   <section class="smartsure-offerings">
     <div class="container">
+      <div class="section-header">
+        <span class="section-badge">WHAT WE OFFER</span>
+        <h2 class="section-title">Tailored Insurance Solutions</h2>
+        <p class="section-subtitle">Comprehensive plans designed to protect everything that matters most to you.</p>
+      </div>
+
       @if (isLoading()) {
         <div class="loading-state">
           <div class="loading-spinner"></div>
@@ -114,14 +120,12 @@
           @if (insuranceTypes().length === 0) {
             <div class="empty-state">No insurance plans available at the moment. Please check back soon!</div>
           }
-          
+
           <div class="services-grid">
             <!-- Vehicle Insurance Card -->
             @if (getVehicleType()) {
               <div class="service-card vehicle-card">
                 <div class="service-icon-wrapper">
-                  <div class="diamond-bg bg-teal"></div>
-                  <div class="diamond-bg bg-light"></div>
                   <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M5 17h14v-5l-1.5-4.5h-11L5 12v5z"></path>
                     <circle cx="7.5" cy="17.5" r="1.5"></circle>
@@ -137,7 +141,7 @@
                       <li>{{ subtype.name || subtype.Name }}</li>
                     }
                   </ul>
-                  
+
                   @if (hasMoreVehicleSubtypes()) {
                     <button class="btn-show-more" (click)="toggleVehicleSubtypes()">
                       {{ showAllVehicleSubtypes() ? 'Show Less' : 'Show More' }}
@@ -152,10 +156,8 @@
 
             <!-- Home Insurance Card -->
             @if (getHomeType()) {
-              <div class="service-card home-card">
+              <div class="service-card home-card-service">
                 <div class="service-icon-wrapper">
-                  <div class="diamond-bg bg-yellow"></div>
-                  <div class="diamond-bg bg-light"></div>
                   <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -170,7 +172,7 @@
                       <li>{{ subtype.name || subtype.Name }}</li>
                     }
                   </ul>
-                  
+
                   @if (hasMoreHomeSubtypes()) {
                     <button class="btn-show-more" (click)="toggleHomeSubtypes()">
                       {{ showAllHomeSubtypes() ? 'Show Less' : 'Show More' }}
@@ -188,66 +190,77 @@
     </div>
   </section>
 
-  <!-- Why Choose Us -->
+  <!-- ── Why Choose Us ── -->
   <section class="smartsure-about">
     <div class="container about-container">
-      <div class="about-image">
-         <div class="image-grid">
-            <!-- Insurance themed images using SVG icons -->
-            <div class="insurance-image-card card-1">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                <path d="M9 12l2 2 4-4"></path>
-              </svg>
-              <span>Protected</span>
-            </div>
-            <div class="insurance-image-card card-2">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-              </svg>
-              <span>Secure</span>
-            </div>
-            <div class="insurance-image-card card-3">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              <span>24/7 Support</span>
-            </div>
-            <div class="insurance-image-card card-4">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              <span>Expert Team</span>
-            </div>
-         </div>
+      <div class="about-image-wrapper">
+        <div class="image-offset-box"></div>
+        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=1000&fit=crop&q=90" alt="Startup team and digital platform" class="about-main-image" />
+        
+        <!-- Experience Badge overlapping -->
+        <div class="experience-badge">
+          <span class="exp-number">100%</span>
+          <span class="exp-text">Digital<br>Platform</span>
+        </div>
       </div>
       <div class="about-content">
         <span class="badge-yellow">WHY CHOOSE US</span>
         <h2 class="about-title">Why Choose SmartSure for Your Insurance Needs?</h2>
-        
-        <div class="feature-block">
-          <h3 class="feature-title">Transparent Pricing</h3>
-          <p class="feature-desc">Quis imperdiet massa tincidunt nunc pulvinar sapien et ligula. Sagittis orci a scelerisque purus semper eget duis at. Justo nec ultrices dui sapien eget mi proin sed libero.</p>
-        </div>
-        <div class="feature-block">
-          <h3 class="feature-title">Expert Agents</h3>
-          <p class="feature-desc">Massa eget egestas purus viverra accumsan in nisl. Erat pellentesque adipiscing commodo elit at imperdiet dui accumsan sit.</p>
+        <p class="section-subtitle-left">SmartSure is dedicated to offering reliable, transparent, and highly responsive insurance services to protect your assets and future.</p>
+
+        <div class="feature-list">
+          <div class="feature-list-item">
+            <div class="feature-icon-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              </svg>
+            </div>
+            <div class="feature-text">
+              <h3 class="feature-title">Transparent Pricing</h3>
+              <p class="feature-desc">No hidden fees, no surprise charges. Complete transparency from quote to claim.</p>
+            </div>
+          </div>
+
+          <div class="feature-list-item">
+            <div class="feature-icon-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div class="feature-text">
+              <h3 class="feature-title">Expert Agents</h3>
+              <p class="feature-desc">Certified insurance specialists guiding you through every step of the process.</p>
+            </div>
+          </div>
+          
+          <div class="feature-list-item">
+            <div class="feature-icon-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div class="feature-text">
+              <h3 class="feature-title">Fast Claims Settlement</h3>
+              <p class="feature-desc">Record time settlements with a 99.9% claim success rate for complete peace of mind.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- CTA Section -->
+  <!-- ── CTA Section ── -->
   <section class="smartsure-cta">
     <div class="container cta-container">
-       <h2 class="cta-title">Reliable Guarantees:<br>Insurance with Confidence</h2>
-       <div class="cta-actions">
-         <p>Nullam velit ut aliquam imperdiet in. Lectus proin nibh nisl condimentum id venenatis a condimentum. Dignissim enim sit amet.</p>
-         <button class="btn btn-primary btn-quote" (click)="onHeroAction()">GET A QUOTE <span class="arrow">→</span></button>
-       </div>
+      <h2 class="cta-title">Reliable Guarantees:<br>Insurance with <span>Confidence</span></h2>
+      <div class="cta-actions">
+        <p>Join the future of insurance and trust SmartSure to protect what matters most. Get covered today with a plan built entirely for you.</p>
+        <button class="btn-quote" (click)="onHeroAction()">GET A QUOTE <span class="arrow">→</span></button>
+      </div>
     </div>
   </section>
 </div>

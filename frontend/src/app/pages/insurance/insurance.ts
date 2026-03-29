@@ -5,6 +5,8 @@ import { PolicyService } from '../../core/services/policy.service';
 import { AuthService } from '../../core/services/auth.service';
 import { InsuranceCardComponent } from '../../components/insurance-card/insurance-card';
 
+const INITIAL_VISIBLE = 6;
+
 @Component({
   selector: 'app-insurance',
   standalone: true,
@@ -14,7 +16,7 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
       <!-- Header Banner -->
       <div class="header-banner">
         <div class="header-content">
-          <span class="badge-yellow">OUR PLANS</span>
+          <span class="badge-label">OUR PLANS</span>
           <h1 class="header-title">Our Insurance Portfolio</h1>
           <p class="header-subtitle">Premium coverage for Vehicle, Home, Health, and more.</p>
           <p class="header-description">Comprehensive protection engineered for maximum security and peace of mind.</p>
@@ -32,7 +34,13 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
       <!-- No Data State -->
       @if (!loading() && insuranceTypes().length === 0) {
         <div class="no-data-state">
-          <div class="no-data-icon">i</div>
+          <div class="no-data-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
           <h2>No Plans Available</h2>
           <p>Our team is currently updating our insurance offerings. Please check back soon!</p>
         </div>
@@ -44,13 +52,16 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
           @for (type of insuranceTypes(); track type.typeId || type.TypeId) {
             <div class="insurance-category">
               <div class="category-header">
-                <h2 class="category-title">{{ type.name || type.Name }}</h2>
+                <div class="category-title-row">
+                  <div class="category-accent-bar"></div>
+                  <h2 class="category-title">{{ type.name || type.Name }}</h2>
+                </div>
                 <p class="category-desc">{{ type.description || type.Description || 'Premium coverage plans for comprehensive protection.' }}</p>
               </div>
 
               <!-- Plans Grid for this Category -->
               <div class="plans-grid">
-                @for (subtype of getSubtypesForType(type); track subtype.subtypeId || subtype.SubtypeId) {
+                @for (subtype of getVisibleSubtypes(type); track subtype.subtypeId || subtype.SubtypeId) {
                   <app-insurance-card
                     [title]="subtype.name || subtype.Name"
                     [description]="subtype.description || subtype.Description"
@@ -63,10 +74,34 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
                 }
               </div>
 
+              <!-- Show More / Show Less Button -->
+              @if (hasMoreSubtypes(type)) {
+                <div class="show-more-wrapper">
+                  <button class="btn-show-more" (click)="toggleShowMore(type)">
+                    @if (isExpanded(type)) {
+                      <span>Show Less</span>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="18 15 12 9 6 15"></polyline>
+                      </svg>
+                    } @else {
+                      <span>Show More ({{ getRemainingCount(type) }} more plans)</span>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    }
+                  </button>
+                </div>
+              }
+
               <!-- Empty State for Category -->
               @if (getSubtypesForType(type).length === 0) {
                 <div class="empty-category">
-                  <div class="empty-icon">+</div>
+                  <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </div>
                   <p>New plans for {{ type.name || type.Name }} coming soon!</p>
                 </div>
               }
@@ -78,10 +113,16 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
       <!-- Error State -->
       @if (!loading() && error()) {
         <div class="error-state">
-          <div class="error-icon">!</div>
+          <div class="error-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
           <h2>Something went wrong</h2>
           <p>{{ error() }}</p>
-          <button class="btn-retry" (click)="fetchPublicPlans()">Retry</button>
+          <button class="btn-retry" (click)="fetchPublicPlans()">Try Again</button>
         </div>
       }
     </div>
@@ -97,8 +138,8 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
 
     /* Header Banner */
     .header-banner {
-      background: #F8FAFC;
-      color: #1A1A1A;
+      background: #1A1A1A;
+      color: #FFFFFF;
       padding: 100px 5%;
       text-align: center;
       position: relative;
@@ -111,15 +152,15 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
       margin: 0 auto;
     }
 
-    .badge-yellow {
+    .badge-label {
       display: inline-block;
       background-color: #F7F072;
       color: #1A1A1A;
       padding: 6px 16px;
       font-weight: 800;
-      font-size: 0.85rem;
-      letter-spacing: 1px;
-      margin-bottom: 20px;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
       text-transform: uppercase;
     }
 
@@ -127,19 +168,20 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
       font-size: 3.5rem;
       font-weight: 800;
       margin-bottom: 20px;
-      color: #1A1A1A;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
     }
 
     .header-subtitle {
-      font-size: 1.5rem;
-      font-weight: 700;
+      font-size: 1.25rem;
+      font-weight: 600;
       color: #0DB18C;
       margin-bottom: 12px;
     }
 
     .header-description {
-      font-size: 1.1rem;
-      color: #666666;
+      font-size: 1.05rem;
+      color: #AAAAAA;
       line-height: 1.6;
     }
 
@@ -151,7 +193,7 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
     }
 
     .insurance-category {
-      margin-bottom: 80px;
+      margin-bottom: 90px;
     }
 
     .category-header {
@@ -159,46 +201,99 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
       text-align: left;
     }
 
+    .category-title-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .category-accent-bar {
+      width: 6px;
+      height: 48px;
+      background-color: #0DB18C;
+      flex-shrink: 0;
+    }
+
     .category-title {
       font-size: 2.5rem;
       font-weight: 800;
       color: #1A1A1A;
-      margin-bottom: 12px;
-      padding-bottom: 15px;
-      border-bottom: 4px solid #0DB18C;
-      display: inline-block;
+      letter-spacing: -0.02em;
     }
 
     .category-desc {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       color: #666666;
-      max-width: 800px;
-      line-height: 1.6;
-      margin-top: 15px;
+      max-width: 700px;
+      line-height: 1.65;
+      padding-left: 22px;
     }
 
     /* Plans Grid */
     .plans-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 32px;
-      margin-bottom: 40px;
+      gap: 28px;
+      margin-bottom: 32px;
     }
 
-    /* Empty State */
+    /* Show More Button */
+    .show-more-wrapper {
+      display: flex;
+      justify-content: center;
+      padding: 8px 0 20px;
+    }
+
+    .btn-show-more {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #FFFFFF;
+      border: 2px solid #0DB18C;
+      color: #0DB18C;
+      padding: 14px 32px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-show-more:hover {
+      background: #0DB18C;
+      color: #FFFFFF;
+    }
+
+    .btn-show-more svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.25s ease;
+    }
+
+    /* Empty category */
     .empty-category {
-      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       padding: 60px;
       text-align: center;
       background: #F8FAFC;
       border: 2px dashed #0DB18C;
-      border-radius: 0;
       color: #666666;
     }
 
     .empty-icon {
-      font-size: 3rem;
-      margin-bottom: 16px;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 20px;
+      color: #0DB18C;
+    }
+
+    .empty-icon svg {
+      width: 100%;
+      height: 100%;
     }
 
     .empty-category p {
@@ -218,12 +313,12 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
     }
 
     .spinner {
-      width: 56px;
-      height: 56px;
-      border: 4px solid #E6FAF5;
+      width: 52px;
+      height: 52px;
+      border: 4px solid #E5E5E5;
       border-top-color: #0DB18C;
       border-radius: 50%;
-      animation: spin 1s linear infinite;
+      animation: spin 0.9s linear infinite;
     }
 
     @keyframes spin {
@@ -231,7 +326,7 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
     }
 
     .loader-container p {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       color: #666666;
       font-weight: 500;
     }
@@ -244,14 +339,21 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
     }
 
     .no-data-icon {
-      font-size: 4rem;
-      margin-bottom: 20px;
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      color: #0DB18C;
+    }
+
+    .no-data-icon svg {
+      width: 100%;
+      height: 100%;
     }
 
     .no-data-state h2 {
       font-size: 2rem;
       color: #1A1A1A;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       font-weight: 800;
     }
 
@@ -266,45 +368,50 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
     .error-state {
       text-align: center;
       padding: 100px 20px;
-      color: #DC2626;
     }
 
     .error-icon {
-      font-size: 4rem;
-      margin-bottom: 20px;
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      color: #DC2626;
+    }
+
+    .error-icon svg {
+      width: 100%;
+      height: 100%;
     }
 
     .error-state h2 {
       font-size: 2rem;
-      color: #991B1B;
-      margin-bottom: 10px;
+      color: #1A1A1A;
+      margin-bottom: 12px;
       font-weight: 800;
     }
 
     .error-state p {
       font-size: 1.1rem;
       max-width: 500px;
-      margin: 20px auto;
+      margin: 0 auto 28px;
       line-height: 1.6;
+      color: #666;
     }
 
     .btn-retry {
-      margin-top: 20px;
-      padding: 15px 32px;
+      padding: 14px 36px;
       background: #0DB18C;
       color: white;
       border: none;
-      border-radius: 0;
       font-weight: 700;
       font-size: 1rem;
       cursor: pointer;
       text-transform: uppercase;
-      transition: all 0.3s;
+      letter-spacing: 0.5px;
+      transition: background 0.25s;
     }
 
     .btn-retry:hover {
       background: #0A8E70;
-      transform: translateY(-2px);
     }
 
     /* Responsive */
@@ -317,25 +424,17 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
 
     @media (max-width: 768px) {
       .header-banner {
-        padding: 60px 5%;
+        padding: 70px 5%;
       }
-
       .header-title {
         font-size: 2.5rem;
       }
-
-      .header-subtitle {
-        font-size: 1.2rem;
-      }
-
       .plans-section {
-        padding: 40px 5%;
+        padding: 50px 5%;
       }
-
       .category-title {
         font-size: 2rem;
       }
-
       .plans-grid {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -346,17 +445,8 @@ import { InsuranceCardComponent } from '../../components/insurance-card/insuranc
       .header-title {
         font-size: 2rem;
       }
-
-      .header-subtitle {
-        font-size: 1rem;
-      }
-
       .category-title {
-        font-size: 1.5rem;
-      }
-
-      .plans-grid {
-        gap: 16px;
+        font-size: 1.6rem;
       }
     }
   `]
@@ -367,6 +457,9 @@ export class Insurance implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
 
+  // Track expanded state per insurance type
+  private expandedTypes = signal<Set<string>>(new Set());
+
   constructor(
     private policyService: PolicyService,
     private authService: AuthService,
@@ -374,7 +467,6 @@ export class Insurance implements OnInit {
   ) {}
 
   ngOnInit() {
-    console.log('INSURANCE PAGE INITIALIZED - SIGNAL VERSION');
     this.fetchPublicPlans();
   }
 
@@ -384,15 +476,12 @@ export class Insurance implements OnInit {
 
     this.policyService.getInsuranceTypes().subscribe({
       next: (response: any) => {
-        console.log('Types Response:', response);
-        
         let types = response;
         if (response?.data) types = response.data;
         if (types?.$values) types = types.$values;
-        
+
         const typesArray = Array.isArray(types) ? types : [];
         this.insuranceTypes.set(typesArray);
-        console.log('Types set:', typesArray.length);
 
         if (typesArray.length === 0) {
           this.loading.set(false);
@@ -401,12 +490,10 @@ export class Insurance implements OnInit {
 
         this.policyService.getInsuranceSubtypes().subscribe({
           next: (response2: any) => {
-            console.log('Subtypes Response:', response2);
-            
             let subtypes = response2;
             if (response2?.data) subtypes = response2.data;
             if (subtypes?.$values) subtypes = subtypes.$values;
-            
+
             const allSubtypes = Array.isArray(subtypes) ? subtypes : [];
 
             const mappedSubtypes = allSubtypes.map(s => {
@@ -415,16 +502,14 @@ export class Insurance implements OnInit {
                 const tId = t.typeId || t.TypeId || t.id || t.Id;
                 return tId === sTypeId;
               });
-              return { 
-                ...s, 
-                typeName: parent?.name || parent?.Name || 'Unknown' 
+              return {
+                ...s,
+                typeName: parent?.name || parent?.Name || 'Unknown'
               };
             });
 
             this.insuranceSubtypes.set(mappedSubtypes);
-            console.log('Subtypes set:', mappedSubtypes.length);
             this.loading.set(false);
-            console.log('Loading complete!');
           },
           error: (err) => {
             console.error('Subtypes error:', err);
@@ -443,21 +528,49 @@ export class Insurance implements OnInit {
 
   getSubtypesForType(type: any): any[] {
     const typeId = type.typeId || type.TypeId || type.id || type.Id;
-    
     if (!typeId) return [];
-    
     return this.insuranceSubtypes().filter(s => {
       const sTypeId = s.typeId || s.TypeId || s.insuranceTypeId || s.InsuranceTypeId;
       return sTypeId === typeId;
     });
   }
 
-  /**
-   * Generate features based on subtype
-   */
+  getTypeKey(type: any): string {
+    return String(type.typeId || type.TypeId || type.id || type.Id || '');
+  }
+
+  isExpanded(type: any): boolean {
+    return this.expandedTypes().has(this.getTypeKey(type));
+  }
+
+  hasMoreSubtypes(type: any): boolean {
+    return this.getSubtypesForType(type).length > INITIAL_VISIBLE;
+  }
+
+  getRemainingCount(type: any): number {
+    const total = this.getSubtypesForType(type).length;
+    return Math.max(0, total - INITIAL_VISIBLE);
+  }
+
+  getVisibleSubtypes(type: any): any[] {
+    const all = this.getSubtypesForType(type);
+    if (this.isExpanded(type)) return all;
+    return all.slice(0, INITIAL_VISIBLE);
+  }
+
+  toggleShowMore(type: any) {
+    const key = this.getTypeKey(type);
+    const current = new Set(this.expandedTypes());
+    if (current.has(key)) {
+      current.delete(key);
+    } else {
+      current.add(key);
+    }
+    this.expandedTypes.set(current);
+  }
+
   getFeatures(subtype: any): string[] {
     const name = (subtype.name || subtype.Name || '').toLowerCase();
-    
     if (name.includes('comprehensive')) {
       return ['Full coverage', 'Zero deductible', '24/7 support', 'Emergency service'];
     }
@@ -470,13 +583,10 @@ export class Insurance implements OnInit {
     if (name.includes('fire')) {
       return ['Fire damage', 'Theft protection', 'Natural disaster coverage'];
     }
-    
     return ['Premium coverage', 'Expert support', 'Quick settlement', 'Hassle-free claims'];
   }
 
   handlePurchase(subtypeId: string, type: any, subtype: any) {
-    console.log('Purchase clicked:', { subtypeId, type, subtype });
-    
     if (this.authService.hasToken()) {
       this.router.navigate(['/user-dashboard/buy-policy'], {
         queryParams: {

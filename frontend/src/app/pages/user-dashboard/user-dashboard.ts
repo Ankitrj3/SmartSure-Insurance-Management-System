@@ -465,11 +465,14 @@ export class UserDashboard implements OnInit {
     
     if (!this.claimForm.policyId || !this.claimForm.description) {
       this.claimMessage = 'Please fill all required fields.';
+      this.cdr.detectChanges();
       return;
     }
     
     this.claimProcessing = true;
     this.claimMessage = 'Processing your claim...';
+    this.cdr.detectChanges();
+    
     const selectedPolicy = this.policies.find(p => p.policyId === this.claimForm.policyId);
     if (!selectedPolicy) return;
     
@@ -478,12 +481,16 @@ export class UserDashboard implements OnInit {
        if (this.claimForm.claimType === 'Stolen' || this.claimForm.claimType === 'NaturalDisaster') {
           if (this.claimForm.claimAmount > selectedPolicy.insuredDeclaredValue) {
             this.claimMessage = 'For Stolen/Natural Disaster, max claim is IDV (₹' + selectedPolicy.insuredDeclaredValue + ')';
+            this.claimProcessing = false;
+            this.cdr.detectChanges();
             return;
           }
        } else if (this.claimForm.claimType === 'Accident') {
           if (this.claimForm.isCompletelyDamaged) {
              if (!this.selectedFile) {
                this.claimMessage = 'Please upload a document/image for full damage claim.';
+               this.claimProcessing = false;
+               this.cdr.detectChanges();
                return;
              }
              this.claimForm.claimAmount = selectedPolicy.insuredDeclaredValue;
@@ -491,6 +498,8 @@ export class UserDashboard implements OnInit {
              const maxAccidentAmount = selectedPolicy.insuredDeclaredValue * 0.75;
              if (this.claimForm.claimAmount > maxAccidentAmount) {
                 this.claimMessage = 'For Accident (repairable), you can only claim up to 75% of IDV (₹' + maxAccidentAmount + ')';
+                this.claimProcessing = false;
+                this.cdr.detectChanges();
                 return;
              }
           }
@@ -498,6 +507,8 @@ export class UserDashboard implements OnInit {
     } else {
        if (this.claimForm.claimAmount > selectedPolicy.insuredDeclaredValue) {
           this.claimMessage = 'Please Enter Amount less than or equal to IDV (₹' + selectedPolicy.insuredDeclaredValue + ')';
+          this.claimProcessing = false;
+          this.cdr.detectChanges();
           return;
        }
     }
@@ -508,21 +519,25 @@ export class UserDashboard implements OnInit {
         // Upload document if selected
         if (this.selectedFile) {
           this.claimMessage = 'Uploading document...';
+          this.cdr.detectChanges();
           const formData = new FormData();
           formData.append('file', this.selectedFile);
           this.claimService.uploadDocument(cId, formData).subscribe({
             next: () => {
                this.claimMessage = 'Submitting to review...';
+               this.cdr.detectChanges();
                this.claimService.submitClaimToReview(cId).subscribe({
                  next: () => {
                    this.claimMessage = 'Success: Claim and document submitted to review.';
                    this.toastService.success('Claim and document submitted successfully!');
+                   this.cdr.detectChanges();
                    this.fetchData();
                    setTimeout(() => {
                      this.showClaimModal = false;
                      this.claimMessage = '';
                      this.resetClaimForm();
                      this.claimProcessing = false;
+                     this.cdr.detectChanges();
                    }, 2000);
                  },
                  error: (err) => {
@@ -530,6 +545,7 @@ export class UserDashboard implements OnInit {
                    this.claimMessage = 'Error: ' + errorMessage;
                    this.toastService.error(errorMessage, 5000);
                    this.claimProcessing = false;
+                   this.cdr.detectChanges();
                  }
                });
             },
@@ -538,20 +554,24 @@ export class UserDashboard implements OnInit {
               this.claimMessage = 'Document upload failed: ' + errorMessage;
               this.toastService.error(errorMessage, 5000);
               this.claimProcessing = false;
+              this.cdr.detectChanges();
             }
           });
         } else {
            this.claimMessage = 'Submitting to review...';
+           this.cdr.detectChanges();
            this.claimService.submitClaimToReview(cId).subscribe({
              next: () => {
                this.claimMessage = 'Success: Claim submitted to review.';
                this.toastService.success('Claim submitted successfully!');
+               this.cdr.detectChanges();
                this.fetchData();
                setTimeout(() => {
                  this.showClaimModal = false;
                  this.claimMessage = '';
                  this.resetClaimForm();
                  this.claimProcessing = false;
+                 this.cdr.detectChanges();
                }, 2000);
              },
              error: (err) => {
@@ -559,6 +579,7 @@ export class UserDashboard implements OnInit {
                this.claimMessage = 'Error: ' + errorMessage;
                this.toastService.error(errorMessage, 5000);
                this.claimProcessing = false;
+               this.cdr.detectChanges();
              }
            });
         }
@@ -568,6 +589,7 @@ export class UserDashboard implements OnInit {
         this.claimMessage = 'Error: ' + errorMessage;
         this.toastService.error(errorMessage, 5000);
         this.claimProcessing = false;
+        this.cdr.detectChanges();
       }
     });
   }

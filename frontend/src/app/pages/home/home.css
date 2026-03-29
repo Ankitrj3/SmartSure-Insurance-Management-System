@@ -1,4 +1,9 @@
-/* SMARTSURE THEME HOME PAGE */
+/* ============================================================
+   SMARTSURE HOME PAGE — Professional Clean Design
+   Colors: #0DB18C (teal), #F7F072 (yellow), #1A1A1A (dark)
+   NO gradients.
+   ============================================================ */
+
 .smartsure-home {
   font-family: 'Inter', -apple-system, sans-serif;
   color: #1A1A1A;
@@ -6,16 +11,21 @@
   width: 100%;
 }
 
-/* Base resets for sections */
 .smartsure-home section {
   box-sizing: border-box;
 }
 
-/* Hero Section */
+/* ── Utilities ── */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ── Hero Section ── */
 .smartsure-hero {
-  position: relative;
-  padding: 20px 0 50px 0;
-  background: white;
+  background: #1A1A1A;
+  padding: 80px 0 70px;
   overflow: hidden;
 }
 
@@ -24,12 +34,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 60px;
-  min-height: auto;
 }
 
 .hero-content {
   flex: 1;
-  max-width: 550px;
+  max-width: 560px;
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -37,58 +46,59 @@
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: 3.6rem;
   font-weight: 800;
-  line-height: 1.1;
-  margin-bottom: 20px;
-  color: #1A1A1A;
+  line-height: 1.05;
+  margin-bottom: 24px;
+  color: #FFFFFF;
+  letter-spacing: -0.03em;
 }
 
 .hero-title .highlight-bg {
-  background-color: var(--accent); /* #F7F072 */
-  padding: 5px 15px;
+  background-color: #F7F072;
+  color: #1A1A1A;
+  padding: 4px 14px;
   display: inline-block;
 }
 
 .hero-text {
   font-size: 1.1rem;
-  line-height: 1.6;
-  color: #666666;
-  margin-bottom: 32px;
-  max-width: 480px;
+  line-height: 1.7;
+  color: #AAAAAA;
+  margin-bottom: 36px;
+  max-width: 460px;
 }
 
 .btn-quote {
-  background-color: var(--primary); /* #0DB18C */
+  background-color: #0DB18C;
   color: white;
   padding: 18px 36px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   border-radius: 0;
-  font-size: 1rem;
+  font-size: 0.95rem;
   display: inline-flex;
   align-items: center;
   gap: 12px;
   border: none;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.25s ease;
   text-decoration: none;
 }
 
 .btn-quote:hover {
-  background-color: var(--primary-dark);
+  background-color: #0A8E70;
 }
 
 .arrow {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   line-height: 1;
 }
 
+/* Hero Visual */
 .hero-visual {
   flex: 1;
-  position: relative;
-  min-height: auto;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -98,24 +108,24 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  max-width: 550px;
+  max-width: 530px;
   width: 100%;
 }
 
 .insurance-visual-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #262626;
+  border-radius: 8px;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  border: 1px solid #333333;
 }
 
 .insurance-visual-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
 }
 
 .car-card {
@@ -124,13 +134,13 @@
 
 .home-card {
   grid-column: 2 / 3;
-  margin-top: 40px;
+  margin-top: 36px;
 }
 
 .stats-card {
   grid-column: 1 / -1;
-  background: white;
-  border: 1px solid #E5E7EB;
+  background: #262626;
+  border: 1px solid #333333;
 }
 
 .stats-grid {
@@ -144,34 +154,29 @@
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   flex: 1;
 }
 
 .stat-icon-wrapper {
-  background: linear-gradient(135deg, #E6FAF5 0%, #CFF0E8 100%);
-  width: 64px;
-  height: 64px;
-  border-radius: 14px;
+  background: #0DB18C;
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 0.3s ease;
+  transition: background 0.25s ease;
 }
 
 .insurance-visual-card:hover .stat-icon-wrapper {
-  transform: scale(1.05);
-  background: linear-gradient(135deg, #CFF0E8 0%, #0DB18C 100%);
+  background: #0A8E70;
 }
 
 .stat-icon-wrapper svg {
-  width: 32px;
-  height: 32px;
-  color: var(--primary);
-}
-
-.insurance-visual-card:hover .stat-icon-wrapper svg {
+  width: 28px;
+  height: 28px;
   color: white;
 }
 
@@ -182,24 +187,24 @@
 }
 
 .stat-value {
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 800;
-  color: #1A1A1A;
+  color: #FFFFFF;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 .stat-title {
-  font-size: 0.9rem;
-  color: #64748B;
+  font-size: 0.85rem;
+  color: #888888;
   font-weight: 600;
   line-height: 1.3;
 }
 
 .stat-divider {
   width: 1px;
-  height: 60px;
-  background: linear-gradient(180deg, transparent 0%, #E5E7EB 50%, transparent 100%);
+  height: 50px;
+  background: #444444;
   flex-shrink: 0;
 }
 
@@ -214,224 +219,81 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.5s ease;
 }
 
 .insurance-visual-card:hover .card-image-wrapper img {
-  transform: scale(1.1);
+  transform: scale(1.06);
 }
 
 .card-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%);
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: flex-end;
-  padding: 20px;
+  padding: 18px;
 }
 
 .card-badge {
-  background: white;
-  width: 56px;
-  height: 56px;
+  background: #0DB18C;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .card-badge svg {
-  width: 28px;
-  height: 28px;
-  color: var(--primary);
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.home-card .card-badge {
+  background: #F7F072;
 }
 
 .home-card .card-badge svg {
-  color: var(--accent-dark);
+  color: #1A1A1A;
 }
 
 .card-content {
-  padding: 20px;
+  padding: 18px 20px;
 }
 
 .card-content h4 {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  color: #1A1A1A;
-  margin-bottom: 8px;
+  color: #FFFFFF;
+  margin-bottom: 6px;
   line-height: 1.2;
 }
 
 .card-content p {
-  font-size: 0.9rem;
-  color: #64748B;
+  font-size: 0.85rem;
+  color: #888888;
   line-height: 1.5;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .card-features {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .card-features span {
-  font-size: 0.85rem;
-  color: #475569;
+  font-size: 0.8rem;
+  color: #0DB18C;
   font-weight: 500;
 }
 
-.stats-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 28px 24px;
-  gap: 24px;
-}
 
-.stat-box {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.stat-icon {
-  background: rgba(255, 255, 255, 0.2);
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.stat-icon svg {
-  width: 32px;
-  height: 32px;
-  color: white;
-}
-
-.stat-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: 800;
-  color: white;
-  line-height: 1;
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-.user-icon-wrapper {
-  background: linear-gradient(135deg, #3B82F6, #2563EB);
-  border-radius: 50%;
-  width: 70px;
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.user-icon-wrapper svg {
-  width: 40px;
-  height: 40px;
-  color: white;
-}
-
-.user-stats {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #3B82F6;
-  line-height: 1;
-  margin-bottom: 5px;
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  color: #666666;
-  font-weight: 600;
-}
-
-.hero-image-placeholder {
-  width: 100%;
-  max-width: 550px;
-  height: 450px;
-  background: linear-gradient(135deg, var(--primary-light) 0%, #a4e5d5 100%);
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary);
-  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
-}
-
-.hero-image-placeholder svg {
-  width: 150px;
-  height: 150px;
-  opacity: 0.5;
-}
-
-/* Floating Cubes Placeholder */
-.floating-cubes {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  z-index: 3;
-  pointer-events: none;
-}
-
-.cube {
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  background: rgba(13, 177, 140, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  animation: float 6s ease-in-out infinite;
-}
-
-.cube-1 { top: 10%; right: 10%; }
-.cube-2 { bottom: 20%; left: 0; animation-delay: 2s; background: rgba(13, 177, 140, 0.95); }
-.cube-3 { bottom: 10%; right: 20%; animation-delay: 4s; background: #1A1A1A; }
-
-.cube i { color: white; }
-.cube-1::after { content: 'AUTO'; font-size: 14px; font-weight: 800; }
-.cube-2::after { content: 'HOME'; font-size: 14px; font-weight: 800; }
-.cube-3::after { content: 'TRAVEL'; font-size: 14px; font-weight: 800; }
-
-/* Offerings / Services Section */
+/* ── Offerings / Services Section ── */
 .smartsure-offerings {
-  padding: 60px 0;
+  padding: 80px 0;
   background: #F8FAFC;
 }
 
@@ -439,120 +301,101 @@
   margin: 0 auto;
 }
 
+.section-header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.section-badge {
+  display: inline-block;
+  background-color: #F7F072;
+  color: #1A1A1A;
+  padding: 6px 16px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.section-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #1A1A1A;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  color: #666666;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
 .services-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 40px;
+  gap: 32px;
   max-width: 1100px;
   margin: 0 auto;
 }
 
 .service-card {
   text-align: left;
-  padding: 40px 32px;
+  padding: 44px 36px;
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
+  border-top: 4px solid #0DB18C;
 }
 
-.service-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--primary);
-  transform: scaleX(0);
-  transition: transform 0.4s ease;
-}
-
-.service-card.home-card::before {
-  background: var(--accent-dark);
+.service-card.home-card-service {
+  border-top-color: #F7F072;
 }
 
 .service-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
 }
 
-.service-card:hover::before {
-  transform: scaleX(1);
-}
-
+/* Icon wrapper */
 .service-icon-wrapper {
   position: relative;
-  width: 90px;
-  height: 90px;
-  margin-bottom: 32px;
-}
-
-.diamond-bg {
-  position: absolute;
-  width: 75px;
-  height: 75px;
-  background-color: #E6FAF5;
-  top: 10px;
-  left: 10px;
-}
-
-.diamond-bg.bg-teal {
-  background-color: var(--primary);
-  top: 0;
-  left: 20px;
-  z-index: 1;
-  clip-path: polygon(20% 0%, 100% 0%, 80% 100%, 0% 100%);
   width: 80px;
-  height: 75px;
+  height: 80px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0DB18C;
 }
 
-.diamond-bg.bg-yellow {
-  background-color: var(--accent-dark);
-  top: 0;
-  left: 20px;
-  z-index: 1;
-  clip-path: polygon(20% 0%, 100% 0%, 80% 100%, 0% 100%);
-  width: 80px;
-  height: 75px;
-}
-
-.diamond-bg.bg-light {
-  background-color: var(--primary-light);
-  top: 15px;
-  left: 0;
-  z-index: 0;
-  clip-path: polygon(0% 0%, 80% 0%, 100% 100%, 20% 100%);
-  width: 80px;
-  height: 75px;
-}
-
-.home-card .diamond-bg.bg-light {
-  background-color: #FFF9E6;
+.home-card-service .service-icon-wrapper {
+  background: #1A1A1A;
 }
 
 .service-icon {
-  position: relative;
   width: 36px;
   height: 36px;
   color: white;
-  z-index: 2;
-  top: 20px;
-  left: 45px;
 }
 
 .service-title {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 800;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   color: #1A1A1A;
-  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .service-desc {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: #666666;
   line-height: 1.7;
   margin-bottom: 28px;
@@ -564,7 +407,7 @@
   margin: 0 0 20px 0;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px 16px;
+  gap: 10px 16px;
 }
 
 .subtype-list li {
@@ -581,13 +424,13 @@
   display: inline-block;
   width: 8px;
   height: 8px;
-  background-color: var(--primary);
+  background-color: #0DB18C;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.home-card .subtype-list li::before {
-  background-color: var(--accent-dark);
+.home-card-service .subtype-list li::before {
+  background-color: #1A1A1A;
 }
 
 .btn-show-more {
@@ -595,46 +438,49 @@
   align-items: center;
   gap: 8px;
   background: transparent;
-  border: 2px solid var(--primary);
-  color: var(--primary);
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.95rem;
+  border: 2px solid #0DB18C;
+  color: #0DB18C;
+  padding: 10px 22px;
+  border-radius: 0;
+  font-weight: 700;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .btn-show-more:hover {
-  background: var(--primary);
+  background: #0DB18C;
   color: white;
 }
 
-.home-card .btn-show-more {
-  border-color: var(--accent-dark);
-  color: var(--accent-dark);
+.home-card-service .btn-show-more {
+  border-color: #1A1A1A;
+  color: #1A1A1A;
 }
 
-.home-card .btn-show-more:hover {
-  background: var(--accent-dark);
+.home-card-service .btn-show-more:hover {
+  background: #1A1A1A;
   color: white;
 }
 
 .btn-show-more svg {
-  width: 18px;
-  height: 18px;
-  transition: transform 0.3s ease;
+  width: 16px;
+  height: 16px;
+  transition: transform 0.25s ease;
 }
 
 .btn-show-more svg.rotated {
   transform: rotate(180deg);
 }
 
-/* About Section */
+
+/* ── About Section ── */
 .smartsure-about {
-  padding: 60px 0;
-  background: white;
+  padding: 100px 0;
+  background: #FFFFFF;
 }
 
 .about-container {
@@ -643,153 +489,136 @@
   gap: 80px;
 }
 
-.about-image {
+.about-image-wrapper {
   flex: 1;
-}
-
-.image-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  max-width: 500px;
-}
-
-.insurance-image-card {
-  background: white;
-  border-radius: 16px;
-  padding: 30px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-}
-
-.insurance-image-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-  border-color: var(--primary);
-}
-
-.insurance-image-card svg {
-  width: 60px;
-  height: 60px;
-  color: var(--primary);
-  transition: all 0.3s ease;
-}
-
-.insurance-image-card:hover svg {
-  transform: scale(1.1);
-  color: var(--primary-dark);
-}
-
-.insurance-image-card span {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #1A1A1A;
-  text-align: center;
-}
-
-.insurance-image-card.card-1 {
-  background: linear-gradient(135deg, #E6FAF5 0%, #ffffff 100%);
-}
-
-.insurance-image-card.card-2 {
-  background: linear-gradient(135deg, #FFF9E6 0%, #ffffff 100%);
-  margin-top: 30px;
-}
-
-.insurance-image-card.card-2 svg {
-  color: var(--accent-dark);
-}
-
-.insurance-image-card.card-2:hover svg {
-  color: #B8A84E;
-}
-
-.insurance-image-card.card-3 {
-  background: linear-gradient(135deg, #E6FAF5 0%, #ffffff 100%);
-  margin-top: -30px;
-}
-
-.insurance-image-card.card-4 {
-  background: linear-gradient(135deg, #FFF9E6 0%, #ffffff 100%);
-}
-
-.insurance-image-card.card-4 svg {
-  color: var(--accent-dark);
-}
-
-.insurance-image-card.card-4:hover svg {
-  color: #B8A84E;
-}
-
-.image-mask {
+  position: relative;
+  max-width: 550px;
   width: 100%;
-  height: 550px;
-  background: linear-gradient(135deg, var(--bg-tertiary), var(--border-light));
-  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.05);
 }
 
-.image-mask svg {
-  width: 100px;
-  height: 100px;
-  opacity: 0.4;
+.image-offset-box {
+  position: absolute;
+  top: -24px;
+  left: -24px;
+  width: 100%;
+  height: 100%;
+  background: #0DB18C;
+  z-index: 0;
+}
+
+.about-main-image {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.experience-badge {
+  position: absolute;
+  bottom: -30px;
+  right: -30px;
+  background: #1A1A1A;
+  color: white;
+  padding: 30px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border-top: 6px solid #F7F072;
+}
+
+.exp-number {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #0DB18C;
+  line-height: 1;
+}
+
+.exp-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .about-content {
   flex: 1;
 }
 
-.badge-yellow {
-  display: inline-block;
-  background-color: var(--accent);
-  color: #1A1A1A;
-  padding: 6px 16px;
-  font-weight: 800;
-  font-size: 0.85rem;
-  letter-spacing: 1px;
-  margin-bottom: 30px;
-  text-transform: uppercase;
-}
-
-.about-title {
-  font-size: 3.5rem;
-  font-weight: 800;
-  line-height: 1.1;
+.section-subtitle-left {
+  font-size: 1.15rem;
+  color: #555555;
+  line-height: 1.65;
   margin-bottom: 40px;
-  color: #1A1A1A;
+  max-width: 580px;
 }
 
-.feature-block {
-  margin-bottom: 35px;
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.feature-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.feature-icon-box {
+  background: #F8FAFC;
+  border: 1px solid #EEEEEE;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.feature-list-item:hover .feature-icon-box {
+  background: #1A1A1A;
+  border-color: #1A1A1A;
+}
+
+.feature-icon-box svg {
+  width: 28px;
+  height: 28px;
+  color: #0DB18C;
+}
+
+.feature-list-item:hover .feature-icon-box svg {
+  color: #F7F072;
+}
+
+.feature-text {
+  flex: 1;
 }
 
 .feature-title {
-  font-size: 1.7rem;
-  color: var(--primary);
-  margin-bottom: 15px;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1A1A1A;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
 }
 
 .feature-desc {
-  font-size: 1.15rem;
+  font-size: 1rem;
   color: #666666;
   line-height: 1.6;
 }
 
-/* CTA Header style footer/banner */
+
+/* ── CTA Section ── */
 .smartsure-cta {
   background: #1A1A1A;
-  padding: 60px 0;
+  padding: 80px 0;
   color: white;
 }
 
@@ -801,12 +630,16 @@
 }
 
 .cta-title {
-  font-size: 3.5rem;
+  font-size: 3rem;
   font-weight: 800;
   line-height: 1.1;
   color: white;
   flex: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+}
+
+.cta-title span {
+  color: #F7F072;
 }
 
 .cta-actions {
@@ -814,45 +647,41 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 30px;
+  gap: 28px;
 }
 
 .cta-actions p {
-  color: #CCCCCC;
-  font-size: 1.2rem;
-  line-height: 1.6;
+  color: #AAAAAA;
+  font-size: 1.1rem;
+  line-height: 1.65;
 }
 
 .cta-actions .btn-quote {
-  background-color: var(--primary);
+  background-color: #0DB18C;
   color: white;
 }
 
 .cta-actions .btn-quote:hover {
-  background-color: var(--primary-dark);
+  background-color: #0A8E70;
 }
 
-/* Utilities */
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
 
-.loading-state, .empty-state {
+/* ── Loading / Empty ── */
+.loading-state,
+.empty-state {
   text-align: center;
   padding: 60px 0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #666;
 }
 
 .loading-spinner {
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
   border: 4px solid #E5E7EB;
-  border-top-color: var(--primary);
+  border-top-color: #0DB18C;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin 0.9s linear infinite;
   margin: 0 auto 20px;
 }
 
@@ -862,43 +691,40 @@
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
+  50% { transform: translateY(-18px); }
 }
 
-/* Responsive */
+/* ── Responsive ── */
 @media (max-width: 1024px) {
   .services-grid {
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: 28px;
     max-width: 600px;
   }
-  
-  .hero-container, .about-container, .cta-container {
+
+  .hero-container,
+  .about-container,
+  .cta-container {
     flex-direction: column;
-    gap: 30px;
+    gap: 40px;
   }
-  
-  .hero-title, .about-title, .cta-title {
+
+  .hero-title {
     font-size: 3rem;
   }
-  
+
+  .about-title,
+  .cta-title,
+  .section-title {
+    font-size: 2.4rem;
+  }
+
   .hero-visual {
     width: 100%;
-    min-height: auto;
-  }
-
-  .hero-image-placeholder {
-    max-width: 450px;
-    height: 350px;
-  }
-
-  .cube {
-    width: 60px;
-    height: 60px;
   }
 
   .smartsure-hero {
-    padding: 20px 0 50px 0;
+    padding: 60px 0;
   }
 
   .smartsure-offerings,
@@ -908,44 +734,18 @@
   }
 
   .service-title {
-    font-size: 1.8rem;
-  }
-
-  .service-desc {
-    font-size: 1.05rem;
+    font-size: 1.6rem;
   }
 }
 
 @media (max-width: 768px) {
-  .services-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .service-card {
-    padding: 32px 24px;
-  }
-
-  .service-title {
-    font-size: 1.6rem;
-  }
-
-  .service-desc {
-    font-size: 1rem;
-  }
-
-  .subtype-list {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  
   .smartsure-hero {
-    padding: 15px 0 35px 0;
+    padding: 50px 0;
   }
 
   .hero-container {
     flex-direction: column;
-    gap: 24px;
+    gap: 32px;
     align-items: flex-start;
   }
 
@@ -955,92 +755,35 @@
   }
 
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.2rem;
     line-height: 1.15;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
   }
-  
+
   .hero-text {
-    font-size: 0.95rem;
-    margin-bottom: 20px;
-    line-height: 1.5;
+    font-size: 0.97rem;
+    margin-bottom: 24px;
   }
 
   .btn-quote {
-    padding: 11px 22px;
-    font-size: 0.82rem;
+    padding: 14px 26px;
+    font-size: 0.85rem;
   }
 
   .hero-visual {
     width: 100%;
-    min-height: auto;
   }
 
   .insurance-visual-grid {
     max-width: 100%;
-    gap: 16px;
+    gap: 14px;
     grid-template-columns: 1fr;
-  }
-
-  .insurance-visual-card {
-    border-radius: 10px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .insurance-visual-card:hover {
-    transform: translateY(-4px);
   }
 
   .car-card,
   .home-card {
     grid-column: 1;
     margin-top: 0;
-  }
-
-  .card-image-wrapper {
-    height: 160px;
-    border-radius: 10px 10px 0 0;
-  }
-
-  .card-overlay {
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
-  }
-
-  .card-badge {
-    width: 50px;
-    height: 50px;
-  }
-
-  .card-badge svg {
-    width: 25px;
-    height: 25px;
-  }
-
-  .card-content {
-    padding: 16px;
-    background: white;
-  }
-
-  .card-content h4 {
-    font-size: 1.1rem;
-    margin-bottom: 8px;
-    font-weight: 700;
-  }
-
-  .card-content p {
-    font-size: 0.85rem;
-    margin-bottom: 12px;
-    line-height: 1.4;
-    color: #64748B;
-  }
-
-  .card-features {
-    gap: 6px;
-  }
-
-  .card-features span {
-    font-size: 0.75rem;
-    color: #475569;
   }
 
   .stats-card {
@@ -1053,62 +796,233 @@
     gap: 16px;
   }
 
-  .stat-icon-wrapper {
-    width: 52px;
-    height: 52px;
+  .card-image-wrapper {
+    height: 160px;
   }
 
-  .stat-icon-wrapper svg {
-    width: 26px;
-    height: 26px;
+  .card-content {
+    padding: 16px;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .service-card {
+    padding: 32px 24px;
+  }
+
+  .service-title {
+    font-size: 1.5rem;
+  }
+
+  .subtype-list {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .about-title,
+  .cta-title {
+    font-size: 2rem;
+    line-height: 1.15;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .about-container {
+    gap: 32px;
+  }
+
+  .about-image-wrapper {
+    max-width: 100%;
+    margin-right: 20px;
+    margin-bottom: 20px;
+  }
+
+  .experience-badge {
+    padding: 20px;
+    bottom: -20px;
+    right: -20px;
+  }
+
+  .exp-number {
+    font-size: 2.8rem;
+  }
+
+  .exp-text {
+    font-size: 0.95rem;
+  }
+
+  .feature-title {
+    font-size: 1.1rem;
+  }
+
+  .feature-desc {
+    font-size: 0.95rem;
+  }
+
+  .cta-container {
+    gap: 28px;
+  }
+
+  .cta-actions p {
+    font-size: 0.97rem;
+  }
+
+  .smartsure-offerings,
+  .smartsure-about,
+  .smartsure-cta {
+    padding: 50px 0;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .smartsure-hero {
+    padding: 40px 0;
+  }
+
+  .hero-title {
+    font-size: 1.8rem;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+
+  .hero-text {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+
+  .btn-quote {
+    padding: 12px 22px;
+    font-size: 0.8rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .insurance-visual-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .card-image-wrapper {
+    height: 140px;
+  }
+
+  .stats-grid {
+    flex-direction: column;
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .stat-item {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 14px;
+  }
+
+  .stat-divider {
+    width: 100%;
+    height: 1px;
+    background: #333333;
   }
 
   .stat-value {
     font-size: 1.6rem;
   }
 
-  .stat-title {
-    font-size: 0.75rem;
+  .about-title,
+  .cta-title {
+    font-size: 1.75rem;
+    line-height: 1.2;
   }
 
-  .stat-divider {
-    height: 40px;
+  .section-title {
+    font-size: 1.75rem;
   }
 
-  .about-title, .cta-title {
-    font-size: 2rem;
-    line-height: 1.15;
+  .service-card {
+    padding: 28px 20px;
   }
 
-  .about-container {
-    gap: 28px;
+  .service-title {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
   }
 
-  .image-grid {
-    max-width: 100%;
-    gap: 10px;
+  .service-desc {
+    font-size: 0.92rem;
+    margin-bottom: 20px;
+    line-height: 1.6;
   }
 
-  .insurance-image-card {
-    padding: 18px 14px;
+  .subtype-list {
+    margin-top: 14px;
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
-  .insurance-image-card svg {
-    width: 42px;
-    height: 42px;
+  .subtype-list li {
+    font-size: 0.88rem;
   }
 
-  .insurance-image-card span {
+  .btn-show-more {
+    padding: 9px 18px;
     font-size: 0.82rem;
   }
 
-  .insurance-image-card.card-2,
-  .insurance-image-card.card-3 {
-    margin-top: 0;
+  .about-image-wrapper {
+    margin-right: 15px;
+    margin-bottom: 15px;
+  }
+
+  .experience-badge {
+    padding: 16px;
+    bottom: -15px;
+    right: -15px;
+    gap: 14px;
+  }
+
+  .exp-number {
+    font-size: 2.2rem;
+  }
+
+  .exp-text {
+    font-size: 0.85rem;
+  }
+
+  .badge-yellow,
+  .section-badge {
+    font-size: 0.68rem;
+    padding: 5px 12px;
+  }
+
+  .feature-list {
+    gap: 24px;
+  }
+
+  .feature-list-item {
+    gap: 16px;
+  }
+
+  .feature-icon-box {
+    width: 52px;
+    height: 52px;
+  }
+
+  .feature-icon-box svg {
+    width: 24px;
+    height: 24px;
   }
 
   .feature-title {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
   }
 
   .feature-desc {
@@ -1120,382 +1034,13 @@
   }
 
   .cta-actions p {
-    font-size: 0.92rem;
+    font-size: 0.9rem;
   }
 
   .smartsure-offerings,
   .smartsure-about,
   .smartsure-cta {
-    padding: 35px 0;
-  }
-
-  .container {
-    padding: 0 1rem;
-  }
-
-  .service-title {
-    font-size: 1.15rem;
-  }
-
-  .service-desc {
-    font-size: 0.92rem;
-  }
-
-  .service-icon-wrapper {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 24px;
-  }
-
-  .diamond-bg.bg-teal,
-  .diamond-bg.bg-light {
-    width: 54px;
-    height: 50px;
-  }
-
-  .service-icon {
-    width: 24px;
-    height: 24px;
-    top: 13px;
-    left: 30px;
-  }
-
-  .service-card {
-    background: white;
-    padding: 28px 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-  }
-
-  .service-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-  }
-
-  .service-title {
-    font-size: 1.5rem;
-    margin-bottom: 12px;
-    color: #1A1A1A;
-  }
-
-  .service-desc {
-    font-size: 0.95rem;
-    margin-bottom: 20px;
-    color: #666666;
-    line-height: 1.6;
-  }
-
-  .subtype-list {
-    margin-top: 16px;
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .subtype-list li {
-    font-size: 0.9rem;
-    margin-bottom: 0;
-    color: #444444;
-  }
-
-  .subtype-list li::before {
-    width: 7px;
-    height: 7px;
-  }
-
-  .btn-show-more {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
-
-  .btn-show-more svg {
-    width: 16px;
-    height: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .smartsure-hero {
-    padding: 12px 0 28px 0;
-  }
-
-  .hero-container {
-    flex-direction: column;
-    gap: 20px;
-    align-items: flex-start;
-  }
-
-  .hero-content {
-    width: 100%;
-  }
-
-  .hero-title {
-    font-size: 1.6rem;
-    line-height: 1.2;
-    margin-bottom: 14px;
-  }
-
-  .hero-text {
-    font-size: 0.88rem;
-    margin-bottom: 18px;
-    line-height: 1.5;
-  }
-
-  .btn-quote {
-    padding: 10px 18px;
-    font-size: 0.75rem;
-    width: 100%;
-  }
-
-  .hero-visual {
-    min-height: auto;
-    width: 100%;
-  }
-
-  .insurance-visual-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-    max-width: 100%;
-  }
-
-  .insurance-visual-card {
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  }
-
-  .insurance-visual-card:hover {
-    transform: translateY(-3px);
-  }
-
-  .car-card,
-  .home-card {
-    grid-column: 1;
-    margin-top: 0;
-  }
-
-  .card-image-wrapper {
-    height: 140px;
-    border-radius: 8px 8px 0 0;
-  }
-
-  .card-overlay {
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.35) 100%);
-  }
-
-  .card-badge {
-    width: 46px;
-    height: 46px;
-  }
-
-  .card-badge svg {
-    width: 23px;
-    height: 23px;
-  }
-
-  .card-content {
-    padding: 14px;
-    background: white;
-  }
-
-  .card-content h4 {
-    font-size: 1rem;
-    margin-bottom: 6px;
-    font-weight: 700;
-    color: #1A1A1A;
-  }
-
-  .card-content p {
-    font-size: 0.8rem;
-    margin-bottom: 10px;
-    line-height: 1.4;
-    color: #64748B;
-  }
-
-  .card-features {
-    gap: 5px;
-  }
-
-  .card-features span {
-    font-size: 0.7rem;
-    color: #475569;
-  }
-
-  .stats-card {
-    grid-column: 1;
-    margin-top: 0;
-  }
-
-  .stats-grid {
-    flex-direction: column;
-    padding: 16px;
-    gap: 14px;
-  }
-
-  .stat-item {
-    width: 100%;
-    justify-content: flex-start;
-    gap: 14px;
-  }
-
-  .stat-icon-wrapper {
-    width: 48px;
-    height: 48px;
-    border-radius: 10px;
-  }
-
-  .stat-icon-wrapper svg {
-    width: 24px;
-    height: 24px;
-  }
-
-  .stat-value {
-    font-size: 1.4rem;
-  }
-
-  .stat-title {
-    font-size: 0.7rem;
-  }
-
-  .stat-divider {
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent 0%, #E5E7EB 50%, transparent 100%);
-  }
-
-  .about-title, .cta-title {
-    font-size: 1.6rem;
-    line-height: 1.2;
-  }
-
-  .service-card {
-    background: white;
-    padding: 24px 18px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-  }
-
-  .service-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  }
-
-  .service-icon-wrapper {
-    width: 70px;
-    height: 70px;
-    margin-bottom: 24px;
-  }
-
-  .diamond-bg.bg-teal,
-  .diamond-bg.bg-yellow,
-  .diamond-bg.bg-light {
-    width: 60px;
-    height: 55px;
-  }
-
-  .service-icon {
-    width: 28px;
-    height: 28px;
-    top: 15px;
-    left: 35px;
-  }
-
-  .service-title {
-    font-size: 1.4rem;
-    margin-bottom: 10px;
-    color: #1A1A1A;
-    font-weight: 700;
-  }
-
-  .service-desc {
-    font-size: 0.9rem;
-    margin-bottom: 18px;
-    color: #666666;
-    line-height: 1.5;
-  }
-
-  .subtype-list {
-    margin-top: 14px;
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .subtype-list li {
-    font-size: 0.85rem;
-    margin-bottom: 0;
-    color: #444444;
-  }
-
-  .subtype-list li::before {
-    width: 6px;
-    height: 6px;
-  }
-
-  .btn-show-more {
-    padding: 9px 18px;
-    font-size: 0.85rem;
-  }
-
-  .btn-show-more svg {
-    width: 15px;
-    height: 15px;
-  }
-
-  .image-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
-    max-width: 100%;
-  }
-
-  .insurance-image-card {
-    padding: 16px 12px;
-  }
-
-  .insurance-image-card svg {
-    width: 38px;
-    height: 38px;
-  }
-
-  .insurance-image-card span {
-    font-size: 0.78rem;
-  }
-
-  .insurance-image-card.card-2,
-  .insurance-image-card.card-3 {
-    margin-top: 0;
-  }
-
-  .badge-yellow {
-    font-size: 0.68rem;
-    padding: 5px 11px;
-    margin-bottom: 16px;
-  }
-
-  .feature-title {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-  }
-
-  .feature-desc {
-    font-size: 0.85rem;
-  }
-
-  .feature-block {
-    margin-bottom: 24px;
-  }
-
-  .cta-container {
-    gap: 18px;
-  }
-
-  .cta-actions p {
-    font-size: 0.85rem;
-  }
-
-  .smartsure-offerings,
-  .smartsure-about,
-  .smartsure-cta {
-    padding: 28px 0;
+    padding: 40px 0;
   }
 
   .container {

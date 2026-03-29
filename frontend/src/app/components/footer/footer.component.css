@@ -1,0 +1,140 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+/* Footer Section */
+.smartsure-footer {
+  background-color: #1A1A1A;
+  color: #CCCCCC;
+  padding-top: 100px;
+  padding-bottom: 30px;
+  font-family: 'Inter', sans-serif;
+  border-top: 6px solid #F7F072;
+}
+
+.footer-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 60px;
+  margin-bottom: 60px;
+}
+
+.footer-brand .logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.footer-logo-icon {
+  width: 35px;
+  height: 35px;
+  color: #0DB18C;
+}
+
+.logo-text {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.01em;
+}
+
+.text-teal {
+  color: #0DB18C;
+}
+
+.footer-brand p {
+  line-height: 1.6;
+  color: #A0A0A0;
+  margin-bottom: 30px;
+  max-width: 400px;
+  font-size: 1.05rem;
+}
+
+.social-links {
+  display: flex;
+  gap: 15px;
+}
+
+.social-icon {
+  background-color: transparent;
+  border: 2px solid #333333;
+  color: white;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0; /* Strict brutalist square */
+  font-size: 1rem;
+  font-weight: 800;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.social-icon:hover {
+  background-color: #0DB18C;
+  border-color: #0DB18C;
+  transform: translateY(-3px);
+  color: white;
+}
+
+.footer-links h4 {
+  margin-bottom: 25px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 16px;
+}
+
+.footer-links a {
+  color: #AAAAAA;
+  font-weight: 500;
+  transition: color 0.3s;
+  text-decoration: none;
+  font-size: 1.05rem;
+}
+
+.footer-links a:hover {
+  color: #0DB18C;
+}
+
+.footer-bottom {
+  border-top: 1px solid #1A1A1A;
+  padding-top: 30px;
+  text-align: center;
+}
+
+.footer-bottom p {
+  color: #666666;
+  font-size: 0.95rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 576px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+  }
+}

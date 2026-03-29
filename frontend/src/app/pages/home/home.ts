@@ -99,6 +99,7 @@ export class Home implements OnInit {
     const vehicleType = this.getVehicleType();
     if (!vehicleType) return [];
     const subtypes = this.getSubtypesForType(vehicleType.typeId || vehicleType.TypeId);
+    console.log('Vehicle subtypes total:', subtypes.length, 'Showing all:', this.showAllVehicleSubtypes());
     return this.showAllVehicleSubtypes() ? subtypes : subtypes.slice(0, 6);
   }
 
@@ -106,27 +107,34 @@ export class Home implements OnInit {
     const homeType = this.getHomeType();
     if (!homeType) return [];
     const subtypes = this.getSubtypesForType(homeType.typeId || homeType.TypeId);
+    console.log('Home subtypes total:', subtypes.length, 'Showing all:', this.showAllHomeSubtypes());
     return this.showAllHomeSubtypes() ? subtypes : subtypes.slice(0, 6);
   }
 
   toggleVehicleSubtypes() {
     this.showAllVehicleSubtypes.set(!this.showAllVehicleSubtypes());
+    console.log('Toggled vehicle subtypes, now showing all:', this.showAllVehicleSubtypes());
   }
 
   toggleHomeSubtypes() {
     this.showAllHomeSubtypes.set(!this.showAllHomeSubtypes());
+    console.log('Toggled home subtypes, now showing all:', this.showAllHomeSubtypes());
   }
 
   hasMoreVehicleSubtypes() {
     const vehicleType = this.getVehicleType();
     if (!vehicleType) return false;
-    return this.getSubtypesForType(vehicleType.typeId || vehicleType.TypeId).length > 6;
+    const count = this.getSubtypesForType(vehicleType.typeId || vehicleType.TypeId).length;
+    console.log('Vehicle subtypes count:', count, 'Has more:', count > 6);
+    return count > 6;
   }
 
   hasMoreHomeSubtypes() {
     const homeType = this.getHomeType();
     if (!homeType) return false;
-    return this.getSubtypesForType(homeType.typeId || homeType.TypeId).length > 6;
+    const count = this.getSubtypesForType(homeType.typeId || homeType.TypeId).length;
+    console.log('Home subtypes count:', count, 'Has more:', count > 6);
+    return count > 6;
   }
 
   onPurchaseClick() {

@@ -1,4 +1,4 @@
-/* About Us Page Styles */
+/* About Us Page Styles - Professional Non-Gradient Design */
 .about-page {
   font-family: 'Inter', -apple-system, sans-serif;
   color: #1A1A1A;
@@ -13,8 +13,8 @@
 
 /* Hero Section */
 .about-hero {
-  background: linear-gradient(135deg, #F8FAFC 0%, #E6FAF5 100%);
-  padding: 50px 0 60px 0;
+  background: #1A1A1A;
+  padding: 100px 0 100px 0;
   text-align: center;
 }
 
@@ -47,64 +47,81 @@
   font-weight: 800;
   line-height: 1.1;
   margin-bottom: 24px;
-  color: #1A1A1A;
+  color: #FFFFFF;
 }
 
 .hero-subtitle {
   font-size: 1.25rem;
   line-height: 1.6;
-  color: #666666;
+  color: #A0A0A0;
   max-width: 800px;
   margin: 0 auto;
 }
 
 /* Mission & Vision */
 .mission-vision {
-  padding: 80px 0;
-  background: white;
+  padding: 100px 0;
+  background: #F8FAFC;
 }
 
 .mv-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 40px;
+  margin-top: -150px;
+  position: relative;
+  z-index: 10;
 }
 
 .mv-card {
   background: white;
-  padding: 50px;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  padding: 60px 50px;
+  border-radius: 0;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease;
+  border: 1px solid #E5E5E5;
 }
 
 .mv-card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-5px);
 }
 
 .mission-card {
-  border-top: 5px solid #0DB18C;
+  border-top: 6px solid #0DB18C;
 }
 
 .vision-card {
-  border-top: 5px solid #F7F072;
+  border-top: 6px solid #F7F072;
 }
 
 .mv-icon {
-  width: 70px;
-  height: 70px;
-  background: linear-gradient(135deg, #E6FAF5 0%, #CFF0E8 100%);
-  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  background: #F8FAFC;
+  border: 2px solid #E5E5E5;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 30px;
 }
 
+.mission-card .mv-icon {
+  border-color: #0DB18C;
+}
+
+.vision-card .mv-icon {
+  border-color: #F7F072;
+}
+
 .mv-icon svg {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   color: #0DB18C;
+}
+
+.vision-card .mv-icon svg {
+  color: #1A1A1A;
 }
 
 .mv-card h2 {
@@ -112,6 +129,7 @@
   font-weight: 800;
   margin-bottom: 20px;
   color: #1A1A1A;
+  letter-spacing: -0.01em;
 }
 
 .mv-card p {
@@ -122,14 +140,14 @@
 
 /* Our Story */
 .our-story {
-  padding: 80px 0;
-  background: #F8FAFC;
+  padding: 100px 0;
+  background: #FFFFFF;
 }
 
 .story-content {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
-  gap: 60px;
+  gap: 80px;
   align-items: center;
 }
 
@@ -139,6 +157,7 @@
   margin-bottom: 30px;
   color: #1A1A1A;
   line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .story-text p {
@@ -155,23 +174,28 @@
 }
 
 .stat-box {
-  background: white;
-  padding: 32px 24px;
-  border-radius: 12px;
+  background: #F8FAFC;
+  padding: 40px 24px;
+  border-radius: 0;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid #E5E5E5;
   transition: all 0.3s ease;
+  border-top: 4px solid #0DB18C;
+}
+
+.stat-box:nth-child(even) {
+  border-top-color: #F7F072;
 }
 
 .stat-box:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  border-color: #1A1A1A;
 }
 
 .stat-number {
   font-size: 3rem;
   font-weight: 800;
-  color: #0DB18C;
+  color: #1A1A1A;
   line-height: 1;
   margin-bottom: 12px;
 }
@@ -179,19 +203,21 @@
 .stat-label {
   font-size: 0.95rem;
   color: #666666;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Core Values */
 .core-values {
-  padding: 80px 0;
-  background: white;
+  padding: 100px 0;
+  background: #F8FAFC;
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 60px;
+  margin-bottom: 80px;
 }
 
 .section-header h2 {
@@ -199,6 +225,7 @@
   font-weight: 800;
   margin-bottom: 20px;
   color: #1A1A1A;
+  letter-spacing: -0.02em;
 }
 
 .section-header p {
@@ -211,33 +238,38 @@
 .values-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
+  gap: 40px;
 }
 
 .value-card {
-  background: #F8FAFC;
-  padding: 40px 32px;
-  border-radius: 12px;
+  background: white;
+  padding: 50px 40px;
+  border-radius: 0;
   transition: all 0.3s ease;
-  border: 2px solid transparent;
+  border: 1px solid #E5E5E5;
+  border-left: 6px solid #0DB18C;
+}
+
+.value-card:nth-child(even) {
+  border-left-color: #F7F072;
 }
 
 .value-card:hover {
   background: white;
-  border-color: #0DB18C;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border-color: #1A1A1A;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   transform: translateY(-5px);
 }
 
 .value-icon {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #0DB18C 0%, #0A8E70 100%);
-  border-radius: 12px;
+  background: #1A1A1A;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 24px;
+  margin-bottom: 30px;
   transition: transform 0.3s ease;
 }
 
@@ -248,18 +280,22 @@
 .value-icon svg {
   width: 32px;
   height: 32px;
-  color: white;
+  color: #0DB18C;
+}
+
+.value-card:nth-child(even) .value-icon svg {
+  color: #F7F072;
 }
 
 .value-card h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.6rem;
+  font-weight: 800;
   margin-bottom: 16px;
   color: #1A1A1A;
 }
 
 .value-card p {
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.7;
   color: #666666;
 }
@@ -267,7 +303,7 @@
 /* CTA Section */
 .about-cta {
   background: #1A1A1A;
-  padding: 80px 0;
+  padding: 100px 0;
   text-align: center;
   color: white;
 }
@@ -277,11 +313,12 @@
   font-weight: 800;
   margin-bottom: 20px;
   color: white;
+  letter-spacing: -0.02em;
 }
 
 .about-cta p {
   font-size: 1.25rem;
-  color: #CCCCCC;
+  color: #A0A0A0;
   margin-bottom: 40px;
 }
 
@@ -289,20 +326,18 @@
   background-color: #0DB18C;
   color: white;
   padding: 18px 40px;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border-radius: 4px;
+  border-radius: 0;
   font-size: 1rem;
-  border: none;
+  border: 2px solid transparent;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
   background-color: #0A8E70;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(13, 177, 140, 0.3);
 }
 
 /* Responsive Design */
@@ -314,7 +349,11 @@
   .mv-grid,
   .story-content {
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: 40px;
+  }
+  
+  .mv-grid {
+    margin-top: 40px;
   }
 
   .values-grid {
@@ -328,7 +367,7 @@
 
 @media (max-width: 768px) {
   .about-hero {
-    padding: 30px 0 40px 0;
+    padding: 60px 0 60px 0;
   }
 
   .hero-title {
@@ -343,15 +382,15 @@
   .our-story,
   .core-values,
   .about-cta {
-    padding: 40px 0;
+    padding: 60px 0;
   }
 
   .mv-card {
-    padding: 30px 24px;
+    padding: 40px 30px;
   }
 
   .mv-card h2 {
-    font-size: 1.8rem;
+    font-size: 2rem;
   }
 
   .mv-card p {
@@ -359,7 +398,7 @@
   }
 
   .story-text h2 {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
 
   .story-text p {
@@ -368,11 +407,10 @@
 
   .story-stats {
     grid-template-columns: 1fr;
-    gap: 16px;
   }
 
   .stat-box {
-    padding: 24px 20px;
+    padding: 30px 20px;
   }
 
   .stat-number {
@@ -381,23 +419,22 @@
 
   .values-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
   }
 
   .value-card {
-    padding: 30px 24px;
+    padding: 40px 30px;
   }
 
   .value-card h3 {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
   }
 
   .value-card p {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   .section-header h2 {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
 
   .section-header p {
@@ -405,7 +442,7 @@
   }
 
   .about-cta h2 {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
 
   .about-cta p {
@@ -423,18 +460,18 @@
   }
 
   .about-hero {
-    padding: 20px 0 30px 0;
+    padding: 50px 0 50px 0;
   }
 
   .mission-vision,
   .our-story,
   .core-values,
   .about-cta {
-    padding: 30px 0;
+    padding: 40px 0;
   }
 
   .mv-card {
-    padding: 24px 20px;
+    padding: 30px 20px;
   }
 
   .mv-icon {
@@ -449,7 +486,7 @@
   }
 
   .mv-card h2 {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     margin-bottom: 16px;
   }
 
@@ -458,7 +495,7 @@
   }
 
   .story-text h2 {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
   }
 
   .story-text p {
@@ -466,7 +503,7 @@
   }
 
   .stat-box {
-    padding: 20px 16px;
+    padding: 24px 20px;
   }
 
   .stat-number {
@@ -478,7 +515,7 @@
   }
 
   .section-header h2 {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
   }
 
   .section-header p {
@@ -486,7 +523,7 @@
   }
 
   .value-card {
-    padding: 24px 20px;
+    padding: 30px 20px;
   }
 
   .value-icon {
@@ -501,7 +538,7 @@
   }
 
   .value-card h3 {
-    font-size: 1.15rem;
+    font-size: 1.25rem;
   }
 
   .value-card p {
@@ -509,7 +546,7 @@
   }
 
   .about-cta h2 {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
   }
 
   .about-cta p {

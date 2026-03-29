@@ -253,11 +253,11 @@
 }
 .btn-danger {
   background-color: transparent;
-  border-color: #DC2626;
-  color: #DC2626;
+  border-color: #1A1A1A;
+  color: #1A1A1A;
 }
 .btn-danger:hover {
-  background-color: #DC2626;
+  background-color: #1A1A1A;
   color: white;
 }
 
@@ -272,10 +272,10 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.status-submitted { background: #FEF3C7; color: #B45309; }
-.status-approved { background: #E6FAF5; color: #0DB18C; }
-.status-rejected { background: #FEE2E2; color: #DC2626; }
-.status-draft     { background: #F8FAFC; color: #64748B; border: 1px solid #E2E8F0; }
+.status-submitted { background: #F7F072; color: #1A1A1A; border: 1px solid #1A1A1A; }
+.status-approved { background: #0DB18C; color: #FFFFFF; }
+.status-rejected { background: #1A1A1A; color: #FFFFFF; }
+.status-draft { background: #FFFFFF; color: #1A1A1A; border: 1px solid #1A1A1A; }
 
 /* ──────────────────────────────────────────────────────────
    Modal Defaults
@@ -327,7 +327,7 @@
   cursor: pointer;
   line-height: 1;
 }
-.close-btn:hover { color: #DC2626; }
+.close-btn:hover { color: #1A1A1A; }
 
 /* ──────────────────────────────────────────────────────────
    Form Elements
@@ -340,7 +340,7 @@
   font-weight: 700;
   color: #1A1A1A;
 }
-.required { color: #DC2626; }
+.required { color: #1A1A1A; }
 .form-control {
   width: 100%;
   padding: 1rem;
@@ -371,7 +371,7 @@
   text-align: center;
 }
 .action-result.success { background: #E6FAF5; color: #0DB18C; }
-.action-result.error { background: #FEE2E2; color: #DC2626; }
+.action-result.error { background: #FEE2E2; color: #1A1A1A; }
 
 /* ──────────────────────────────────────────────────────────
    RESPONSIVE STYLES
@@ -453,13 +453,13 @@
     padding: 1.25rem;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border-radius: 8px;
+    border-radius: 0;
     border: none;
   }
 
   .stat-card {
     padding: 1.25rem;
-    border-radius: 8px;
+    border-radius: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   }
 
@@ -521,7 +521,7 @@
     display: block;
     margin-bottom: 0.75rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 0;
     padding: 1rem;
     background: white;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
@@ -605,7 +605,7 @@
     font-size: 0.8rem;
     white-space: nowrap;
     flex-shrink: 0;
-    border-radius: 6px;
+    border-radius: 0;
   }
 
   .nav-btn.active {
@@ -616,7 +616,7 @@
     max-width: 95%;
     padding: 1.25rem;
     max-height: 90vh;
-    border-radius: 12px;
+    border-radius: 0;
   }
 
   .modal-header {
@@ -644,13 +644,13 @@
   .form-control {
     padding: 0.75rem;
     font-size: 0.9rem;
-    border-radius: 6px;
+    border-radius: 0;
   }
 
   .btn {
     padding: 0.6rem 1rem;
     font-size: 0.85rem;
-    border-radius: 6px;
+    border-radius: 0;
   }
 
   .btn-sm {
@@ -661,19 +661,19 @@
   .claim-count {
     font-size: 0.75rem;
     padding: 0.25rem 0.6rem;
-    border-radius: 4px;
+    border-radius: 0;
   }
 
   .status-badge {
     padding: 0.35rem 0.65rem;
     font-size: 0.7rem;
-    border-radius: 4px;
+    border-radius: 0;
   }
 
   .claim-id {
     font-size: 0.7rem;
     padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    border-radius: 0;
   }
 
   .empty-td {
@@ -749,7 +749,7 @@
 
   .modal-card {
     padding: 1rem;
-    border-radius: 10px;
+    border-radius: 0;
   }
 
   .modal-header h2 {

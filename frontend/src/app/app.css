@@ -1,4 +1,4 @@
 main {
-  min-height: calc(100vh - 80px); /* 80px navbar offset */
-  padding-top: 80px; 
+  min-height: calc(100vh - 90px);
+  padding-top: 0; 
 }

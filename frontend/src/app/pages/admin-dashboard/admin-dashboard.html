@@ -335,7 +335,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let claim of allClaims">
+                <tr *ngFor="let claim of visibleClaims">
                   <td><code class="claim-id">{{ claim.claimId | slice:0:8 }}…</code></td>
                   <td><code class="claim-id">{{ claim.policyId | slice:0:8 }}…</code></td>
                   <td>{{ formatDate(claim.incidentDate || claim.dateFiled) }}</td>
@@ -350,6 +350,11 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div *ngIf="allClaims.length > 6" style="text-align: center; margin-top: 1rem;">
+            <button class="btn btn-outline" (click)="toggleShowMoreClaims()" style="padding: 0.5rem 2rem; font-size: 0.9rem;">
+              {{ showAllClaims ? 'Show Less ▲' : 'Show More (' + (allClaims.length - 6) + ' more) ▼' }}
+            </button>
           </div>
         </section>
       </div>
@@ -375,7 +380,7 @@
                 <option value="Claims">Claims Analysis</option>
               </select>
             </div>
-            <button class="btn btn-primary" (click)="generateReport()" [disabled]="actionProcessing || !reportTitle" style="height: 42px;">
+            <button class="btn btn-primary" (click)="generateReport()" [disabled]="actionProcessing" style="height: 42px;">
               {{ actionProcessing ? 'Compiling...' : 'Generate System Report' }}
             </button>
           </div>
@@ -394,23 +399,28 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let r of reports">
+                <tr *ngFor="let r of visibleReports">
                   <td><code class="claim-id">{{ r.reportId | slice:0:8 }}…</code></td>
                   <td><strong>{{ r.title }}</strong></td>
                   <td>{{ r.reportType }}</td>
                   <td>System Admin</td>
                   <td>{{ formatDate(r.generatedAt) }}</td>
                   <td><span class="status-badge" style="background:#e8eaf6; color:#3f51b5;">{{ r.format }}</span></td>
-                  <td>
-                    <button class="btn btn-outline btn-sm" (click)="viewReport(r)" style="margin-right: 0.5rem;">View</button>
-                    <button class="btn btn-primary btn-sm" (click)="downloadReport(r)">Download</button>
+                  <td style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary btn-sm" (click)="viewReport(r)">View PDF</button>
+                    <button class="btn btn-sm" style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA;" (click)="deleteReport(r)">Delete</button>
                   </td>
                 </tr>
                 <tr *ngIf="reports.length === 0">
-                  <td colspan="6" class="empty-td">No reports have been generated.</td>
+                  <td colspan="7" class="empty-td">No reports have been generated.</td>
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div *ngIf="reports.length > 6" style="text-align: center; margin-top: 1rem;">
+            <button class="btn btn-outline" (click)="toggleShowMoreReports()" style="padding: 0.5rem 2rem; font-size: 0.9rem;">
+              {{ showAllReports ? 'Show Less ▲' : 'Show More (' + (reports.length - 6) + ' more) ▼' }}
+            </button>
           </div>
         </section>
 
@@ -467,15 +477,15 @@
     </div>
 
     <!-- Claim Summary Info -->
-    <div style="background: #fafdfa; padding: 1rem; border-radius: 6px; border: 1px solid #e0f2e1; margin-bottom: 1.5rem;">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <div style="background: #F9FAFB; padding: 1.25rem; border-radius: 6px; border: 1px solid #E5E7EB; margin-bottom: 2rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
         <div>
-          <span style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">Requested Amount</span>
-          <strong style="font-size: 1.1rem; color: #1b5e20;">₹{{ selectedClaim?.claimAmount }}</strong>
+          <span style="display: block; font-size: 0.8rem; color: #6B7280; margin-bottom: 0.4rem; text-transform: uppercase; font-weight: 500; letter-spacing: 0.5px;">Requested Amount</span>
+          <strong style="font-size: 1.25rem; color: #111827; font-weight: 700;">₹{{ selectedClaim?.claimAmount }}</strong>
         </div>
         <div>
-          <span style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">Incident Description</span>
-          <span style="font-size: 0.95rem; color: #333;">{{ selectedClaim?.description || 'No description provided' }}</span>
+          <span style="display: block; font-size: 0.8rem; color: #6B7280; margin-bottom: 0.4rem; text-transform: uppercase; font-weight: 500; letter-spacing: 0.5px;">Incident Description</span>
+          <span style="font-size: 1rem; color: #374151; line-height: 1.5;">{{ selectedClaim?.description || 'No description provided' }}</span>
         </div>
       </div>
     </div>
@@ -483,55 +493,57 @@
     <!-- Documents -->
     <div class="form-group" *ngIf="!loadingDocuments && selectedClaimDocuments.length > 0">
       <label>Supporting Evidences</label>
-      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-        <div *ngFor="let doc of selectedClaimDocuments" style="display: flex; flex-direction: column; align-items: center; padding: 1.5rem; border: 1px dashed #4caf50; background: #e8f5e9; border-radius: 6px;">
-          <span style="font-size: 0.95rem; color: #2e7d32; margin-bottom: 0.75rem; font-weight: 600;">{{ doc.fileName || 'Document' }}</span>
-          <a [href]="doc.fileUrl || doc.FileUrl || '#'" target="_blank" class="btn btn-primary" style="padding: 0.6rem 2rem; border-radius: 8px; text-decoration: none;">Download Document</a>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <div *ngFor="let doc of selectedClaimDocuments" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border: 1px solid #E5E7EB; background: #FFFFFF; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+          <span style="font-size: 0.95rem; color: #374151; font-weight: 500;">{{ doc.fileName || 'Document' }}</span>
+          <a [href]="doc.fileUrl || doc.FileUrl || '#'" target="_blank" class="btn btn-outline" style="padding: 0.4rem 1rem; font-size: 0.85rem; width: auto; margin: 0; text-decoration: none;">Download</a>
         </div>
       </div>
     </div>
     <div class="form-group" *ngIf="loadingDocuments">
-      <p style="color: #666; font-size: 0.9rem; font-style: italic;">Loading documents...</p>
+      <p style="color: #6B7280; font-size: 0.9rem; font-style: italic;">Loading documents...</p>
     </div>
     <div class="form-group" *ngIf="!loadingDocuments && selectedClaimDocuments.length === 0">
-      <p style="color: #999; font-size: 0.9rem; font-style: italic;">No documents uploaded for this claim.</p>
+      <div style="padding: 1.5rem; text-align: center; border: 1px dashed #D1D5DB; border-radius: 6px; background: #F9FAFB;">
+        <p style="color: #6B7280; font-size: 0.95rem; margin: 0;">No documents uploaded for this claim.</p>
+      </div>
     </div>
 
     <!-- Core Form Actions -->
     <div class="action-form" *ngIf="canReview(selectedClaim?.status)">
       <div class="form-group">
-        <label>Select Determination Action</label>
+        <label style="margin-bottom: 1rem; display: block; font-weight: 600; color: #111827;">Select Determination Action</label>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <label style="border: 2px solid transparent; padding: 1rem; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s;" 
-                 [style.borderColor]="reviewAction === 'approve' ? '#4caf50' : '#e0f2e1'" 
-                 [style.backgroundColor]="reviewAction === 'approve' ? '#e8f5e9' : '#fafdfa'"
+          <label style="border: 2px solid; padding: 1.25rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;" 
+                 [style.borderColor]="reviewAction === 'approve' ? '#0DB18C' : '#E5E7EB'" 
+                 [style.backgroundColor]="reviewAction === 'approve' ? '#F0FDF4' : '#FFFFFF'"
                  (click)="setReviewAction('approve')">
-            <h4 style="margin: 0 0 0.5rem; color:#1b5e20;">Approve</h4>
-            <span style="font-size:0.8rem; color:#666;">Authorize compensation</span>
+            <h4 style="margin: 0 0 0.4rem; color: #111827; font-weight: 600; font-size: 1.1rem;">Approve</h4>
+            <span style="font-size: 0.85rem; color: #6B7280;">Authorize compensation</span>
           </label>
           
-          <label style="border: 2px solid transparent; padding: 1rem; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s;" 
-                 [style.borderColor]="reviewAction === 'reject' ? '#f44336' : '#e0f2e1'"
-                 [style.backgroundColor]="reviewAction === 'reject' ? '#ffebee' : '#fafdfa'"
+          <label style="border: 2px solid; padding: 1.25rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;" 
+                 [style.borderColor]="reviewAction === 'reject' ? '#EF4444' : '#E5E7EB'"
+                 [style.backgroundColor]="reviewAction === 'reject' ? '#FEF2F2' : '#FFFFFF'"
                  (click)="setReviewAction('reject')">
-            <h4 style="margin: 0 0 0.5rem; color:#b71c1c;">Reject</h4>
-            <span style="font-size:0.8rem; color:#666;">Decline payout</span>
+            <h4 style="margin: 0 0 0.4rem; color: #111827; font-weight: 600; font-size: 1.1rem;">Reject</h4>
+            <span style="font-size: 0.85rem; color: #6B7280;">Decline payout</span>
           </label>
 
-          <label style="border: 2px solid transparent; padding: 1rem; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s;" 
-                 [style.borderColor]="reviewAction === 'underReview' ? '#ff9800' : '#e0f2e1'"
-                 [style.backgroundColor]="reviewAction === 'underReview' ? '#fff3e0' : '#fafdfa'"
+          <label style="border: 2px solid; padding: 1.25rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;" 
+                 [style.borderColor]="reviewAction === 'underReview' ? '#F59E0B' : '#E5E7EB'"
+                 [style.backgroundColor]="reviewAction === 'underReview' ? '#FFFBEB' : '#FFFFFF'"
                  (click)="setReviewAction('underReview')">
-            <h4 style="margin: 0 0 0.5rem; color:#e65100;">Under Review</h4>
-            <span style="font-size:0.8rem; color:#666;">Needs investigation</span>
+            <h4 style="margin: 0 0 0.4rem; color: #111827; font-weight: 600; font-size: 1.1rem;">Under Review</h4>
+            <span style="font-size: 0.85rem; color: #6B7280;">Needs investigation</span>
           </label>
 
-          <label style="border: 2px solid transparent; padding: 1rem; text-align: center; border-radius: 6px; cursor: pointer; transition: 0.2s;" 
-                 [style.borderColor]="reviewAction === 'closed' ? '#9e9e9e' : '#e0f2e1'"
-                 [style.backgroundColor]="reviewAction === 'closed' ? '#f5f5f5' : '#fafdfa'"
+          <label style="border: 2px solid; padding: 1.25rem 1rem; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;" 
+                 [style.borderColor]="reviewAction === 'closed' ? '#6B7280' : '#E5E7EB'"
+                 [style.backgroundColor]="reviewAction === 'closed' ? '#F3F4F6' : '#FFFFFF'"
                  (click)="setReviewAction('closed')">
-            <h4 style="margin: 0 0 0.5rem; color:#424242;">Close</h4>
-            <span style="font-size:0.8rem; color:#666;">Archive claim</span>
+            <h4 style="margin: 0 0 0.4rem; color: #111827; font-weight: 600; font-size: 1.1rem;">Close</h4>
+            <span style="font-size: 0.85rem; color: #6B7280;">Archive claim</span>
           </label>
         </div>
       </div>

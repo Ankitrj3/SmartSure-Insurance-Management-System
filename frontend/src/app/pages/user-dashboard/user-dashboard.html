@@ -1,7 +1,7 @@
 <div class="dashboard-container">
   <div class="glass-header">
     <div class="header-content">
-      <h1>Welcome{{ (profile?.firstName || profile?.FirstName) ? ', ' + (profile.firstName || profile.FirstName) : '' }}!</h1>
+      <h1>Welcome{{ (profile?.firstName || profile?.FirstName) ? ', ' : '' }}<span class="highlight-text">{{ (profile?.firstName || profile?.FirstName) ? (profile.firstName || profile.FirstName) : '' }}</span>!</h1>
       <p>Manage your policies, track claims, and profile with ease.</p>
     </div>
     <div class="stats-overview">
@@ -16,10 +16,12 @@
     </div>
   </div>
 
-  <div class="user-nav">
-    <button class="nav-tab" [class.active-tab]="activeTab === 'overview'" (click)="setActiveTab('overview')">Overview</button>
-    <button class="nav-tab" [class.active-tab]="activeTab === 'policies'" (click)="setActiveTab('policies')">Policies</button>
-    <button class="nav-tab" [class.active-tab]="activeTab === 'claims'" (click)="setActiveTab('claims')">Claims</button>
+  <div class="nav-wrapper">
+    <div class="user-nav">
+      <button class="nav-tab" [class.active-tab]="activeTab === 'overview'" (click)="setActiveTab('overview')">Overview</button>
+      <button class="nav-tab" [class.active-tab]="activeTab === 'policies'" (click)="setActiveTab('policies')">Policies</button>
+      <button class="nav-tab" [class.active-tab]="activeTab === 'claims'" (click)="setActiveTab('claims')">Claims</button>
+    </div>
   </div>
 
   <div class="dashboard-grid" *ngIf="!loading">
