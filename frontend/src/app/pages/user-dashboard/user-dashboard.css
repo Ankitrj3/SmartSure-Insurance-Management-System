@@ -340,6 +340,7 @@
 .input-base:focus { outline: none; border-color: #0DB18C; background: #FAFAFA; }
 
 .action-result { margin-top: 15px; font-weight: 700; color: #0DB18C; }
+.action-result.error { color: #d32f2f; }
 
 .quote-card { background: #F8FAFC; border-left: 4px solid #0DB18C; padding: 25px; margin-bottom: 30px; }
 .quote-card h4 { font-size: 1.5rem; font-weight: 800; color: #1A1A1A; margin-bottom: 20px; }

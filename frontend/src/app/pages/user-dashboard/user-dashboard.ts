@@ -589,6 +589,35 @@ export class UserDashboard implements OnInit {
     return name.includes('vehicle') || name.includes('auto') || name.includes('car');
   }
 
+  downloadPolicyInvoice(policy: any) {
+    // Fetch policy details (vehicle or home)
+    const policyId = policy.policyId || policy.PolicyId;
+    
+    if (this.isPolicyVehicleType(policy)) {
+      // Fetch vehicle details
+      this.policyService.getVehicleDetail(policyId).subscribe({
+        next: (details: any) => {
+          this.pdfService.generatePolicyInvoice(policy, details);
+          this.toastService.success('Invoice generated successfully!');
+        },
+        error: (err: any) => {
+          this.toastService.error('Failed to generate invoice: ' + (err.error?.message || err.message));
+        }
+      });
+    } else {
+      // Fetch home details
+      this.policyService.getHomeDetail(policyId).subscribe({
+        next: (details: any) => {
+          this.pdfService.generatePolicyInvoice(policy, details);
+          this.toastService.success('Invoice generated successfully!');
+        },
+        error: (err: any) => {
+          this.toastService.error('Failed to generate invoice: ' + (err.error?.message || err.message));
+        }
+      });
+    }
+  }
+
   onClaimPolicyChange() {
     this.claimForm.claimAmount = 0;
     this.claimForm.claimType = 'Accident';

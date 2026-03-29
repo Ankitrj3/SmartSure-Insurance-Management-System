@@ -52,6 +52,9 @@
                 <span class="detail-label">IDV:</span>
                 <span class="detail-value">₹{{ policy.insuredDeclaredValue | number }}</span>
               </div>
+              <button class="btn btn-sm btn-outline" (click)="downloadPolicyInvoice(policy)" style="margin-top: 10px; width: 100%;">
+                Download Invoice
+              </button>
             </div>
           </div>
           <div class="empty-state" *ngIf="policies.length === 0">
@@ -113,8 +116,9 @@
                 <td>₹{{ p.premiumAmount | number }}</td>
                 <td><span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ p.status || 'Pending' }}</span></td>
                 <td>
-                  <button class="btn btn-pill-outline btn-xs" (click)="openPaymentModal(p)" *ngIf="p.status === 'Pending'">Pay & Activate</button>
-                  <button class="btn btn-pill-outline btn-xs" (click)="openPaymentModal(p)" *ngIf="p.status === 'Active'">Pay Premium</button>
+                  <button class="btn btn-pill-outline btn-xs" (click)="openPaymentModal(p)" *ngIf="p.status === 'Pending'" style="margin-right: 5px;">Pay & Activate</button>
+                  <button class="btn btn-pill-outline btn-xs" (click)="openPaymentModal(p)" *ngIf="p.status === 'Active'" style="margin-right: 5px;">Pay Premium</button>
+                  <button class="btn btn-pill-outline btn-xs" (click)="downloadPolicyInvoice(p)">Download Invoice</button>
                 </td>
               </tr>
               <tr *ngIf="policies.length === 0">
@@ -300,6 +304,7 @@
          </div>
       </div>
 
+      <p class="action-result" *ngIf="policyMessage" [class.error]="policyMessage.includes('Please') || policyMessage.includes('must')">{{ policyMessage }}</p>
       <div class="modal-footer-btns">
         <button class="btn btn-outline" (click)="buyPolicyStep = 1">Back</button>
         <button class="btn btn-primary flex-2" (click)="proceedToReview()">Calculate Quote →</button>

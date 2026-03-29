@@ -47,6 +47,11 @@ namespace SmartSure.PolicyService.Models
         /// </summary>
         public bool IsTerminated { get; set; } = false;
 
+        /// <summary>
+        /// Invoice generation timestamp
+        /// </summary>
+        public DateTime? InvoiceGeneratedAt { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties

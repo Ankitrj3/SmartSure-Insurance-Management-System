@@ -411,5 +411,19 @@ namespace SmartSure.PolicyService.Services
             
             _logger.LogInformation("Policy {PolicyId} has been terminated", policyId);
         }
+
+        public async Task IncrementApprovedClaimsCountAsync(Guid policyId)
+        {
+            var policy = await _repo.GetByIdAsync(policyId);
+            if (policy == null)
+                throw new NotFoundException("Policy", policyId);
+
+            policy.ApprovedClaimsCount++;
+            
+            await _repo.SaveChangesAsync();
+            
+            _logger.LogInformation("Policy {PolicyId} approved claims count incremented to {Count}", 
+                policyId, policy.ApprovedClaimsCount);
+        }
     }
 }

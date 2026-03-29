@@ -36,5 +36,10 @@ namespace SmartSure.PolicyService.Services
         /// Terminate a policy (used for theft/total loss claims).
         /// </summary>
         Task TerminatePolicyAsync(Guid policyId);
+
+        /// <summary>
+        /// Increment approved claims count for a policy.
+        /// </summary>
+        Task IncrementApprovedClaimsCountAsync(Guid policyId);
     }
 }

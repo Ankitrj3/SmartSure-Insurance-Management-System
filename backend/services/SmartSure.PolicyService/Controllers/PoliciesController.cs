@@ -201,5 +201,26 @@ namespace SmartSure.PolicyService.Controllers
                 throw new BusinessRuleException(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Increment approved claims count for a policy
+        /// </summary>
+        [HttpPatch("/policies/{policyId}/increment-claim-count")]
+        public async Task<IActionResult> IncrementClaimCount(Guid policyId)
+        {
+            try
+            {
+                await _service.IncrementApprovedClaimsCountAsync(policyId);
+                return Ok(new { message = "Claim count incremented successfully" });
+            }
+            catch (SmartSureException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException(ex.Message);
+            }
+        }
     }
 }

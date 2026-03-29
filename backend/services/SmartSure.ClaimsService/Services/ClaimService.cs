@@ -296,6 +296,20 @@ namespace SmartSure.ClaimsService.Services
 
             await _claimRepository.SaveChangesAsync();
 
+            // Increment approved claims count in policy
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await IncrementPolicyClaimCountAsync(claim.PolicyId);
+                    _logger.LogInformation("Incremented approved claims count for policy {PolicyId}", claim.PolicyId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to increment claim count for policy {PolicyId}", claim.PolicyId);
+                }
+            });
+
             // If theft claim, terminate the policy
             if (claim.ClaimType == "Stolen")
             {
@@ -483,6 +497,29 @@ namespace SmartSure.ClaimsService.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error terminating policy {PolicyId}", policyId);
+                throw;
+            }
+        }
+
+        private async Task IncrementPolicyClaimCountAsync(Guid policyId)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                var gatewayUrl = _configuration["Gateway:Url"] ?? "http://localhost:5057";
+                
+                // Call policy service to increment approved claims count
+                var response = await client.PatchAsync($"{gatewayUrl}/policies/{policyId}/increment-claim-count", null);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to increment claim count for policy {PolicyId}. Status: {StatusCode}", 
+                        policyId, response.StatusCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error incrementing claim count for policy {PolicyId}", policyId);
                 throw;
             }
         }
