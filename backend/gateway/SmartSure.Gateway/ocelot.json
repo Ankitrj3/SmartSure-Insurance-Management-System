@@ -1,83 +1,401 @@
 {
   "Routes": [
+
     {
       "DownstreamPathTemplate": "/auth/google/callback",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 5168
-        }
-      ],
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5168 } ],
       "UpstreamPathTemplate": "/gateway/auth/google/callback",
-      "UpstreamHttpMethod": [ "Get", "Post", "Options" ]
+      "UpstreamHttpMethod": [ "Get" ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/auth/google/callback",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5168 } ],
+      "UpstreamPathTemplate": "/gateway/auth/google/callback",
+      "UpstreamHttpMethod": [ "Post" ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/auth/google/callback",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5168 } ],
+      "UpstreamPathTemplate": "/gateway/auth/google/callback",
+      "UpstreamHttpMethod": [ "Options" ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5168 } ],
+      "UpstreamPathTemplate": "/auth/{everything}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "SwaggerKey": "identity",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
     },
     {
       "DownstreamPathTemplate": "/auth/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 5168
-        }
-      ],
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5168 } ],
       "UpstreamPathTemplate": "/auth/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Patch", "Options" ],
-      "SwaggerKey": "identity"
+      "UpstreamHttpMethod": [ "Post" ],
+      "SwaggerKey": "identity",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5168 } ],
+      "UpstreamPathTemplate": "/auth/{everything}",
+      "UpstreamHttpMethod": [ "Put" ],
+      "SwaggerKey": "identity",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5168 } ],
+      "UpstreamPathTemplate": "/auth/{everything}",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "SwaggerKey": "identity",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5168 } ],
+      "UpstreamPathTemplate": "/auth/{everything}",
+      "UpstreamHttpMethod": [ "Patch" ],
+      "SwaggerKey": "identity",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5168 } ],
+      "UpstreamPathTemplate": "/auth/{everything}",
+      "UpstreamHttpMethod": [ "Options" ],
+      "SwaggerKey": "identity",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/claims/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5265 } ],
+      "UpstreamPathTemplate": "/claims/{everything}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "SwaggerKey": "claims",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
     },
     {
       "DownstreamPathTemplate": "/claims/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 5265
-        }
-      ],
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5265 } ],
       "UpstreamPathTemplate": "/claims/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Patch", "Options" ],
-      "SwaggerKey": "claims"
+      "UpstreamHttpMethod": [ "Post" ],
+      "SwaggerKey": "claims",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/claims/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5265 } ],
+      "UpstreamPathTemplate": "/claims/{everything}",
+      "UpstreamHttpMethod": [ "Put" ],
+      "SwaggerKey": "claims",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/claims/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5265 } ],
+      "UpstreamPathTemplate": "/claims/{everything}",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "SwaggerKey": "claims",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/claims/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5265 } ],
+      "UpstreamPathTemplate": "/claims/{everything}",
+      "UpstreamHttpMethod": [ "Patch" ],
+      "SwaggerKey": "claims",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/claims/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5265 } ],
+      "UpstreamPathTemplate": "/claims/{everything}",
+      "UpstreamHttpMethod": [ "Options" ],
+      "SwaggerKey": "claims",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/claims",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5265 } ],
+      "UpstreamPathTemplate": "/claims",
+      "UpstreamHttpMethod": [ "Get" ],
+      "SwaggerKey": "claims",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
     },
     {
       "DownstreamPathTemplate": "/claims",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 5265
-        }
-      ],
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5265 } ],
       "UpstreamPathTemplate": "/claims",
-      "UpstreamHttpMethod": [ "Get", "Post", "Options" ],
-      "SwaggerKey": "claims"
+      "UpstreamHttpMethod": [ "Post" ],
+      "SwaggerKey": "claims",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/claims",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5265 } ],
+      "UpstreamPathTemplate": "/claims",
+      "UpstreamHttpMethod": [ "Options" ],
+      "SwaggerKey": "claims",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/admin/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5232 } ],
+      "UpstreamPathTemplate": "/admin/{everything}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "SwaggerKey": "admin",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
     },
     {
       "DownstreamPathTemplate": "/admin/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 5232
-        }
-      ],
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5232 } ],
       "UpstreamPathTemplate": "/admin/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Patch", "Options" ],
-      "SwaggerKey": "admin"
+      "UpstreamHttpMethod": [ "Post" ],
+      "SwaggerKey": "admin",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/admin/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5232 } ],
+      "UpstreamPathTemplate": "/admin/{everything}",
+      "UpstreamHttpMethod": [ "Put" ],
+      "SwaggerKey": "admin",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/admin/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5232 } ],
+      "UpstreamPathTemplate": "/admin/{everything}",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "SwaggerKey": "admin",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/admin/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5232 } ],
+      "UpstreamPathTemplate": "/admin/{everything}",
+      "UpstreamHttpMethod": [ "Patch" ],
+      "SwaggerKey": "admin",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/admin/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5232 } ],
+      "UpstreamPathTemplate": "/admin/{everything}",
+      "UpstreamHttpMethod": [ "Options" ],
+      "SwaggerKey": "admin",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5014 } ],
+      "UpstreamPathTemplate": "/{everything}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "SwaggerKey": "policy",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
     },
     {
       "DownstreamPathTemplate": "/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 5014
-        }
-      ],
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5014 } ],
       "UpstreamPathTemplate": "/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Patch", "Options" ],
-      "SwaggerKey": "policy"
+      "UpstreamHttpMethod": [ "Post" ],
+      "SwaggerKey": "policy",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5014 } ],
+      "UpstreamPathTemplate": "/{everything}",
+      "UpstreamHttpMethod": [ "Put" ],
+      "SwaggerKey": "policy",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5014 } ],
+      "UpstreamPathTemplate": "/{everything}",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "SwaggerKey": "policy",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5014 } ],
+      "UpstreamPathTemplate": "/{everything}",
+      "UpstreamHttpMethod": [ "Patch" ],
+      "SwaggerKey": "policy",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5014 } ],
+      "UpstreamPathTemplate": "/{everything}",
+      "UpstreamHttpMethod": [ "Options" ],
+      "SwaggerKey": "policy",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 30000,
+        "TimeoutValue": 10000
+      }
     }
+
   ],
+
   "SwaggerEndPoints": [
     {
       "Key": "identity",
@@ -124,6 +442,7 @@
       ]
     }
   ],
+
   "GlobalConfiguration": {
     "BaseUrl": "http://localhost:5057"
   }

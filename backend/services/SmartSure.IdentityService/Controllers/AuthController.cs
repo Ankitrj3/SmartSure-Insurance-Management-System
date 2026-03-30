@@ -7,6 +7,10 @@ using SmartSure.Shared.Contracts.Exceptions;
 
 namespace IdentityService.Controllers
 {
+    /// <summary>
+    /// Manages Authentication endpoints including login, registration, passwords, and external auth providers.
+    /// Exposes secure methods to issue and validate JWTs token.
+    /// </summary>
     [Route("auth")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -22,6 +26,11 @@ namespace IdentityService.Controllers
             _otpService = otpService;
         }
 
+        #region Google Authentication
+
+        /// <summary>
+        /// Retrieves the Google OAuth redirect URL and forwards the client.
+        /// </summary>
         [HttpGet("google")]
         public IActionResult GoogleLogin()
         {
@@ -29,6 +38,9 @@ namespace IdentityService.Controllers
             return Redirect(url);
         }
 
+        /// <summary>
+        /// Callback handler for the Google OAuth authorization flow. Generates JWT internally.
+        /// </summary>
         [HttpGet("google/callback")]
         public async Task<IActionResult> GoogleCallback([FromQuery] string code)
         {
@@ -44,6 +56,13 @@ namespace IdentityService.Controllers
             }
         }
 
+        #endregion
+
+        #region Standard Registration 
+
+        /// <summary>
+        /// Initiates sign-up by creating an OTP and emailing the user.
+        /// </summary>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
         {
@@ -62,6 +81,9 @@ namespace IdentityService.Controllers
             }
         }
 
+        /// <summary>
+        /// Validates OTP code, finalizes account creation, and returns success response.
+        /// </summary>
         [HttpPost("verify-register-otp")]
         public async Task<IActionResult> VerifyRegistrationOtp([FromBody] VerifyOtpDTO dto)
         {
@@ -80,6 +102,13 @@ namespace IdentityService.Controllers
             }
         }
 
+        #endregion
+
+        #region Password Management
+
+        /// <summary>
+        /// Issues a password reset trigger with OTP targeting the verified email address.
+        /// </summary>
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto)
         {
@@ -98,6 +127,9 @@ namespace IdentityService.Controllers
             }
         }
 
+        /// <summary>
+        /// Verifies OTP code and securely resets the user's password.
+        /// </summary>
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordWithOtpDTO dto)
         {
@@ -116,6 +148,13 @@ namespace IdentityService.Controllers
             }
         }
 
+        #endregion
+
+        #region Identity & Session
+
+        /// <summary>
+        /// Validates user credentials returning a JWT active token session with a valid refresh token.
+        /// </summary>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
@@ -156,8 +195,9 @@ namespace IdentityService.Controllers
             }
         }
 
-
-
+        /// <summary>
+        /// Modifies the authenticated user profile information.
+        /// </summary>
         [Authorize]
         [HttpPut("me")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserDTO dto)
@@ -219,5 +259,7 @@ namespace IdentityService.Controllers
                 throw new UnauthorizedException(ex.Message);
             }
         }
+
+        #endregion
     }
 }

@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SmartSure.ClaimsService.Services
 {
+    /// <summary>
+    /// Core service responsible for processing insurance claims, transitioning states,
+    /// and managing business rules (e.g., maximum claims per policy, total loss handling).
+    /// </summary>
     public class ClaimService : IClaimService
     {
         private readonly IClaimRepository _claimRepository;
@@ -62,6 +66,13 @@ namespace SmartSure.ClaimsService.Services
             return ("", "Valued Customer");
         }
 
+        /// <summary>
+        /// Creates a new draft claim. Enforces business constraints such as no pending claims allow,
+        /// max claim limits, and previous total loss claims.
+        /// </summary>
+        /// <param name="userId">The ID of the user creating the claim.</param>
+        /// <param name="dto">The claim creation payload.</param>
+        /// <returns>The created claim mapped to a comprehensive DTO.</returns>
         public async Task<ClaimResponseDTO> CreateClaimAsync(Guid userId, CreateClaimDTO dto)
         {
             var existingClaims = await _claimRepository.GetByPolicyIdAsync(dto.PolicyId);
@@ -212,6 +223,10 @@ namespace SmartSure.ClaimsService.Services
             return MapToDto(claim);
         }
 
+        /// <summary>
+        /// Submits a draft claim for administration review. 
+        /// Transitions the claim to 'Submitted' status and fires necessary domain events.
+        /// </summary>
         public async Task SubmitClaimAsync(Guid claimId, Guid userId)
         {
             var claim = await _claimRepository.GetByIdAsync(claimId);
@@ -258,6 +273,10 @@ namespace SmartSure.ClaimsService.Services
             }).ToList();
         }
 
+        /// <summary>
+        /// Approves a claim, potentially adjusting the approved amount (e.g., matching the IDV for theft).
+        /// Increments the policy's accident count or triggers policy termination if completely damaged/stolen.
+        /// </summary>
         public async Task ApproveClaimAsync(Guid claimId, decimal approvedAmount, string? notes, string adminId)
         {
             var claim = await _claimRepository.GetByIdAsync(claimId);
@@ -415,6 +434,9 @@ namespace SmartSure.ClaimsService.Services
             _logger.LogInformation("Claim {ClaimId} status changed from {Old} to {New}", claimId, oldStatus, newStatus);
         }
 
+        /// <summary>
+        /// Maps a domain <see cref="Claim"/> entity to a detailed <see cref="ClaimResponseDTO"/>.
+        /// </summary>
         private static ClaimResponseDTO MapToDto(Claim claim)
         {
             return new ClaimResponseDTO

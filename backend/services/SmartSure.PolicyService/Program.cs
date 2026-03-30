@@ -9,10 +9,14 @@ using Microsoft.OpenApi.Models;
 using MassTransit;
 using SmartSure.Shared.Contracts.Extensions;
 
+
 DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
+// ==============================================================================
+// 1. CONFIGURATION & ENVIRONMENT SETUP
+// ==============================================================================
 
 // CORS – allow Angular frontend and the API Gateway to call this service
 builder.Services.AddCors(options =>
@@ -29,6 +33,10 @@ builder.Services.AddCors(options =>
               .AllowCredentials());
 });
 
+// ==============================================================================
+// 2. INFRASTRUCTURE & DATA ACCESS
+// ==============================================================================
+
 // Database
 builder.Services.AddDbContext<PolicyDbContext>(options =>
 {
@@ -38,20 +46,33 @@ builder.Services.AddDbContext<PolicyDbContext>(options =>
         warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
 });
 
-// MassTransit / RabbitMQ
+// ==============================================================================
+// 3. MESSAGE BROKER (RabbitMQ & MassTransit)
+// ==============================================================================
+
+// RabbitMQ + MassTransit – auto-discover all consumers in this assembly
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<SmartSure.PolicyService.Consumers.UserRegisteredConsumer>();
+    // Scans the assembly and registers every class that implements IConsumer<T>
+    // Currently discovers: UserRegisteredConsumer
+    x.AddConsumers(typeof(Program).Assembly);
 
-    x.UsingRabbitMq((ctx, cfg) => 
+    x.UsingRabbitMq((ctx, cfg) =>
     {
-        cfg.Host("localhost", "/", h => {
+        cfg.Host("localhost", "/", h =>
+        {
             h.Username("guest");
             h.Password("guest");
         });
+
+        // Auto-creates one RabbitMQ queue/exchange per registered consumer
         cfg.ConfigureEndpoints(ctx);
     });
 });
+
+// ==============================================================================
+// 4. AUTHENTICATION & SECURITY
+// ==============================================================================
 
 // Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not found in configuration");
@@ -78,6 +99,10 @@ builder.Services.AddAuthentication(options =>
 
 // Authorization
 builder.Services.AddAuthorization();
+
+// ==============================================================================
+// 5. DEPENDENCY INJECTION (Services & Repositories)
+// ==============================================================================
 
 // Repositories
 builder.Services.AddScoped<IInsuranceRepository, InsuranceRepository>();
@@ -135,6 +160,10 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+// ==============================================================================
+// 6. HTTP REQUEST PIPELINE (Middleware)
+// ==============================================================================
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

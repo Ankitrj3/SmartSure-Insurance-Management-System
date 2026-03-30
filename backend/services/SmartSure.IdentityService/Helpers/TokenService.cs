@@ -9,29 +9,27 @@ namespace IdentityService.Helpers
     {
         private TimeSpan ExpiryDuration = new TimeSpan(20, 30, 0);
 
-        public string BuildToken(string key, string issuer, IEnumerable<string> audience, string userName, IEnumerable<string> roles)
+        public string BuildToken(string key, string issuer, string audience, string userName, IEnumerable<string> roles)
         {
             var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, userName),
-            new Claim(ClaimTypes.Name, userName),
-            new Claim(JwtRegisteredClaimNames.UniqueName,userName)
-        };
+            {
+                new Claim(ClaimTypes.NameIdentifier, userName),
+                new Claim(ClaimTypes.Name, userName),
+                new Claim(JwtRegisteredClaimNames.UniqueName,userName)
+            };
 
             if (roles != null)
             {
                 claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
             }
 
-
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
 
             var tokenDescriptor = new JwtSecurityToken(
-                issuer,
-                audience.FirstOrDefault(), // Pass the intended audience instead of duplicating the issuer
-                claims,
+                issuer: issuer,
+                audience: audience ?? issuer,
+                claims: claims,
                 expires: DateTime.Now.Add(ExpiryDuration),
                 signingCredentials: credentials
             );

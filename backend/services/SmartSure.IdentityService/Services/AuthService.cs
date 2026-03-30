@@ -10,6 +10,10 @@ using SmartSure.Shared.Contracts.Exceptions;
 
 namespace IdentityService.Services
 {
+    /// <summary>
+    /// Core service responsible for user authentication, registration workflows,
+    /// password management, and JWT generation. Highlights standard Identity procedures.
+    /// </summary>
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _repo;
@@ -32,6 +36,11 @@ namespace IdentityService.Services
             _otpService = otpService;
         }
 
+        #region User Profile & Management
+
+        /// <summary>
+        /// Allows a user to change their existing password by verifying the old password first.
+        /// </summary>
         public async Task ChangePassword(string userId, ChangePasswordDTO dto)
         {
             var user = await _repo.GetByIdAsync(Guid.Parse(userId));
@@ -44,6 +53,9 @@ namespace IdentityService.Services
             await _repo.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Resets a user's password using a one-time password (OTP) verification safely.
+        /// </summary>
         public async Task ResetPasswordAsync(ResetPasswordWithOtpDTO dto)
         {
             bool isValid = await _otpService.ValidateOtpAsync(dto.Email, dto.Otp);
@@ -56,6 +68,9 @@ namespace IdentityService.Services
             await _repo.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Retrieves the profile information for a specific user ID.
+        /// </summary>
         public async Task<UserDTO> GetProfile(string userId)
         {
             var user = await _repo.GetByIdAsync(Guid.Parse(userId));
@@ -84,6 +99,13 @@ namespace IdentityService.Services
             }).ToList();
         }
 
+        #endregion
+
+        #region Authentication & Sessions
+
+        /// <summary>
+        /// Authenticates user credentials and issues a JWT token along with a refresh token.
+        /// </summary>
         public async Task<TokenResponseDTO> Login(LoginDTO dto)
         {
             var user = await _repo.GetByEmailAsync(dto.Email);
@@ -93,7 +115,7 @@ namespace IdentityService.Services
                 throw new UnauthorizedException("Invalid credentials.");
 
             var roles    = user.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string>();
-            var audience = new List<string> { _config["Jwt:Audience"] ?? _config["Jwt:Issuer"] };
+            var audience = _config["Jwt:Audience"] ?? _config["Jwt:Issuer"]!;
 
             var token        = _tokenService.BuildToken(_config["Jwt:Key"], _config["Jwt:Issuer"], audience, user.UserId.ToString(), roles);
             var refreshToken = _tokenService.GenerateRefreshToken();
@@ -109,6 +131,9 @@ namespace IdentityService.Services
             };
         }
 
+        /// <summary>
+        /// Refreshes a JWT using a valid, cached refresh token to prolong user sessions transparently.
+        /// </summary>
         public async Task<TokenResponseDTO> Refresh(string refreshToken)
         {
             if (!_cache.TryGetValue($"refreshToken_{refreshToken}", out string? userIdStr))
@@ -119,7 +144,7 @@ namespace IdentityService.Services
             if (user == null) throw new NotFoundException("User");
 
             var roles    = user.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string>();
-            var audience = new List<string> { _config["Jwt:Audience"] ?? _config["Jwt:Issuer"] };
+            var audience = _config["Jwt:Audience"] ?? _config["Jwt:Issuer"]!;
 
             var newToken        = _tokenService.BuildToken(_config["Jwt:Key"], _config["Jwt:Issuer"], audience, user.UserId.ToString(), roles);
             var newRefreshToken = _tokenService.GenerateRefreshToken();
@@ -136,6 +161,14 @@ namespace IdentityService.Services
             };
         }
 
+        #endregion
+
+        #region Registration Pipeline
+
+        /// <summary>
+        /// Initiates user registration by validating email uniqueness and triggering an OTP workflow.
+        /// Registration data is kept in memory cache until verified.
+        /// </summary>
         public async Task<string> Register(RegisterDTO dto)
         {
             var existingUser = await _repo.GetByEmailAsync(dto.Email);
@@ -157,6 +190,10 @@ namespace IdentityService.Services
             return "OTP sent successfully. Please check your email to verify and complete registration.";
         }
 
+        /// <summary>
+        /// Completes user registration by validating the supplied OTP. 
+        /// Creates the user and broadcast the 'UserRegisteredEvent' to other microservices.
+        /// </summary>
         public async Task<string> VerifyRegistrationOtp(VerifyOtpDTO dto)
         {
             if (!_cache.TryGetValue($"RegistrationOtp_{dto.Email}", out string? cachedOtp))
@@ -220,5 +257,7 @@ namespace IdentityService.Services
 
             await _repo.SaveChangesAsync();
         }
+
+        #endregion
     }
 }

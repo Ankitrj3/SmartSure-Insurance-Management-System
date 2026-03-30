@@ -5,6 +5,10 @@ using SmartSure.Shared.Contracts.Exceptions;
 
 namespace IdentityService.Services
 {
+    /// <summary>
+    /// Background service managing broad user administration tasks like mapping profiles, 
+    /// cascading deletes, and role grants. Restricted to administrative workflows.
+    /// </summary>
     public class UserService : IUserService
     {
         private readonly IUserRepository _repo;
@@ -14,6 +18,9 @@ namespace IdentityService.Services
             _repo = repo;
         }
 
+        /// <summary>
+        /// Assigns a specific role to a user. Validates existence of both user and role before assignment.
+        /// </summary>
         public async Task AssignRole(Guid userId, Guid roleId)
         {
             var user = await _repo.GetByIdAsync(userId);
@@ -27,6 +34,10 @@ namespace IdentityService.Services
             await _repo.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Purges a user and their associated cascading data explicitly.
+        /// Validates user existence before processing.
+        /// </summary>
         public async Task DeleteUser(Guid userId)
         {
             var user = await _repo.GetByIdAsync(userId);

@@ -9,10 +9,16 @@ using SmartSure.Shared.Contracts.Extensions;
 using System.Text;
 using MassTransit;
 using Serilog;
+using SmartSure.ClaimsService.Extensions;
+
 
 DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ==============================================================================
+// 1. CONFIGURATION & ENVIRONMENT SETUP
+// ==============================================================================
 
 // CORS – allow Angular frontend and the API Gateway to call this service
 builder.Services.AddCors(options =>
@@ -30,29 +36,49 @@ builder.Services.AddCors(options =>
 });
 builder.Configuration.AddEnvironmentVariables();
 
+// ==============================================================================
+// 2. LOGGING & OBSERVABILITY
+// ==============================================================================
+
 // Serilog
 builder.AddSerilogLogging("ClaimsService");
+
+// ==============================================================================
+// 3. INFRASTRUCTURE & DATA ACCESS
+// ==============================================================================
 
 // Database
 builder.Services.AddDbContext<ClaimsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ClaimsConnDb")));
 
-// RabbitMQ (InMemory for testing)
+// ==============================================================================
+// 4. MESSAGE BROKER (RabbitMQ & MassTransit)
+// ==============================================================================
+
+// RabbitMQ + MassTransit – auto-discover all consumers in this assembly
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<SmartSure.ClaimsService.Consumers.PolicyActivatedConsumer>();
-    x.AddConsumer<SmartSure.ClaimsService.Consumers.ClaimApprovedConsumer>();
-    x.AddConsumer<SmartSure.ClaimsService.Consumers.ClaimRejectedConsumer>();
+    // Scans the assembly and registers every class that implements IConsumer<T>
+    // Currently discovers: PolicyActivatedConsumer, ClaimApprovedConsumer,
+    //                      ClaimRejectedConsumer
+    x.AddConsumers(typeof(Program).Assembly);
 
-    x.UsingRabbitMq((ctx, cfg) => 
+    x.UsingRabbitMq((ctx, cfg) =>
     {
-        cfg.Host("localhost", "/", h => {
+        cfg.Host("localhost", "/", h =>
+        {
             h.Username("guest");
             h.Password("guest");
         });
+
+        // Auto-creates one RabbitMQ queue/exchange per registered consumer
         cfg.ConfigureEndpoints(ctx);
     });
 });
+
+// ==============================================================================
+// 5. AUTHENTICATION & SECURITY
+// ==============================================================================
 
 // Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not found");
@@ -78,6 +104,10 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+
+// ==============================================================================
+// 6. DEPENDENCY INJECTION (Services & Repositories)
+// ==============================================================================
 
 // Services
 builder.Services.AddScoped<IClaimService, ClaimService>();
@@ -128,6 +158,10 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// ==============================================================================
+// 7. HTTP REQUEST PIPELINE (Middleware)
+// ==============================================================================
+
 // Global Exception Handler
 app.UseGlobalExceptionHandler();
 app.UseSerilogRequestLogging();
@@ -144,32 +178,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Auto-migrate database and fix schema
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<ClaimsDbContext>();
-    await db.Database.MigrateAsync();
-
-    // Idempotent schema fix: ensure all columns exist in the database
-    // This handles the case where migrations were recorded but columns were not actually created
-    var schemaSql = @"
-        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Claims') AND name = 'ApprovedAmount')
-            ALTER TABLE [Claims] ADD [ApprovedAmount] decimal(18,2) NULL;
-        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Claims') AND name = 'CreatedAt')
-            ALTER TABLE [Claims] ADD [CreatedAt] datetime2 NOT NULL DEFAULT GETUTCDATE();
-        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Claims') AND name = 'RejectionReason')
-            ALTER TABLE [Claims] ADD [RejectionReason] nvarchar(max) NULL;
-        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Claims') AND name = 'UpdatedAt')
-            ALTER TABLE [Claims] ADD [UpdatedAt] datetime2 NOT NULL DEFAULT GETUTCDATE();
-        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('ClaimDocuments') AND name = 'ContentType')
-            ALTER TABLE [ClaimDocuments] ADD [ContentType] nvarchar(100) NOT NULL DEFAULT '';
-        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('ClaimDocuments') AND name = 'FileSize')
-            ALTER TABLE [ClaimDocuments] ADD [FileSize] bigint NOT NULL DEFAULT 0;
-        IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('ClaimDocuments') AND name = 'UploadedAt')
-            ALTER TABLE [ClaimDocuments] ADD [UploadedAt] datetime2 NOT NULL DEFAULT GETUTCDATE();
-    ";
-    await db.Database.ExecuteSqlRawAsync(schemaSql);
-}
+// Auto-migrate database
+await app.ApplyMigrationsAsync();
 
 app.Run();
 

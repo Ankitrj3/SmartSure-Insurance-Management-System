@@ -6,6 +6,10 @@ using SmartSure.Shared.Contracts.Exceptions;
 
 namespace IdentityService.Controllers
 {
+    /// <summary>
+    /// Administrator endpoints for managing application users, role assignments, and deletions.
+    /// Restricted entirely to users holding the 'Admin' role.
+    /// </summary>
     [Route("auth/users")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -17,6 +21,11 @@ namespace IdentityService.Controllers
             _userService = userService;
         }
 
+        #region User Administration
+
+        /// <summary>
+        /// Retrieves a complete list of all registered users.
+        /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetUsers()
@@ -36,6 +45,9 @@ namespace IdentityService.Controllers
             }
         }
 
+        /// <summary>
+        /// Grants or changes a specific role assignment for a given user.
+        /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpPut("{userId}/roles")]
         public async Task<IActionResult> AssignRole(Guid userId, [FromBody] AssignRoleDTO dto)
@@ -55,6 +67,9 @@ namespace IdentityService.Controllers
             }
         }
 
+        /// <summary>
+        /// Permanently deletes a user identifier from the authentication database.
+        /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUser(Guid userId)
@@ -73,5 +88,7 @@ namespace IdentityService.Controllers
                 throw new BusinessRuleException(ex.Message);
             }
         }
+
+        #endregion
     }
 }

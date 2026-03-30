@@ -4,16 +4,22 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SmartSure.Shared.Contracts.Extensions;
+
 using System.Text;
 
 DotNetEnv.Env.Load();
+// ==============================================================================
+// 1. CONFIGURATION & ENVIRONMENT SETUP
+// ==============================================================================
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
-// Add services to the container.
-
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
+
+// ==============================================================================
+// 2. CORS & HTTP COMMUNICATIONS
+// ==============================================================================
 
 // CORS – allow Angular frontend and the API Gateway to call this service
 builder.Services.AddCors(options =>
@@ -30,6 +36,10 @@ builder.Services.AddCors(options =>
               .AllowCredentials());
 });
 
+// ==============================================================================
+// 3. DEPENDENCY INJECTION (Services & Repositories)
+// ==============================================================================
+
 // Internal Services
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IdentityService.Repositories.IUserRepository, IdentityService.Repositories.UserRepository>();
@@ -41,23 +51,40 @@ builder.Services.AddScoped<IdentityService.Services.IOtpService, IdentityService
 builder.Services.AddScoped<IdentityService.Services.IGoogleAuthService, IdentityService.Services.GoogleAuthService>();
 builder.Services.AddSingleton<IdentityService.Helpers.TokenService>();
 
-// RabbitMQ configuration
+// ==============================================================================
+// 4. MESSAGE BROKER (RabbitMQ & MassTransit)
+// ==============================================================================
+
+// RabbitMQ + MassTransit – auto-discover all consumers in this assembly
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<IdentityService.Consumers.ClaimStatusChangedConsumer>();
+    // Scans the assembly and registers every class that implements IConsumer<T>
+    // Currently discovers: ClaimStatusChangedConsumer
+    x.AddConsumers(typeof(Program).Assembly);
 
-    x.UsingRabbitMq((ctx, cfg) => 
+    x.UsingRabbitMq((ctx, cfg) =>
     {
-        cfg.Host("localhost", "/", h => {
+        cfg.Host("localhost", "/", h =>
+        {
             h.Username("guest");
             h.Password("guest");
         });
+
+        // Auto-creates one RabbitMQ queue/exchange per registered consumer
         cfg.ConfigureEndpoints(ctx);
     });
 });
 
+// ==============================================================================
+// 5. INFRASTRUCTURE & DATA ACCESS
+// ==============================================================================
+
 builder.Services.AddDbContext<IdentityDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnDb")));
+
+// ==============================================================================
+// 6. SWAGGER & API DOCUMENTATION
+// ==============================================================================
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -91,6 +118,10 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// ==============================================================================
+// 7. AUTHENTICATION & SECURITY
+// ==============================================================================
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -108,6 +139,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 var app = builder.Build();
 
+// ==============================================================================
+// 8. HTTP REQUEST PIPELINE (Middleware)
+// ==============================================================================
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

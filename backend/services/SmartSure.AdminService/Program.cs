@@ -10,12 +10,19 @@ using System.Text;
 using MassTransit;
 using Serilog;
 
+
 DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
-// CORS – allow Angular frontend and the API Gateway to call this service
+// ==============================================================================
+// 1. CONFIGURATION & ENVIRONMENT SETUP
+// ==============================================================================
+
+// CORS Configuration
+// Allows cross-origin requests from the Angular frontend and API Gateway.
+// Essential for enabling secure communication between remote clients and this service.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowGateway", policy =>
@@ -30,37 +37,59 @@ builder.Services.AddCors(options =>
               .AllowCredentials());
 });
 
-// Serilog
+// ==============================================================================
+// 2. LOGGING & OBSERVABILITY
+// ==============================================================================
+
+// Configure Serilog for structured logging across the application.
 builder.AddSerilogLogging("AdminService");
 
 // Cross-service calls (HTTP – no TLS bypass needed for local dev)
 builder.Services.AddHttpClient("IdentityClient");
 builder.Services.AddHttpClient();
 
-// Database
+// ==============================================================================
+// 3. INFRASTRUCTURE & DATA ACCESS
+// ==============================================================================
+
+// Register Entity Framework Core DbContext
+// Uses SQL Server with connection string provided via environment variables.
 builder.Services.AddDbContext<AdminDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("AdminConnDb")));
 
-// RabbitMQ (InMemory for testing)
+// ==============================================================================
+// 4. MESSAGE BROKER (RabbitMQ & MassTransit)
+// ==============================================================================
+
+// Configure asynchronous messaging for event-driven communication.
+// Auto-discovers consumers and registers their respective queues.
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<SmartSure.AdminService.Consumers.UserRegisteredConsumer>();
-    x.AddConsumer<SmartSure.AdminService.Consumers.PolicyActivatedConsumer>();
-    x.AddConsumer<SmartSure.AdminService.Consumers.PolicyCancelledConsumer>();
-    x.AddConsumer<SmartSure.AdminService.Consumers.ClaimSubmittedConsumer>();
-    x.AddConsumer<SmartSure.AdminService.Consumers.ClaimStatusChangedConsumer>();
+    // Scans the assembly and registers every class that implements IConsumer<T>
+    // Currently discovers: UserRegisteredConsumer, PolicyActivatedConsumer,
+    //                      PolicyCancelledConsumer, ClaimSubmittedConsumer,
+    //                      ClaimStatusChangedConsumer
+    x.AddConsumers(typeof(Program).Assembly);
 
-    x.UsingRabbitMq((ctx, cfg) => 
+    x.UsingRabbitMq((ctx, cfg) =>
     {
-        cfg.Host("localhost", "/", h => {
+        cfg.Host("localhost", "/", h =>
+        {
             h.Username("guest");
             h.Password("guest");
         });
+
+        // Auto-creates one RabbitMQ queue/exchange per registered consumer
         cfg.ConfigureEndpoints(ctx);
     });
 });
 
-// Authentication
+// ==============================================================================
+// 5. AUTHENTICATION & SECURITY
+// ==============================================================================
+
+// JWT Bearer Token Configuration
+// Validates incoming tokens against the configured Issuer, Audience, and Key.
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not found");
 builder.Services.AddAuthentication(options =>
 {
@@ -85,7 +114,11 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// Services
+// ==============================================================================
+// 6. DEPENDENCY INJECTION (Services & Repositories)
+// ==============================================================================
+
+// Register core business services with Scoped lifetime (one instance per HTTP request).
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IPdfGeneratorService, PdfGeneratorService>();
@@ -134,7 +167,12 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Global Exception Handler
+// ==============================================================================
+// 7. HTTP REQUEST PIPELINE (Middleware)
+// ==============================================================================
+
+// Global Exception Handler matches raw exceptions to standard HTTP responses.
+// Serilog tracks requests for performance and error auditing.
 app.UseGlobalExceptionHandler();
 app.UseSerilogRequestLogging();
 

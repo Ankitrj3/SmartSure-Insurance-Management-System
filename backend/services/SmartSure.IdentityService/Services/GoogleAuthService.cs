@@ -30,6 +30,10 @@ namespace IdentityService.Services
             _httpClient = httpClient;
         }
 
+        /// <summary>
+        /// Gets the google login URL.
+        /// </summary>
+        /// <returns>OAuth URL</returns>
         public string GetGoogleLoginUrl()
         {
             var clientId = _config["Google:ClientId"];
@@ -108,7 +112,7 @@ namespace IdentityService.Services
             // Map standard roles
             var roles = user.UserRoles?.Where(ur => ur.Role != null).Select(ur => ur.Role.RoleName).ToList() ?? new List<string> { "Customer" };
             if (!roles.Any()) roles.Add("Customer");
-            var audience = new List<string> { _config["Jwt:Audience"] ?? _config["Jwt:Issuer"] };
+            var audience = _config["Jwt:Audience"] ?? _config["Jwt:Issuer"]!;
 
             // Generate our own System Token
             return _tokenService.BuildToken(_config["Jwt:Key"], _config["Jwt:Issuer"], audience, user.UserId.ToString(), roles);
