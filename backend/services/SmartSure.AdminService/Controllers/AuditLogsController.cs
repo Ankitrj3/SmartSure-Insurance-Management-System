@@ -4,12 +4,12 @@ using SmartSure.AdminService.Services;
 
 namespace SmartSure.AdminService.Controllers
 {
-    [ApiController]
-    [Route("admin/audit-logs")]
-    [Authorize(Roles = "Admin")]
     /// <summary>
     /// Represent or implements AuditLogsController.
     /// </summary>
+    [ApiController]
+    [Route("admin/audit-logs")]
+    [Authorize(Roles = "Admin")]
     public class AuditLogsController : ControllerBase
     {
         private readonly IAuditService _auditService;
@@ -19,10 +19,10 @@ namespace SmartSure.AdminService.Controllers
             _auditService = auditService;
         }
 
-        [HttpGet]
         /// <summary>
         /// Performs the GetAuditLogs operation.
         /// </summary>
+        [HttpGet]
         public async Task<IActionResult> GetAuditLogs([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
             if (page < 1) page = 1;

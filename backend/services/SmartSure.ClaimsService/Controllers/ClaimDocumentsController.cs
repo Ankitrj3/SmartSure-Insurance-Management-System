@@ -5,12 +5,12 @@ using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.ClaimsService.Controllers
 {
-    [ApiController]
-    [Route("claims/{claimId}/documents")]
-    [Authorize]
     /// <summary>
     /// Represent or implements ClaimDocumentsController.
     /// </summary>
+    [ApiController]
+    [Route("claims/{claimId}/documents")]
+    [Authorize]
     public class ClaimDocumentsController : ControllerBase
     {
         private readonly IDocumentService _documentService;
@@ -20,21 +20,21 @@ namespace SmartSure.ClaimsService.Controllers
             _documentService = documentService;
         }
 
-        [HttpGet]
         /// <summary>
         /// Performs the GetDocuments operation.
         /// </summary>
+        [HttpGet]
         public async Task<IActionResult> GetDocuments(Guid claimId)
         {
             var documents = await _documentService.GetDocumentsAsync(claimId);
             return Ok(documents);
         }
 
-        [HttpPost]
-        [Consumes("multipart/form-data")]
         /// <summary>
         /// Performs the UploadDocument operation.
         /// </summary>
+        [HttpPost]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadDocument(Guid claimId, IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -44,10 +44,10 @@ namespace SmartSure.ClaimsService.Controllers
             return CreatedAtAction(nameof(GetDocuments), new { claimId }, document);
         }
 
-        [HttpDelete("{docId}")]
         /// <summary>
         /// Performs the DeleteDocument operation.
         /// </summary>
+        [HttpDelete("{docId}")]
         public async Task<IActionResult> DeleteDocument(Guid claimId, Guid docId)
         {
             await _documentService.DeleteDocumentAsync(claimId, docId);

@@ -7,12 +7,12 @@ using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.AdminService.Controllers
 {
-    [ApiController]
-    [Route("admin/reports")]
-    [Authorize(Roles = "Admin")]
     /// <summary>
     /// Represent or implements ReportsController.
     /// </summary>
+    [ApiController]
+    [Route("admin/reports")]
+    [Authorize(Roles = "Admin")]
     public class ReportsController : ControllerBase
     {
         private readonly IReportService _reportService;
@@ -25,20 +25,20 @@ namespace SmartSure.AdminService.Controllers
         private Guid GetAdminId() =>
             Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-        [HttpGet]
         /// <summary>
         /// Performs the GetReports operation.
         /// </summary>
+        [HttpGet]
         public async Task<IActionResult> GetReports()
         {
             var reports = await _reportService.GetReportsAsync();
             return Ok(reports);
         }
 
-        [HttpPost]
         /// <summary>
         /// Performs the GenerateReport operation.
         /// </summary>
+        [HttpPost]
         public async Task<IActionResult> GenerateReport([FromBody] ReportRequestDTO dto)
         {
             try
@@ -58,10 +58,10 @@ namespace SmartSure.AdminService.Controllers
             }
         }
 
-        [HttpPost("pdf")]
         /// <summary>
         /// Performs the GeneratePdfReport operation.
         /// </summary>
+        [HttpPost("pdf")]
         public async Task<IActionResult> GeneratePdfReport([FromBody] ReportRequestDTO dto)
         {
             try
@@ -84,10 +84,10 @@ namespace SmartSure.AdminService.Controllers
             }
         }
 
-        [HttpGet("{reportId}")]
         /// <summary>
         /// Performs the GetReport operation.
         /// </summary>
+        [HttpGet("{reportId}")]
         public async Task<IActionResult> GetReport(Guid reportId)
         {
             var report = await _reportService.GetReportByIdAsync(reportId);
@@ -95,10 +95,10 @@ namespace SmartSure.AdminService.Controllers
             return Ok(report);
         }
 
-        [HttpDelete("{reportId}")]
         /// <summary>
         /// Performs the DeleteReport operation.
         /// </summary>
+        [HttpDelete("{reportId}")]
         public async Task<IActionResult> DeleteReport(Guid reportId)
         {
             var success = await _reportService.DeleteReportAsync(reportId);

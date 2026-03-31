@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SmartSure.Shared.Contracts.Extensions;
+using Serilog;
 
 using System.Text;
 
@@ -13,6 +14,7 @@ DotNetEnv.Env.Load();
 // ==============================================================================
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
+builder.AddSerilogLogging("IdentityService");
 
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
@@ -151,6 +153,7 @@ if (app.Environment.IsDevelopment())
 
 // app.UseHttpsRedirection(); // Disabled – gateway calls this service via HTTP
 app.UseGlobalExceptionHandler();
+app.UseSerilogRequestLogging();
 app.UseCors("AllowGateway");
 app.UseAuthentication();
 app.UseAuthorization();

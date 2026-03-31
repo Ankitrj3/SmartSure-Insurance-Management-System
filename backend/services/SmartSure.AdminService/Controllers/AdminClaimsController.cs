@@ -9,12 +9,12 @@ using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.AdminService.Controllers
 {
-    [ApiController]
-    [Route("admin/claims")]
-    [Authorize(Roles = "Admin")]
     /// <summary>
     /// Represent or implements AdminClaimsController.
     /// </summary>
+    [ApiController]
+    [Route("admin/claims")]
+    [Authorize(Roles = "Admin")]
     public class AdminClaimsController : ControllerBase
     {
         private readonly IAuditService _auditService;
@@ -34,10 +34,10 @@ namespace SmartSure.AdminService.Controllers
         
         private string GetAccessToken() => Request.Headers["Authorization"].ToString();
 
-        [HttpGet]
         /// <summary>
         /// Performs the GetAllClaims operation.
         /// </summary>
+        [HttpGet]
         public async Task<IActionResult> GetAllClaims()
         {
             _logger.LogInformation("Admin requesting all claims from Claims Service");
@@ -67,10 +67,10 @@ namespace SmartSure.AdminService.Controllers
             }
         }
 
-        [HttpGet("statistics")]
         /// <summary>
         /// Performs the GetClaimStatistics operation.
         /// </summary>
+        [HttpGet("statistics")]
         public async Task<IActionResult> GetClaimStatistics()
         {
             _logger.LogInformation("Admin requesting claim statistics from Claims Service");
@@ -111,10 +111,10 @@ namespace SmartSure.AdminService.Controllers
         private Guid GetAdminId() =>
             Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-        [HttpPut("{claimId}/review")]
         /// <summary>
         /// Performs the SetUnderReview operation.
         /// </summary>
+        [HttpPut("{claimId}/review")]
         public async Task<IActionResult> SetUnderReview(Guid claimId, [FromBody] ClaimReviewDTO dto)
         {
             var adminId = GetAdminId();
@@ -125,10 +125,10 @@ namespace SmartSure.AdminService.Controllers
             return Ok(new { message = "Claim set to Under Review" });
         }
 
-        [HttpPut("{claimId}/approve")]
         /// <summary>
         /// Performs the ApproveClaim operation.
         /// </summary>
+        [HttpPut("{claimId}/approve")]
         public async Task<IActionResult> ApproveClaim(Guid claimId, [FromBody] ClaimApprovalDTO dto)
         {
             var adminId = GetAdminId();
@@ -160,10 +160,10 @@ namespace SmartSure.AdminService.Controllers
             }
         }
 
-        [HttpPut("{claimId}/reject")]
         /// <summary>
         /// Performs the RejectClaim operation.
         /// </summary>
+        [HttpPut("{claimId}/reject")]
         public async Task<IActionResult> RejectClaim(Guid claimId, [FromBody] ClaimRejectionDTO dto)
         {
             var adminId = GetAdminId();

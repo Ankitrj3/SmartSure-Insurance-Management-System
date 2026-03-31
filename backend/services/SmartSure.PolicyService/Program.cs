@@ -8,12 +8,12 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using MassTransit;
 using SmartSure.Shared.Contracts.Extensions;
-
-
+using Serilog;
 DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
+builder.AddSerilogLogging("PolicyService");
 // ==============================================================================
 // 1. CONFIGURATION & ENVIRONMENT SETUP
 // ==============================================================================
@@ -174,6 +174,7 @@ if (app.Environment.IsDevelopment())
 
 // app.UseHttpsRedirection(); // Disabled – gateway calls this service via HTTP
 app.UseGlobalExceptionHandler();
+app.UseSerilogRequestLogging();
 app.UseCors("AllowGateway");
 app.UseAuthentication();
 app.UseAuthorization();

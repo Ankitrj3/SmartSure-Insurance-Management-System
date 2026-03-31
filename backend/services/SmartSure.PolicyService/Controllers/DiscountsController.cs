@@ -7,11 +7,11 @@ using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.PolicyService.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
     /// <summary>
     /// Represent or implements DiscountsController.
     /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
     public class DiscountsController : ControllerBase
     {
         private readonly IDiscountService _service;
@@ -32,11 +32,11 @@ namespace SmartSure.PolicyService.Controllers
             return Ok(discounts);
         }
 
-        [HttpGet("/discounts/{id}")]
-        [Authorize(Roles = "Admin")]
         /// <summary>
         /// Performs the GetById operation.
         /// </summary>
+        [HttpGet("/discounts/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(Guid id)
         {
             var discount = await _service.GetDiscountByIdAsync(id);
@@ -44,11 +44,11 @@ namespace SmartSure.PolicyService.Controllers
             return Ok(discount);
         }
 
-        [HttpPost("/discounts")]
-        [Authorize(Roles = "Admin")]
         /// <summary>
         /// Performs the Create operation.
         /// </summary>
+        [HttpPost("/discounts")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateDiscountDTO dto)
         {
             if (!ModelState.IsValid) 
@@ -59,11 +59,11 @@ namespace SmartSure.PolicyService.Controllers
             return Ok(result);
         }
 
-        [HttpPut("/discounts/{id}")]
-        [Authorize(Roles = "Admin")]
         /// <summary>
         /// Performs the Update operation.
         /// </summary>
+        [HttpPut("/discounts/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(Guid id, [FromBody] CreateDiscountDTO dto)
         {
             try
@@ -81,11 +81,11 @@ namespace SmartSure.PolicyService.Controllers
             }
         }
 
-        [HttpDelete("/discounts/{id}")]
-        [Authorize(Roles = "Admin")]
         /// <summary>
         /// Performs the Delete operation.
         /// </summary>
+        [HttpDelete("/discounts/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             await _service.DeleteDiscountAsync(id);

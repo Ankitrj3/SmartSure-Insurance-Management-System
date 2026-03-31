@@ -173,11 +173,11 @@ namespace IdentityService.Controllers
             }
         }
 
-        [Authorize]
-        [HttpGet("me")]
         /// <summary>
         /// Performs the GetProfile operation.
         /// </summary>
+        [Authorize]
+        [HttpGet("me")]
         public async Task<IActionResult> GetProfile()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -223,11 +223,11 @@ namespace IdentityService.Controllers
             }
         }
 
-        [Authorize]
-        [HttpPut("change-password")]
         /// <summary>
         /// Performs the ChangePassword operation.
         /// </summary>
+        [Authorize]
+        [HttpPut("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO dto)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -248,10 +248,10 @@ namespace IdentityService.Controllers
             }
         }
 
-        [HttpPost("refresh")]
         /// <summary>
         /// Performs the Refresh operation.
         /// </summary>
+        [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] RefreshRequestDTO dto)
         {
             try
