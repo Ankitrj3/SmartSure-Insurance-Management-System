@@ -106,7 +106,14 @@ app.MapGet("/", () => Results.Ok(new
 .WithName("GatewayStatus")
 .WithSummary("Gateway liveness probe");
 
-// ── Ocelot middleware (terminal – must be last) ────────────────────────────
+// ── Routing & Endpoints (Must be evaluated BEFORE Ocelot) ─────────────────
+// By explicitly invoking UseRouting and UseEndpoints here, any matched Minimal API
+// (like GET / or /health) will execute and TERMINATE the request, preventing Ocelot 
+// from erroneously proxying it and throwing the 'ReasonPhrase' conflict exception.
+app.UseRouting();
+app.UseEndpoints(endpoints => { });
+
+// ── Ocelot middleware (terminal for all other proxy routes) ────────────────
 await app.UseOcelot();
 
 app.Run();
