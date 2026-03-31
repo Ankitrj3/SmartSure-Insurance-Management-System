@@ -118,10 +118,13 @@ namespace IdentityService.Services
             // Map standard roles
             var roles = user.UserRoles?.Where(ur => ur.Role != null).Select(ur => ur.Role.RoleName).ToList() ?? new List<string> { "Customer" };
             if (!roles.Any()) roles.Add("Customer");
-            var audience = _config["Jwt:Audience"] ?? _config["Jwt:Issuer"]!;
+            var audiences = new[] { "Aud1", "Aud2", "Aud3", "Aud4", "Aud5" }
+                .Select(key => _config[$"Jwt:{key}"] ?? "")
+                .Where(a => !string.IsNullOrEmpty(a))
+                .ToList();
 
             // Generate our own System Token
-            return _tokenService.BuildToken(_config["Jwt:Key"], _config["Jwt:Issuer"], audience, user.UserId.ToString(), roles);
+            return _tokenService.BuildToken(_config["Jwt:Key"]!, _config["Jwt:Issuer"]!, audiences, user.UserId.ToString(), roles);
         }
     }
 }

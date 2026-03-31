@@ -134,7 +134,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuer = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidateAudience = true,
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidAudiences = new[] { "Aud1", "Aud2", "Aud3", "Aud4", "Aud5" }.Select(k => builder.Configuration[$"Jwt:{k}"]).Where(v => !string.IsNullOrEmpty(v)).ToArray(),
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };

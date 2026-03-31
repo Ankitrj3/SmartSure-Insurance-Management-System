@@ -15,7 +15,7 @@ namespace IdentityService.Helpers
         /// <summary>
         /// Performs the BuildToken operation.
         /// </summary>
-        public string BuildToken(string key, string issuer, string audience, string userName, IEnumerable<string> roles)
+        public string BuildToken(string key, string issuer, IEnumerable<string> audiences, string userName, IEnumerable<string> roles)
         {
             var claims = new List<Claim>
             {
@@ -23,6 +23,14 @@ namespace IdentityService.Helpers
                 new Claim(ClaimTypes.Name, userName),
                 new Claim(JwtRegisteredClaimNames.UniqueName,userName)
             };
+
+            if (audiences != null && audiences.Any())
+            {
+                foreach (var aud in audiences)
+                {
+                    claims.Add(new Claim(JwtRegisteredClaimNames.Aud, aud));
+                }
+            }
 
             if (roles != null)
             {
@@ -34,7 +42,7 @@ namespace IdentityService.Helpers
 
             var tokenDescriptor = new JwtSecurityToken(
                 issuer: issuer,
-                audience: audience ?? issuer,
+                audience: null,
                 claims: claims,
                 expires: DateTime.Now.Add(ExpiryDuration),
                 signingCredentials: credentials

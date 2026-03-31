@@ -118,9 +118,12 @@ namespace IdentityService.Services
                 throw new UnauthorizedException("Invalid credentials.");
 
             var roles    = user.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string>();
-            var audience = _config["Jwt:Audience"] ?? _config["Jwt:Issuer"]!;
+            var audiences = new[] { "Aud1", "Aud2", "Aud3", "Aud4", "Aud5" }
+                .Select(key => _config[$"Jwt:{key}"] ?? "")
+                .Where(a => !string.IsNullOrEmpty(a))
+                .ToList();
 
-            var token        = _tokenService.BuildToken(_config["Jwt:Key"], _config["Jwt:Issuer"], audience, user.UserId.ToString(), roles);
+            var token        = _tokenService.BuildToken(_config["Jwt:Key"]!, _config["Jwt:Issuer"]!, audiences, user.UserId.ToString(), roles);
             var refreshToken = _tokenService.GenerateRefreshToken();
 
             // Cache refresh token for 24 hours (no DB storage)
@@ -147,9 +150,12 @@ namespace IdentityService.Services
             if (user == null) throw new NotFoundException("User");
 
             var roles    = user.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? new List<string>();
-            var audience = _config["Jwt:Audience"] ?? _config["Jwt:Issuer"]!;
+            var audiences = new[] { "Aud1", "Aud2", "Aud3", "Aud4", "Aud5" }
+                .Select(key => _config[$"Jwt:{key}"] ?? "")
+                .Where(a => !string.IsNullOrEmpty(a))
+                .ToList();
 
-            var newToken        = _tokenService.BuildToken(_config["Jwt:Key"], _config["Jwt:Issuer"], audience, user.UserId.ToString(), roles);
+            var newToken        = _tokenService.BuildToken(_config["Jwt:Key"]!, _config["Jwt:Issuer"]!, audiences, user.UserId.ToString(), roles);
             var newRefreshToken = _tokenService.GenerateRefreshToken();
 
             // Revoke old token and cache new one
