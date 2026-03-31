@@ -9,6 +9,9 @@ namespace SmartSure.PolicyService.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
+    /// <summary>
+    /// Represent or implements PaymentsController.
+    /// </summary>
     public class PaymentsController : ControllerBase
     {
         private readonly IPaymentService _service;
@@ -19,6 +22,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpGet("/policies/{policyId}/payments")]
+        /// <summary>
+        /// Performs the GetPayments operation.
+        /// </summary>
         public async Task<IActionResult> GetPayments(Guid policyId)
         {
             var payments = await _service.GetByPolicyIdAsync(policyId);
@@ -26,6 +32,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpGet("/payments/{paymentId}")] // To keep the GetPayment by ID working if it's called
+        /// <summary>
+        /// Performs the GetPayment operation.
+        /// </summary>
         public async Task<IActionResult> GetPayment(Guid paymentId)
         {
             var payment = await _service.GetByIdAsync(paymentId);
@@ -34,6 +43,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpPost("/policies/{policyId}/payments")]
+        /// <summary>
+        /// Performs the RecordPayment operation.
+        /// </summary>
         public async Task<IActionResult> RecordPayment(Guid policyId, [FromBody] RecordPaymentDTO dto)
         {
             dto.PolicyId = policyId;

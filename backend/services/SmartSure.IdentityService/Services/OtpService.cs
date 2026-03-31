@@ -3,6 +3,9 @@ using IdentityService.Repositories;
 
 namespace IdentityService.Services
 {
+    /// <summary>
+    /// Represent or implements OtpService.
+    /// </summary>
     public class OtpService : IOtpService
     {
         private readonly IUserRepository _userRepository;
@@ -16,6 +19,9 @@ namespace IdentityService.Services
             _emailService = emailService;
         }
 
+        /// <summary>
+        /// Performs the GenerateAndSendOtpAsync operation.
+        /// </summary>
         public async Task<string> GenerateAndSendOtpAsync(string email)
         {
             var random = new Random();
@@ -46,6 +52,9 @@ namespace IdentityService.Services
             return otp;
         }
 
+        /// <summary>
+        /// Performs the ValidateOtpAsync operation.
+        /// </summary>
         public async Task<bool> ValidateOtpAsync(string email, string otp)
         {
             var record = await _otpRepository.GetByEmailAsync(email);

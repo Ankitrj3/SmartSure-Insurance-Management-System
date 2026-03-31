@@ -4,6 +4,9 @@ using SmartSure.ClaimsService.Models;
 
 namespace SmartSure.ClaimsService.Repositories
 {
+    /// <summary>
+    /// Represent or implements ClaimRepository.
+    /// </summary>
     public class ClaimRepository : IClaimRepository
     {
         private readonly ClaimsDbContext _context;
@@ -13,6 +16,9 @@ namespace SmartSure.ClaimsService.Repositories
             _context = context;
         }
 
+        /// <summary>
+        /// Performs the GetByIdAsync operation.
+        /// </summary>
         public async Task<Claim> GetByIdAsync(Guid claimId)
         {
             return await _context.Claims
@@ -21,6 +27,9 @@ namespace SmartSure.ClaimsService.Repositories
                 .FirstOrDefaultAsync(c => c.ClaimId == claimId);
         }
 
+        /// <summary>
+        /// Performs the GetByUserIdAsync operation.
+        /// </summary>
         public async Task<List<Claim>> GetByUserIdAsync(Guid userId)
         {
             return await _context.Claims
@@ -30,6 +39,9 @@ namespace SmartSure.ClaimsService.Repositories
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Performs the GetAllAsync operation.
+        /// </summary>
         public async Task<List<Claim>> GetAllAsync()
         {
             return await _context.Claims
@@ -38,6 +50,9 @@ namespace SmartSure.ClaimsService.Repositories
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Performs the GetByPolicyIdAsync operation.
+        /// </summary>
         public async Task<List<Claim>> GetByPolicyIdAsync(Guid policyId)
         {
             return await _context.Claims
@@ -47,16 +62,25 @@ namespace SmartSure.ClaimsService.Repositories
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Performs the AddAsync operation.
+        /// </summary>
         public async Task AddAsync(Claim claim)
         {
             await _context.Claims.AddAsync(claim);
         }
 
+        /// <summary>
+        /// Performs the UpdateAsync operation.
+        /// </summary>
         public async Task UpdateAsync(Claim claim)
         {
             _context.Claims.Update(claim);
         }
 
+        /// <summary>
+        /// Performs the SaveChangesAsync operation.
+        /// </summary>
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

@@ -5,6 +5,9 @@ using System.Text.Json;
 
 namespace SmartSure.Shared.Contracts.Middleware;
 
+/// <summary>
+/// Represent or implements GlobalExceptionHandlerMiddleware.
+/// </summary>
 public class GlobalExceptionHandlerMiddleware
 {
     private readonly RequestDelegate _next;
@@ -16,6 +19,9 @@ public class GlobalExceptionHandlerMiddleware
         _logger = logger;
     }
 
+    /// <summary>
+    /// Performs the InvokeAsync operation.
+    /// </summary>
     public async Task InvokeAsync(HttpContext context)
     {
         try

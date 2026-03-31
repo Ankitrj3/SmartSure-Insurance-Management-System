@@ -7,6 +7,9 @@ using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.PolicyService.Services
 {
+    /// <summary>
+    /// Represent or implements PolicyMgmtService.
+    /// </summary>
     public class PolicyMgmtService : IPolicyMgmtService
     {
         private readonly IPolicyRepository _repo;
@@ -102,6 +105,9 @@ namespace SmartSure.PolicyService.Services
 
         // ── Quote ──────────────────────────────────────────────────────────────
 
+        /// <summary>
+        /// Performs the CalculateQuoteAsync operation.
+        /// </summary>
         public async Task<PolicyQuoteDTO> CalculateQuoteAsync(CreatePolicyDTO dto)
         {
             var subtype = await _insuranceRepo.GetSubtypeByIdAsync(dto.SubtypeId);
@@ -146,18 +152,27 @@ namespace SmartSure.PolicyService.Services
 
         // ── CRUD ───────────────────────────────────────────────────────────────
 
+        /// <summary>
+        /// Performs the GetUserPoliciesAsync operation.
+        /// </summary>
         public async Task<List<PolicyDTO>> GetUserPoliciesAsync(Guid userId)
         {
             var policies = await _repo.GetByUserIdAsync(userId);
             return policies.Select(MapToDto).ToList();
         }
 
+        /// <summary>
+        /// Performs the GetAllPoliciesAsync operation.
+        /// </summary>
         public async Task<List<PolicyDTO>> GetAllPoliciesAsync()
         {
             var policies = await _repo.GetAllAsync();
             return policies.Select(MapToDto).ToList();
         }
 
+        /// <summary>
+        /// Performs the GetPolicyByIdAsync operation.
+        /// </summary>
         public async Task<PolicyDTO> GetPolicyByIdAsync(Guid policyId)
         {
             var p = await _repo.GetByIdAsync(policyId);
@@ -165,6 +180,9 @@ namespace SmartSure.PolicyService.Services
             return MapToDto(p);
         }
 
+        /// <summary>
+        /// Performs the CreatePolicyAsync operation.
+        /// </summary>
         public async Task<PolicyDTO> CreatePolicyAsync(Guid userId, CreatePolicyDTO dto)
         {
             var subtype = await _insuranceRepo.GetSubtypeByIdAsync(dto.SubtypeId);
@@ -256,6 +274,9 @@ namespace SmartSure.PolicyService.Services
             };
         }
 
+        /// <summary>
+        /// Performs the ActivatePolicyAsync operation.
+        /// </summary>
         public async Task ActivatePolicyAsync(Guid policyId)
         {
             var policy = await _repo.GetByIdAsync(policyId);
@@ -274,6 +295,9 @@ namespace SmartSure.PolicyService.Services
             _logger.LogInformation("Policy {PolicyId} activated after payment", policyId);
         }
 
+        /// <summary>
+        /// Performs the CancelPolicyAsync operation.
+        /// </summary>
         public async Task CancelPolicyAsync(Guid policyId)
         {
             var policy = await _repo.GetByIdAsync(policyId);
@@ -283,6 +307,9 @@ namespace SmartSure.PolicyService.Services
             await _bus.Publish(new PolicyCancelledEvent(policyId, policy.UserId, "Cancelled by user", DateTime.UtcNow));
         }
 
+        /// <summary>
+        /// Performs the GetPolicyDetailsAsync operation.
+        /// </summary>
         public async Task<PolicyDetailDTO> GetPolicyDetailsAsync(Guid policyId)
         {
             var detail = await _repo.GetDetailByPolicyIdAsync(policyId);
@@ -296,6 +323,9 @@ namespace SmartSure.PolicyService.Services
             };
         }
 
+        /// <summary>
+        /// Performs the SavePolicyDetailsAsync operation.
+        /// </summary>
         public async Task SavePolicyDetailsAsync(Guid policyId, SavePolicyDetailDTO dto)
         {
             var detail = new PolicyDetail
@@ -310,6 +340,9 @@ namespace SmartSure.PolicyService.Services
             await _repo.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Performs the GetPremiumAmountAsync operation.
+        /// </summary>
         public async Task<decimal> GetPremiumAmountAsync(Guid policyId)
         {
             var p = await _repo.GetByIdAsync(policyId);
@@ -317,6 +350,9 @@ namespace SmartSure.PolicyService.Services
             return p.PremiumAmount;
         }
 
+        /// <summary>
+        /// Performs the GetHomeDetailAsync operation.
+        /// </summary>
         public async Task<CreateHomeDetailDTO> GetHomeDetailAsync(Guid policyId)
         {
             var detail = await _repo.GetHomeDetailByPolicyIdAsync(policyId);
@@ -331,6 +367,9 @@ namespace SmartSure.PolicyService.Services
             };
         }
 
+        /// <summary>
+        /// Performs the SaveHomeDetailAsync operation.
+        /// </summary>
         public async Task SaveHomeDetailAsync(Guid policyId, CreateHomeDetailDTO dto)
         {
             var detail = new HomeDetail
@@ -346,6 +385,9 @@ namespace SmartSure.PolicyService.Services
             await _repo.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Performs the GetVehicleDetailAsync operation.
+        /// </summary>
         public async Task<CreateVehicleDetailDTO> GetVehicleDetailAsync(Guid policyId)
         {
             var detail = await _repo.GetVehicleDetailByPolicyIdAsync(policyId);
@@ -362,6 +404,9 @@ namespace SmartSure.PolicyService.Services
             };
         }
 
+        /// <summary>
+        /// Performs the SaveVehicleDetailAsync operation.
+        /// </summary>
         public async Task SaveVehicleDetailAsync(Guid policyId, CreateVehicleDetailDTO dto)
         {
             var detail = new VehicleDetail
@@ -400,6 +445,9 @@ namespace SmartSure.PolicyService.Services
             };
         }
 
+        /// <summary>
+        /// Performs the TerminatePolicyAsync operation.
+        /// </summary>
         public async Task TerminatePolicyAsync(Guid policyId)
         {
             var policy = await _repo.GetByIdAsync(policyId);
@@ -414,6 +462,9 @@ namespace SmartSure.PolicyService.Services
             _logger.LogInformation("Policy {PolicyId} has been terminated", policyId);
         }
 
+        /// <summary>
+        /// Performs the IncrementApprovedClaimsCountAsync operation.
+        /// </summary>
         public async Task IncrementApprovedClaimsCountAsync(Guid policyId)
         {
             var policy = await _repo.GetByIdAsync(policyId);

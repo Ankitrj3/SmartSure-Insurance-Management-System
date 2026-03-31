@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IdentityService.DTOs
 {
+    /// <summary>
+    /// Represent or implements ForgotPasswordDTO.
+    /// </summary>
     public class ForgotPasswordDTO
     {
         [Required(ErrorMessage = "Email is required")]
@@ -9,6 +12,9 @@ namespace IdentityService.DTOs
         public string Email { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements VerifyOtpDTO.
+    /// </summary>
     public class VerifyOtpDTO
     {
         [Required(ErrorMessage = "Email is required")]
@@ -20,6 +26,9 @@ namespace IdentityService.DTOs
         public string Otp { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements ResetPasswordDTO.
+    /// </summary>
     public class ResetPasswordDTO
     {
         [Required(ErrorMessage = "Reset token is required")]
@@ -32,12 +41,18 @@ namespace IdentityService.DTOs
         public string NewPassword { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements VerifyEmailDTO.
+    /// </summary>
     public class VerifyEmailDTO
     {
         [Required(ErrorMessage = "Token is required")]
         public string Token { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements ResendVerificationDTO.
+    /// </summary>
     public class ResendVerificationDTO
     {
         [Required(ErrorMessage = "Email is required")]
@@ -45,6 +60,9 @@ namespace IdentityService.DTOs
         public string Email { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements ResetPasswordWithOtpDTO.
+    /// </summary>
     public class ResetPasswordWithOtpDTO
     {
         [Required(ErrorMessage = "Email is required")]

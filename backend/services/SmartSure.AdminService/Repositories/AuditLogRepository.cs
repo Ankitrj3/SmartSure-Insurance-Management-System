@@ -4,6 +4,9 @@ using SmartSure.AdminService.Models;
 
 namespace SmartSure.AdminService.Repositories
 {
+    /// <summary>
+    /// Represent or implements AuditLogRepository.
+    /// </summary>
     public class AuditLogRepository : IAuditLogRepository
     {
         private readonly AdminDbContext _context;
@@ -13,11 +16,17 @@ namespace SmartSure.AdminService.Repositories
             _context = context;
         }
 
+        /// <summary>
+        /// Performs the AddAsync operation.
+        /// </summary>
         public async Task AddAsync(AuditLog log)
         {
             await _context.AuditLogs.AddAsync(log);
         }
 
+        /// <summary>
+        /// Performs the GetPagedAsync operation.
+        /// </summary>
         public async Task<List<AuditLog>> GetPagedAsync(int page, int pageSize)
         {
             return await _context.AuditLogs
@@ -27,11 +36,17 @@ namespace SmartSure.AdminService.Repositories
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Performs the GetTotalCountAsync operation.
+        /// </summary>
         public async Task<int> GetTotalCountAsync()
         {
             return await _context.AuditLogs.CountAsync();
         }
 
+        /// <summary>
+        /// Performs the SaveChangesAsync operation.
+        /// </summary>
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

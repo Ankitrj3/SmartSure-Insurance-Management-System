@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SmartSure.PolicyService.Models
 {
+    /// <summary>
+    /// Represent or implements InsuranceType.
+    /// </summary>
     public class InsuranceType
     {
         [Key]

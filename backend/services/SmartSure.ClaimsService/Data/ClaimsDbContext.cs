@@ -3,6 +3,9 @@ using SmartSure.ClaimsService.Models;
 
 namespace SmartSure.ClaimsService.Data
 {
+    /// <summary>
+    /// Represent or implements ClaimsDbContext.
+    /// </summary>
     public class ClaimsDbContext : DbContext
     {
         public ClaimsDbContext(DbContextOptions<ClaimsDbContext> options) : base(options) { }
@@ -11,6 +14,9 @@ namespace SmartSure.ClaimsService.Data
         public DbSet<ClaimDocument> ClaimDocuments { get; set; }
         public DbSet<ClaimStatusHistory> ClaimStatusHistory { get; set; }
 
+        /// <summary>
+        /// Performs the OnModelCreating operation.
+        /// </summary>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

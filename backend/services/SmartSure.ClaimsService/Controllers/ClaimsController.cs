@@ -10,6 +10,9 @@ namespace SmartSure.ClaimsService.Controllers
     [ApiController]
     [Route("claims")]
     [Authorize]
+    /// <summary>
+    /// Represent or implements ClaimsController.
+    /// </summary>
     public class ClaimsController : ControllerBase
     {
         private readonly IClaimService _claimService;
@@ -23,6 +26,9 @@ namespace SmartSure.ClaimsService.Controllers
             Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
         [HttpGet]
+        /// <summary>
+        /// Performs the GetMyClaims operation.
+        /// </summary>
         public async Task<IActionResult> GetMyClaims()
         {
             var userId = GetUserId();
@@ -32,6 +38,9 @@ namespace SmartSure.ClaimsService.Controllers
 
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
+        /// <summary>
+        /// Performs the GetAllClaims operation.
+        /// </summary>
         public async Task<IActionResult> GetAllClaims()
         {
             var claims = await _claimService.GetAllClaimsAsync();
@@ -39,6 +48,9 @@ namespace SmartSure.ClaimsService.Controllers
         }
 
         [HttpGet("{claimId}")]
+        /// <summary>
+        /// Performs the GetClaim operation.
+        /// </summary>
         public async Task<IActionResult> GetClaim(Guid claimId)
         {
             var claim = await _claimService.GetClaimByIdAsync(claimId);
@@ -47,6 +59,9 @@ namespace SmartSure.ClaimsService.Controllers
         }
 
         [HttpPost]
+        /// <summary>
+        /// Performs the CreateClaim operation.
+        /// </summary>
         public async Task<IActionResult> CreateClaim([FromBody] CreateClaimDTO dto)
         {
             var userId = GetUserId();
@@ -55,6 +70,9 @@ namespace SmartSure.ClaimsService.Controllers
         }
 
         [HttpPut("{claimId}")]
+        /// <summary>
+        /// Performs the UpdateClaim operation.
+        /// </summary>
         public async Task<IActionResult> UpdateClaim(Guid claimId, [FromBody] UpdateClaimDTO dto)
         {
             var claim = await _claimService.UpdateClaimAsync(claimId, dto);
@@ -62,6 +80,9 @@ namespace SmartSure.ClaimsService.Controllers
         }
 
         [HttpPut("{claimId}/submit")]
+        /// <summary>
+        /// Performs the SubmitClaim operation.
+        /// </summary>
         public async Task<IActionResult> SubmitClaim(Guid claimId)
         {
             var userId = GetUserId();
@@ -70,6 +91,9 @@ namespace SmartSure.ClaimsService.Controllers
         }
 
         [HttpGet("{claimId}/history")]
+        /// <summary>
+        /// Performs the GetClaimHistory operation.
+        /// </summary>
         public async Task<IActionResult> GetClaimHistory(Guid claimId)
         {
             var history = await _claimService.GetClaimHistoryAsync(claimId);
@@ -78,6 +102,9 @@ namespace SmartSure.ClaimsService.Controllers
 
         [HttpPut("{claimId}/approve")]
         [Authorize(Roles = "Admin")]
+        /// <summary>
+        /// Performs the ApproveClaim operation.
+        /// </summary>
         public async Task<IActionResult> ApproveClaim(Guid claimId, [FromBody] ApproveClaimDTO dto)
         {
             var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Admin";
@@ -87,6 +114,9 @@ namespace SmartSure.ClaimsService.Controllers
 
         [HttpPut("{claimId}/reject")]
         [Authorize(Roles = "Admin")]
+        /// <summary>
+        /// Performs the RejectClaim operation.
+        /// </summary>
         public async Task<IActionResult> RejectClaim(Guid claimId, [FromBody] RejectClaimDTO dto)
         {
             var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Admin";
@@ -95,6 +125,9 @@ namespace SmartSure.ClaimsService.Controllers
         }
 
         [HttpGet("by-policy/{policyId}")]
+        /// <summary>
+        /// Performs the GetClaimsByPolicy operation.
+        /// </summary>
         public async Task<IActionResult> GetClaimsByPolicy(Guid policyId)
         {
             var claims = await _claimService.GetClaimsByPolicyAsync(policyId);
@@ -103,6 +136,9 @@ namespace SmartSure.ClaimsService.Controllers
 
         [HttpPut("{claimId}/status")]
         [Authorize(Roles = "Admin")]
+        /// <summary>
+        /// Performs the UpdateClaimStatus operation.
+        /// </summary>
         public async Task<IActionResult> UpdateClaimStatus(Guid claimId, [FromBody] UpdateClaimStatusDTO dto)
         {
             var adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Admin";
@@ -111,6 +147,9 @@ namespace SmartSure.ClaimsService.Controllers
         }
     }
 
+    /// <summary>
+    /// Represent or implements UpdateClaimStatusDTO.
+    /// </summary>
     public class UpdateClaimStatusDTO
     {
         public string Status { get; set; } = "";

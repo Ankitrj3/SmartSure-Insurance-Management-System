@@ -2,6 +2,9 @@ using IdentityService.Models;
 
 namespace IdentityService.Repositories
 {
+    /// <summary>
+    /// Represent or implements IOtpRepository.
+    /// </summary>
     public interface IOtpRepository
     {
         Task<OtpRecord> GetByEmailAsync(string email);

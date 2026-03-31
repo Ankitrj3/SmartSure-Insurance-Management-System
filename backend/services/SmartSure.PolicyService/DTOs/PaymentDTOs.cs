@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SmartSure.PolicyService.DTOs
 {
+    /// <summary>
+    /// Represent or implements PaymentDTO.
+    /// </summary>
     public class PaymentDTO
     {
         public Guid PaymentId { get; set; }
@@ -13,6 +16,9 @@ namespace SmartSure.PolicyService.DTOs
         public string TransactionReference { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements RecordPaymentDTO.
+    /// </summary>
     public class RecordPaymentDTO
     {
         [Required]

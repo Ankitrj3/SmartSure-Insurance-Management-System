@@ -2,6 +2,9 @@ using SmartSure.PolicyService.Models;
 
 namespace SmartSure.PolicyService.Repositories
 {
+    /// <summary>
+    /// Represent or implements IPolicyRepository.
+    /// </summary>
     public interface IPolicyRepository
     {
         Task<List<Policy>> GetByUserIdAsync(Guid userId);

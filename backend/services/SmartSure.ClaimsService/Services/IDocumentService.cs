@@ -3,6 +3,9 @@ using SmartSure.ClaimsService.DTOs;
 
 namespace SmartSure.ClaimsService.Services
 {
+    /// <summary>
+    /// Represent or implements IDocumentService.
+    /// </summary>
     public interface IDocumentService
     {
         Task<DocumentResponseDTO> AddDocumentAsync(Guid claimId, IFormFile file);

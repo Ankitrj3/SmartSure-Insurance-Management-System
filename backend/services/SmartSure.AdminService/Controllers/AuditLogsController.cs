@@ -7,6 +7,9 @@ namespace SmartSure.AdminService.Controllers
     [ApiController]
     [Route("admin/audit-logs")]
     [Authorize(Roles = "Admin")]
+    /// <summary>
+    /// Represent or implements AuditLogsController.
+    /// </summary>
     public class AuditLogsController : ControllerBase
     {
         private readonly IAuditService _auditService;
@@ -17,6 +20,9 @@ namespace SmartSure.AdminService.Controllers
         }
 
         [HttpGet]
+        /// <summary>
+        /// Performs the GetAuditLogs operation.
+        /// </summary>
         public async Task<IActionResult> GetAuditLogs([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
             if (page < 1) page = 1;

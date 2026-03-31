@@ -5,6 +5,9 @@ using SmartSure.Shared.Contracts.Events;
 
 namespace SmartSure.ClaimsService.Consumers
 {
+    /// <summary>
+    /// Represent or implements ClaimApprovedConsumer.
+    /// </summary>
     public class ClaimApprovedConsumer : IConsumer<ClaimApprovedEvent>
     {
         private readonly IClaimService _claimService;
@@ -16,6 +19,9 @@ namespace SmartSure.ClaimsService.Consumers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Performs the Consume operation.
+        /// </summary>
         public async Task Consume(ConsumeContext<ClaimApprovedEvent> context)
         {
             var msg = context.Message;

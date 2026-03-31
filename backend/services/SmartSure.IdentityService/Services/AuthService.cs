@@ -86,6 +86,9 @@ namespace IdentityService.Services
             };
         }
 
+        /// <summary>
+        /// Performs the GetAllUsers operation.
+        /// </summary>
         public async Task<List<UserDTO>> GetAllUsers()
         {
             var users = await _repo.GetAllAsync();
@@ -246,6 +249,9 @@ namespace IdentityService.Services
             return "Registration successful and verified";
         }
 
+        /// <summary>
+        /// Performs the UpdateProfile operation.
+        /// </summary>
         public async Task UpdateProfile(string userId, UpdateUserDTO dto)
         {
             var user = await _repo.GetByIdAsync(Guid.Parse(userId));

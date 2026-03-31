@@ -3,6 +3,9 @@ using SmartSure.Shared.Contracts.Events;
 
 namespace SmartSure.PolicyService.Consumers;
 
+/// <summary>
+/// Represent or implements UserRegisteredConsumer.
+/// </summary>
 public class UserRegisteredConsumer : IConsumer<UserRegisteredEvent>
 {
     private readonly ILogger<UserRegisteredConsumer> _logger;
@@ -12,6 +15,9 @@ public class UserRegisteredConsumer : IConsumer<UserRegisteredEvent>
         _logger = logger;
     }
 
+    /// <summary>
+    /// Performs the Consume operation.
+    /// </summary>
     public Task Consume(ConsumeContext<UserRegisteredEvent> context)
     {
         _logger.LogInformation(

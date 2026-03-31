@@ -2,6 +2,9 @@ using IdentityService.Models;
 
 namespace IdentityService.Repositories
 {
+    /// <summary>
+    /// Represent or implements IUserRepository.
+    /// </summary>
     public interface IUserRepository
     {
         Task<User> GetByEmailAsync(string email);

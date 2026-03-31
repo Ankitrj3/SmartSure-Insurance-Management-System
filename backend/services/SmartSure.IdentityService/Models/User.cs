@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IdentityService.Models
 {
+    /// <summary>
+    /// Represent or implements User.
+    /// </summary>
     public class User
     {
         [Key]

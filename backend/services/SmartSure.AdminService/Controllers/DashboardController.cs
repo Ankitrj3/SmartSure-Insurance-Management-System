@@ -6,6 +6,9 @@ namespace SmartSure.AdminService.Controllers
     [ApiController]
     [Route("admin/dashboard")]
     [Authorize(Roles = "Admin")]
+    /// <summary>
+    /// Represent or implements DashboardController.
+    /// </summary>
     public class DashboardController : ControllerBase
     {
         private readonly ILogger<DashboardController> _logger;
@@ -16,6 +19,9 @@ namespace SmartSure.AdminService.Controllers
         }
 
         [HttpGet]
+        /// <summary>
+        /// Performs the GetDashboardStats operation.
+        /// </summary>
         public IActionResult GetDashboardStats()
         {
             // In production, this would aggregate data from other services via HTTP calls or a shared read DB

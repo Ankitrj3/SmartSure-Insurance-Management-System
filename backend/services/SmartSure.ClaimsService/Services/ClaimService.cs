@@ -127,30 +127,45 @@ namespace SmartSure.ClaimsService.Services
             return MapToDto(claim);
         }
 
+        /// <summary>
+        /// Performs the GetClaimByIdAsync operation.
+        /// </summary>
         public async Task<ClaimResponseDTO?> GetClaimByIdAsync(Guid claimId)
         {
             var claim = await _claimRepository.GetByIdAsync(claimId);
             return claim == null ? null : MapToDto(claim);
         }
 
+        /// <summary>
+        /// Performs the GetUserClaimsAsync operation.
+        /// </summary>
         public async Task<List<ClaimResponseDTO>> GetUserClaimsAsync(Guid userId)
         {
             var claims = await _claimRepository.GetByUserIdAsync(userId);
             return claims.Select(MapToDto).ToList();
         }
 
+        /// <summary>
+        /// Performs the GetAllClaimsAsync operation.
+        /// </summary>
         public async Task<List<ClaimResponseDTO>> GetAllClaimsAsync()
         {
             var claims = await _claimRepository.GetAllAsync();
             return claims.Select(MapToDto).ToList();
         }
 
+        /// <summary>
+        /// Performs the GetClaimsByPolicyAsync operation.
+        /// </summary>
         public async Task<List<ClaimResponseDTO>> GetClaimsByPolicyAsync(Guid policyId)
         {
             var claims = await _claimRepository.GetByPolicyIdAsync(policyId);
             return claims.Select(MapToDto).ToList();
         }
 
+        /// <summary>
+        /// Performs the UpdateClaimStatusAsync operation.
+        /// </summary>
         public async Task UpdateClaimStatusAsync(Guid claimId, string newStatus, string? notes, string changedBy)
         {
             var claim = await _claimRepository.GetByIdAsync(claimId);
@@ -202,6 +217,9 @@ namespace SmartSure.ClaimsService.Services
             });
         }
 
+        /// <summary>
+        /// Performs the UpdateClaimAsync operation.
+        /// </summary>
         public async Task<ClaimResponseDTO> UpdateClaimAsync(Guid claimId, UpdateClaimDTO dto)
         {
             var claim = await _claimRepository.GetByIdAsync(claimId);
@@ -258,6 +276,9 @@ namespace SmartSure.ClaimsService.Services
             _logger.LogInformation("Claim {ClaimId} submitted", claimId);
         }
 
+        /// <summary>
+        /// Performs the GetClaimHistoryAsync operation.
+        /// </summary>
         public async Task<List<ClaimStatusHistoryDTO>> GetClaimHistoryAsync(Guid claimId)
         {
             var history = await _historyRepository.GetByClaimIdAsync(claimId);
@@ -367,6 +388,9 @@ namespace SmartSure.ClaimsService.Services
             });
         }
 
+        /// <summary>
+        /// Performs the RejectClaimAsync operation.
+        /// </summary>
         public async Task RejectClaimAsync(Guid claimId, string reason, string adminId)
         {
             var claim = await _claimRepository.GetByIdAsync(claimId);
@@ -408,6 +432,9 @@ namespace SmartSure.ClaimsService.Services
             });
         }
 
+        /// <summary>
+        /// Performs the TransitionStatusAsync operation.
+        /// </summary>
         public async Task TransitionStatusAsync(Guid claimId, string newStatus, string changedBy, string? notes = null)
         {
             var claim = await _claimRepository.GetByIdAsync(claimId);

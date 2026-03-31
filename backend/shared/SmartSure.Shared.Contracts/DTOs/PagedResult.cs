@@ -1,5 +1,8 @@
 namespace SmartSure.Shared.Contracts.DTOs;
 
+/// <summary>
+/// Represent or implements PagedResult.
+/// </summary>
 public class PagedResult<T>
 {
     public List<T> Items { get; set; } = new();

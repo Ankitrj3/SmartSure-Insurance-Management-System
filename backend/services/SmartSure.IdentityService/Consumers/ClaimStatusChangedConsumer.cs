@@ -6,6 +6,9 @@ using SmartSure.Shared.Contracts.Constants;
 
 namespace IdentityService.Consumers
 {
+    /// <summary>
+    /// Represent or implements ClaimStatusChangedConsumer.
+    /// </summary>
     public class ClaimStatusChangedConsumer : IConsumer<ClaimStatusChangedEvent>
     {
         private readonly IUserRepository _userRepository;
@@ -17,6 +20,9 @@ namespace IdentityService.Consumers
             _emailService = emailService;
         }
 
+        /// <summary>
+        /// Performs the Consume operation.
+        /// </summary>
         public async Task Consume(ConsumeContext<ClaimStatusChangedEvent> context)
         {
             var msg = context.Message;

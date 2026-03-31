@@ -47,6 +47,11 @@ namespace IdentityService.Services
             await _repo.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Retrieves a comprehensive list of all registered users in the system.
+        /// Includes standard profile data and flattens associated roles into a simplified string list.
+        /// </summary>
+        /// <returns>A collection of user data transfer objects.</returns>
         public async Task<List<UserDTO>> GetUsers()
         {
             var users = await _repo.GetAllAsync();

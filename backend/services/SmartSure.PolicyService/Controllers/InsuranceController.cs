@@ -8,6 +8,9 @@ namespace SmartSure.PolicyService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    /// <summary>
+    /// Represent or implements InsuranceController.
+    /// </summary>
     public class InsuranceController : ControllerBase
     {
         private readonly IInsuranceService _service;
@@ -18,6 +21,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpGet("/insurance-types")]
+        /// <summary>
+        /// Performs the GetTypes operation.
+        /// </summary>
         public async Task<IActionResult> GetTypes()
         {
             var types = await _service.GetAllTypesAsync();
@@ -25,6 +31,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpGet("/insurance-types/{typeId}")]
+        /// <summary>
+        /// Performs the GetType operation.
+        /// </summary>
         public async Task<IActionResult> GetType(Guid typeId)
         {
             var type = await _service.GetTypeByIdAsync(typeId);
@@ -34,6 +43,9 @@ namespace SmartSure.PolicyService.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("/insurance-types")]
+        /// <summary>
+        /// Performs the CreateType operation.
+        /// </summary>
         public async Task<IActionResult> CreateType(CreateInsuranceTypeDTO dto)
         {
             var type = await _service.CreateTypeAsync(dto);
@@ -42,6 +54,9 @@ namespace SmartSure.PolicyService.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("/insurance-types/{typeId}")]
+        /// <summary>
+        /// Performs the UpdateType operation.
+        /// </summary>
         public async Task<IActionResult> UpdateType(Guid typeId, UpdateInsuranceTypeDTO dto)
         {
             await _service.UpdateTypeAsync(typeId, dto);
@@ -50,6 +65,9 @@ namespace SmartSure.PolicyService.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("/insurance-types/{typeId}")]
+        /// <summary>
+        /// Performs the DeleteType operation.
+        /// </summary>
         public async Task<IActionResult> DeleteType(Guid typeId)
         {
             await _service.DeleteTypeAsync(typeId);
@@ -57,6 +75,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpGet("/insurance-types/{typeId}/subtypes")]
+        /// <summary>
+        /// Performs the GetSubtypesByTypeId operation.
+        /// </summary>
         public async Task<IActionResult> GetSubtypesByTypeId(Guid typeId)
         {
             var subtypes = await _service.GetSubtypesByTypeIdAsync(typeId);
@@ -64,6 +85,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpGet("/insurance-subtypes")]
+        /// <summary>
+        /// Performs the GetAllSubtypes operation.
+        /// </summary>
         public async Task<IActionResult> GetAllSubtypes()
         {
             var subtypes = await _service.GetAllSubtypesAsync();
@@ -72,6 +96,9 @@ namespace SmartSure.PolicyService.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("/insurance-subtypes")]
+        /// <summary>
+        /// Performs the CreateSubtype operation.
+        /// </summary>
         public async Task<IActionResult> CreateSubtype(CreateInsuranceSubtypeDTO dto)
         {
             var subtype = await _service.CreateSubtypeAsync(dto);
@@ -80,6 +107,9 @@ namespace SmartSure.PolicyService.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("/insurance-subtypes/{subtypeId}")]
+        /// <summary>
+        /// Performs the UpdateSubtype operation.
+        /// </summary>
         public async Task<IActionResult> UpdateSubtype(Guid subtypeId, UpdateInsuranceSubtypeDTO dto)
         {
             await _service.UpdateSubtypeAsync(subtypeId, dto);
@@ -88,6 +118,9 @@ namespace SmartSure.PolicyService.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("/insurance-subtypes/{subtypeId}")]
+        /// <summary>
+        /// Performs the DeleteSubtype operation.
+        /// </summary>
         public async Task<IActionResult> DeleteSubtype(Guid subtypeId)
         {
             await _service.DeleteSubtypeAsync(subtypeId);

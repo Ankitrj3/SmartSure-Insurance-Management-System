@@ -4,6 +4,9 @@ using SmartSure.PolicyService.Models;
 
 namespace SmartSure.PolicyService.Repositories
 {
+    /// <summary>
+    /// Represent or implements PolicyRepository.
+    /// </summary>
     public class PolicyRepository : IPolicyRepository
     {
         private readonly PolicyDbContext _context;
@@ -13,6 +16,9 @@ namespace SmartSure.PolicyService.Repositories
             _context = context;
         }
 
+        /// <summary>
+        /// Performs the GetByUserIdAsync operation.
+        /// </summary>
         public async Task<List<Policy>> GetByUserIdAsync(Guid userId)
         {
             return await _context.Policies
@@ -22,6 +28,9 @@ namespace SmartSure.PolicyService.Repositories
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Performs the GetAllAsync operation.
+        /// </summary>
         public async Task<List<Policy>> GetAllAsync()
         {
             return await _context.Policies
@@ -30,6 +39,9 @@ namespace SmartSure.PolicyService.Repositories
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Performs the GetByIdAsync operation.
+        /// </summary>
         public async Task<Policy> GetByIdAsync(Guid policyId)
         {
             return await _context.Policies
@@ -41,16 +53,25 @@ namespace SmartSure.PolicyService.Repositories
                 .FirstOrDefaultAsync(p => p.PolicyId == policyId);
         }
 
+        /// <summary>
+        /// Performs the AddAsync operation.
+        /// </summary>
         public async Task AddAsync(Policy policy)
         {
             await _context.Policies.AddAsync(policy);
         }
 
+        /// <summary>
+        /// Performs the UpdateAsync operation.
+        /// </summary>
         public async Task UpdateAsync(Policy policy)
         {
             _context.Policies.Update(policy);
         }
 
+        /// <summary>
+        /// Performs the CancelAsync operation.
+        /// </summary>
         public async Task CancelAsync(Guid policyId)
         {
             var policy = await _context.Policies.FindAsync(policyId);
@@ -61,11 +82,17 @@ namespace SmartSure.PolicyService.Repositories
             }
         }
 
+        /// <summary>
+        /// Performs the GetDetailByPolicyIdAsync operation.
+        /// </summary>
         public async Task<PolicyDetail> GetDetailByPolicyIdAsync(Guid policyId)
         {
             return await _context.PolicyDetails.FirstOrDefaultAsync(pd => pd.PolicyId == policyId);
         }
 
+        /// <summary>
+        /// Performs the AddOrUpdateDetailAsync operation.
+        /// </summary>
         public async Task AddOrUpdateDetailAsync(PolicyDetail detail)
         {
             var existing = await _context.PolicyDetails.FirstOrDefaultAsync(pd => pd.PolicyId == detail.PolicyId);
@@ -81,11 +108,17 @@ namespace SmartSure.PolicyService.Repositories
             }
         }
 
+        /// <summary>
+        /// Performs the GetHomeDetailByPolicyIdAsync operation.
+        /// </summary>
         public async Task<HomeDetail> GetHomeDetailByPolicyIdAsync(Guid policyId)
         {
             return await _context.HomeDetails.FirstOrDefaultAsync(hd => hd.PolicyId == policyId);
         }
 
+        /// <summary>
+        /// Performs the AddOrUpdateHomeDetailAsync operation.
+        /// </summary>
         public async Task AddOrUpdateHomeDetailAsync(HomeDetail detail)
         {
             var existing = await _context.HomeDetails.FirstOrDefaultAsync(hd => hd.PolicyId == detail.PolicyId);
@@ -103,11 +136,17 @@ namespace SmartSure.PolicyService.Repositories
             }
         }
 
+        /// <summary>
+        /// Performs the GetVehicleDetailByPolicyIdAsync operation.
+        /// </summary>
         public async Task<VehicleDetail> GetVehicleDetailByPolicyIdAsync(Guid policyId)
         {
             return await _context.VehicleDetails.FirstOrDefaultAsync(vd => vd.PolicyId == policyId);
         }
 
+        /// <summary>
+        /// Performs the AddOrUpdateVehicleDetailAsync operation.
+        /// </summary>
         public async Task AddOrUpdateVehicleDetailAsync(VehicleDetail detail)
         {
             var existing = await _context.VehicleDetails.FirstOrDefaultAsync(vd => vd.PolicyId == detail.PolicyId);
@@ -127,6 +166,9 @@ namespace SmartSure.PolicyService.Repositories
             }
         }
 
+        /// <summary>
+        /// Performs the SaveChangesAsync operation.
+        /// </summary>
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

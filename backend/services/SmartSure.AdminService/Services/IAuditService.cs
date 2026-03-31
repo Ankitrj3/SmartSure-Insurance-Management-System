@@ -3,6 +3,9 @@ using SmartSure.AdminService.Models;
 
 namespace SmartSure.AdminService.Services
 {
+    /// <summary>
+    /// Represent or implements IAuditService.
+    /// </summary>
     public interface IAuditService
     {
         Task LogAsync(string action, string entityType, Guid? entityId, Guid? actorId, string? details = null);

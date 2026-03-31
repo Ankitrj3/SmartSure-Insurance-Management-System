@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IdentityService.Models
 {
+    /// <summary>
+    /// Represent or implements ExternalLogin.
+    /// </summary>
     public class ExternalLogin
     {
         [Key]

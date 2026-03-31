@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SmartSure.ClaimsService.Models
 {
+    /// <summary>
+    /// Represent or implements Claim.
+    /// </summary>
     public class Claim
     {
         [Key]

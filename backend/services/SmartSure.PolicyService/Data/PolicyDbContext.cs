@@ -3,6 +3,9 @@ using SmartSure.PolicyService.Models;
 
 namespace SmartSure.PolicyService.Data
 {
+    /// <summary>
+    /// Represent or implements PolicyDbContext.
+    /// </summary>
     public class PolicyDbContext : DbContext
     {
         public PolicyDbContext(DbContextOptions<PolicyDbContext> options) : base(options)
@@ -18,6 +21,9 @@ namespace SmartSure.PolicyService.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Discount> Discounts { get; set; }
 
+        /// <summary>
+        /// Performs the OnModelCreating operation.
+        /// </summary>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

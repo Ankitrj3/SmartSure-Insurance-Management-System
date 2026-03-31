@@ -7,6 +7,9 @@ namespace SmartSure.AdminService.Controllers
     [ApiController]
     [Route("admin/users")]
     [Authorize(Roles = "Admin")]
+    /// <summary>
+    /// Represent or implements AdminUsersController.
+    /// </summary>
     public class AdminUsersController : ControllerBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -23,6 +26,9 @@ namespace SmartSure.AdminService.Controllers
         private string GetAccessToken() => Request.Headers["Authorization"].ToString();
 
         [HttpGet]
+        /// <summary>
+        /// Performs the GetUsers operation.
+        /// </summary>
         public async Task<IActionResult> GetUsers()
         {
             _logger.LogInformation("Admin requesting user list from Identity Service");
@@ -54,6 +60,9 @@ namespace SmartSure.AdminService.Controllers
         }
 
         [HttpGet("{userId}")]
+        /// <summary>
+        /// Performs the GetUser operation.
+        /// </summary>
         public async Task<IActionResult> GetUser(Guid userId)
         {
             _logger.LogInformation("Admin requesting user detail for {UserId}", userId);
@@ -84,6 +93,9 @@ namespace SmartSure.AdminService.Controllers
         }
 
         [HttpDelete("{userId}")]
+        /// <summary>
+        /// Performs the DeactivateUser operation.
+        /// </summary>
         public async Task<IActionResult> DeactivateUser(Guid userId)
         {
             _logger.LogInformation("Admin deleting user {UserId}", userId);

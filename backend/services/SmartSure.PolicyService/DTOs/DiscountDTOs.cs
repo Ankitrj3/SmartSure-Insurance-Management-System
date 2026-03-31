@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SmartSure.PolicyService.DTOs
 {
+    /// <summary>
+    /// Represent or implements DiscountDTO.
+    /// </summary>
     public class DiscountDTO
     {
         public Guid DiscountId { get; set; }
@@ -15,6 +18,9 @@ namespace SmartSure.PolicyService.DTOs
         public DateTime? ValidUntil { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements CreateDiscountDTO.
+    /// </summary>
     public class CreateDiscountDTO
     {
         [Required(ErrorMessage = "Code is required")]
@@ -36,6 +42,9 @@ namespace SmartSure.PolicyService.DTOs
         public DateTime? ValidUntil { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements ApplyDiscountResultDTO.
+    /// </summary>
     public class ApplyDiscountResultDTO
     {
         public decimal OriginalPremium { get; set; }

@@ -3,6 +3,9 @@ using System.Net.Mail;
 
 namespace SmartSure.ClaimsService.Services
 {
+    /// <summary>
+    /// Represent or implements EmailService.
+    /// </summary>
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _config;
@@ -14,6 +17,9 @@ namespace SmartSure.ClaimsService.Services
             _logger = logger;
         }
 
+        /// <summary>
+        /// Performs the SendClaimApprovedEmailAsync operation.
+        /// </summary>
         public async Task SendClaimApprovedEmailAsync(string toEmail, string userName, string claimId, decimal approvedAmount)
         {
             var subject = "✅ Your Claim Has Been Approved - SmartSure Insurance";
@@ -74,6 +80,9 @@ namespace SmartSure.ClaimsService.Services
             await SendEmailAsync(toEmail, subject, body);
         }
 
+        /// <summary>
+        /// Performs the SendClaimRejectedEmailAsync operation.
+        /// </summary>
         public async Task SendClaimRejectedEmailAsync(string toEmail, string userName, string claimId, string reason)
         {
             var subject = "❌ Claim Decision - SmartSure Insurance";
@@ -136,6 +145,9 @@ namespace SmartSure.ClaimsService.Services
             await SendEmailAsync(toEmail, subject, body);
         }
 
+        /// <summary>
+        /// Performs the SendClaimUnderReviewEmailAsync operation.
+        /// </summary>
         public async Task SendClaimUnderReviewEmailAsync(string toEmail, string userName, string claimId)
         {
             var subject = "🔍 Your Claim is Under Review - SmartSure Insurance";
@@ -202,6 +214,9 @@ namespace SmartSure.ClaimsService.Services
             await SendEmailAsync(toEmail, subject, body);
         }
 
+        /// <summary>
+        /// Performs the SendClaimClosedEmailAsync operation.
+        /// </summary>
         public async Task SendClaimClosedEmailAsync(string toEmail, string userName, string claimId)
         {
             var subject = "🔒 Your Claim Has Been Closed - SmartSure Insurance";

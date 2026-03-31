@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SmartSure.PolicyService.Models
 {
+    /// <summary>
+    /// Represent or implements Policy.
+    /// </summary>
     public class Policy
     {
         [Key]

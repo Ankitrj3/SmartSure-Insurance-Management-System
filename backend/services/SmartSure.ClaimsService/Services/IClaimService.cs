@@ -2,6 +2,9 @@ using SmartSure.ClaimsService.DTOs;
 
 namespace SmartSure.ClaimsService.Services
 {
+    /// <summary>
+    /// Represent or implements IClaimService.
+    /// </summary>
     public interface IClaimService
     {
         Task<ClaimResponseDTO> CreateClaimAsync(Guid userId, CreateClaimDTO dto);

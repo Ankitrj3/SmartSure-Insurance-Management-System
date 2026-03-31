@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IdentityService.Data
 {
+    /// <summary>
+    /// Represent or implements IdentityDbContext.
+    /// </summary>
     public class IdentityDbContext : DbContext
     {
         public IdentityDbContext(DbContextOptions<IdentityDbContext> options) : base(options) { }
@@ -14,6 +17,9 @@ namespace IdentityService.Data
         public DbSet<ExternalLogin> ExternalLogins { get; set; }
         public DbSet<OtpRecord> OtpRecords { get; set; }
 
+        /// <summary>
+        /// Performs the OnModelCreating operation.
+        /// </summary>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()

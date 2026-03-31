@@ -2,6 +2,9 @@
 
 namespace IdentityService.Models
 {
+    /// <summary>
+    /// Represent or implements Role.
+    /// </summary>
     public class Role
     {
         [Key]

@@ -6,6 +6,9 @@ using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.ClaimsService.Services
 {
+    /// <summary>
+    /// Represent or implements DocumentService.
+    /// </summary>
     public class DocumentService : IDocumentService
     {
         private readonly IClaimRepository _claimRepository;
@@ -25,6 +28,9 @@ namespace SmartSure.ClaimsService.Services
             _config = config;
         }
 
+        /// <summary>
+        /// Performs the AddDocumentAsync operation.
+        /// </summary>
         public async Task<DocumentResponseDTO> AddDocumentAsync(Guid claimId, IFormFile file)
         {
             var claim = await _claimRepository.GetByIdAsync(claimId);
@@ -74,6 +80,9 @@ namespace SmartSure.ClaimsService.Services
             };
         }
 
+        /// <summary>
+        /// Performs the GetDocumentsAsync operation.
+        /// </summary>
         public async Task<List<DocumentResponseDTO>> GetDocumentsAsync(Guid claimId)
         {
             var documents = await _documentRepository.GetByClaimIdAsync(claimId);
@@ -90,6 +99,9 @@ namespace SmartSure.ClaimsService.Services
             }).ToList();
         }
 
+        /// <summary>
+        /// Performs the DeleteDocumentAsync operation.
+        /// </summary>
         public async Task DeleteDocumentAsync(Guid claimId, Guid documentId)
         {
             var document = await _documentRepository.GetByIdAsync(documentId, claimId);

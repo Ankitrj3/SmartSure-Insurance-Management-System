@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IdentityService.DTOs
 {
+    /// <summary>
+    /// Represent or implements ChangePasswordDTO.
+    /// </summary>
     public class ChangePasswordDTO
     {
         [Required(ErrorMessage = "Current Password is required")]

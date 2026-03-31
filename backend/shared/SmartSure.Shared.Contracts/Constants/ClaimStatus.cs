@@ -1,5 +1,8 @@
 namespace SmartSure.Shared.Contracts.Constants;
 
+/// <summary>
+/// Represent or implements ClaimStatus.
+/// </summary>
 public static class ClaimStatus
 {
     public const string Draft = "Draft";

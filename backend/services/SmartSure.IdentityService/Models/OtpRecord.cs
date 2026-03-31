@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IdentityService.Models
 {
+    /// <summary>
+    /// Represent or implements OtpRecord.
+    /// </summary>
     public class OtpRecord
     {
         [Key]

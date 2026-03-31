@@ -1,10 +1,16 @@
 namespace SmartSure.AdminService.Services
 {
+    /// <summary>
+    /// Represent or implements IPdfGeneratorService.
+    /// </summary>
     public interface IPdfGeneratorService
     {
         byte[] GenerateSalesReportPdf(SalesReportData data);
     }
 
+    /// <summary>
+    /// Represent or implements SalesReportData.
+    /// </summary>
     public class SalesReportData
     {
         public string ReportType { get; set; } = "Financial";
@@ -23,6 +29,9 @@ namespace SmartSure.AdminService.Services
         public string GeneratedBy { get; set; } = "";
     }
 
+    /// <summary>
+    /// Represent or implements PolicyTypeBreakdown.
+    /// </summary>
     public class PolicyTypeBreakdown
     {
         public string TypeName { get; set; } = "";
@@ -30,6 +39,9 @@ namespace SmartSure.AdminService.Services
         public decimal Revenue { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements MonthlyTrend.
+    /// </summary>
     public class MonthlyTrend
     {
         public string Month { get; set; } = "";

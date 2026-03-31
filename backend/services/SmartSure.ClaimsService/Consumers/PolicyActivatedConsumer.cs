@@ -3,6 +3,9 @@ using SmartSure.Shared.Contracts.Events;
 
 namespace SmartSure.ClaimsService.Consumers
 {
+    /// <summary>
+    /// Represent or implements PolicyActivatedConsumer.
+    /// </summary>
     public class PolicyActivatedConsumer : IConsumer<PolicyActivatedEvent>
     {
         private readonly ILogger<PolicyActivatedConsumer> _logger;
@@ -12,6 +15,9 @@ namespace SmartSure.ClaimsService.Consumers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Performs the Consume operation.
+        /// </summary>
         public Task Consume(ConsumeContext<PolicyActivatedEvent> context)
         {
             var msg = context.Message;

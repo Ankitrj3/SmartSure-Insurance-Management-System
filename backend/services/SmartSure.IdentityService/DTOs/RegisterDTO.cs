@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IdentityService.DTOs
 {
+    /// <summary>
+    /// Represent or implements RegisterDTO.
+    /// </summary>
     public class RegisterDTO
     {
         [Required(ErrorMessage = "Full Name is required")]

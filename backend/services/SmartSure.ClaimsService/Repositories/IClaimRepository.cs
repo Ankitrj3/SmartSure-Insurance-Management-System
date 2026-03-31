@@ -2,6 +2,9 @@ using SmartSure.ClaimsService.Models;
 
 namespace SmartSure.ClaimsService.Repositories
 {
+    /// <summary>
+    /// Represent or implements IClaimRepository.
+    /// </summary>
     public interface IClaimRepository
     {
         Task<Claim> GetByIdAsync(Guid claimId);

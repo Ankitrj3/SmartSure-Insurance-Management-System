@@ -5,6 +5,9 @@ using SmartSure.Shared.Contracts.Exceptions;
 
 namespace SmartSure.PolicyService.Services
 {
+    /// <summary>
+    /// Represent or implements DiscountService.
+    /// </summary>
     public class DiscountService : IDiscountService
     {
         private readonly IDiscountRepository _repo;
@@ -16,12 +19,18 @@ namespace SmartSure.PolicyService.Services
             _policyRepo = policyRepo;
         }
 
+        /// <summary>
+        /// Performs the GetAllDiscountsAsync operation.
+        /// </summary>
         public async Task<List<DiscountDTO>> GetAllDiscountsAsync()
         {
             var discounts = await _repo.GetAllAsync();
             return discounts.Select(MapToDto).ToList();
         }
 
+        /// <summary>
+        /// Performs the GetDiscountByIdAsync operation.
+        /// </summary>
         public async Task<DiscountDTO> GetDiscountByIdAsync(Guid discountId)
         {
             var d = await _repo.GetByIdAsync(discountId);
@@ -29,6 +38,9 @@ namespace SmartSure.PolicyService.Services
             return MapToDto(d);
         }
 
+        /// <summary>
+        /// Performs the CreateDiscountAsync operation.
+        /// </summary>
         public async Task<DiscountDTO> CreateDiscountAsync(CreateDiscountDTO dto)
         {
             var discount = new Discount
@@ -49,6 +61,9 @@ namespace SmartSure.PolicyService.Services
             return MapToDto(discount);
         }
 
+        /// <summary>
+        /// Performs the UpdateDiscountAsync operation.
+        /// </summary>
         public async Task UpdateDiscountAsync(Guid discountId, CreateDiscountDTO dto)
         {
             var discount = await _repo.GetByIdAsync(discountId);
@@ -65,12 +80,18 @@ namespace SmartSure.PolicyService.Services
             await _repo.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Performs the DeleteDiscountAsync operation.
+        /// </summary>
         public async Task DeleteDiscountAsync(Guid discountId)
         {
             await _repo.DeleteAsync(discountId);
             await _repo.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Performs the CalculateDiscountAsync operation.
+        /// </summary>
         public async Task<ApplyDiscountResultDTO> CalculateDiscountAsync(Guid userId, decimal originalPremium, string? couponCode)
         {
             decimal totalDiscountPercent = 0;

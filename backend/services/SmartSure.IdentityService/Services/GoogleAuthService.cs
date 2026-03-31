@@ -8,6 +8,9 @@ using SmartSure.Shared.Contracts.Events;
 
 namespace IdentityService.Services
 {
+    /// <summary>
+    /// Represent or implements GoogleAuthService.
+    /// </summary>
     public class GoogleAuthService : IGoogleAuthService
     {
         private readonly IConfiguration _config;
@@ -41,6 +44,9 @@ namespace IdentityService.Services
             return $"https://accounts.google.com/o/oauth2/auth?client_id={clientId}&redirect_uri={redirectUri}&response_type=code&scope=email profile&access_type=offline";
         }
 
+        /// <summary>
+        /// Performs the ProcessGoogleCallbackAsync operation.
+        /// </summary>
         public async Task<string> ProcessGoogleCallbackAsync(string code)
         {
             var clientId = _config["Google:ClientId"];

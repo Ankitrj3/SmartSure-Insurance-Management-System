@@ -2,6 +2,9 @@ using IdentityService.DTOs;
 
 namespace IdentityService.Services
 {
+    /// <summary>
+    /// Represent or implements IAuthService.
+    /// </summary>
     public interface IAuthService
     {
         Task<string> Register(RegisterDTO dto);

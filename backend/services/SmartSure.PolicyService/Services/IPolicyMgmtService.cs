@@ -2,6 +2,9 @@ using SmartSure.PolicyService.DTOs;
 
 namespace SmartSure.PolicyService.Services
 {
+    /// <summary>
+    /// Represent or implements IPolicyMgmtService.
+    /// </summary>
     public interface IPolicyMgmtService
     {
         Task<List<PolicyDTO>> GetUserPoliciesAsync(Guid userId);

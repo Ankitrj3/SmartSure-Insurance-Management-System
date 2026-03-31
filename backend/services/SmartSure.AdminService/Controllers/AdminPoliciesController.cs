@@ -7,6 +7,9 @@ namespace SmartSure.AdminService.Controllers
     [ApiController]
     [Route("admin/policies")]
     [Authorize(Roles = "Admin")]
+    /// <summary>
+    /// Represent or implements AdminPoliciesController.
+    /// </summary>
     public class AdminPoliciesController : ControllerBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -23,6 +26,9 @@ namespace SmartSure.AdminService.Controllers
         private string GetAccessToken() => Request.Headers["Authorization"].ToString();
 
         [HttpGet]
+        /// <summary>
+        /// Performs the GetAllPolicies operation.
+        /// </summary>
         public async Task<IActionResult> GetAllPolicies()
         {
             _logger.LogInformation("Admin requesting all policies from Policy Service");

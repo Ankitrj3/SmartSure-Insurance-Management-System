@@ -2,6 +2,9 @@ using SmartSure.PolicyService.Models;
 
 namespace SmartSure.PolicyService.Repositories
 {
+    /// <summary>
+    /// Represent or implements IDiscountRepository.
+    /// </summary>
     public interface IDiscountRepository
     {
         Task<List<Discount>> GetAllAsync();

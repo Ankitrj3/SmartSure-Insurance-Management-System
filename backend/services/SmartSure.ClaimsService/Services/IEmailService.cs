@@ -1,5 +1,8 @@
 namespace SmartSure.ClaimsService.Services
 {
+    /// <summary>
+    /// Represent or implements IEmailService.
+    /// </summary>
     public interface IEmailService
     {
         Task SendClaimApprovedEmailAsync(string toEmail, string userName, string claimId, decimal approvedAmount);

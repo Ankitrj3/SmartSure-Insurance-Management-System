@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SmartSure.PolicyService.DTOs
 {
+    /// <summary>
+    /// Represent or implements PolicyDTO.
+    /// </summary>
     public class PolicyDTO
     {
         public Guid PolicyId { get; set; }
@@ -18,6 +21,9 @@ namespace SmartSure.PolicyService.DTOs
         public string? NomineeRelation { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements CreatePolicyDTO.
+    /// </summary>
     public class CreatePolicyDTO
     {
         [Required(ErrorMessage = "SubtypeId is required")]
@@ -155,6 +161,9 @@ namespace SmartSure.PolicyService.DTOs
         public string Breakdown { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements PolicyDetailDTO.
+    /// </summary>
     public class PolicyDetailDTO
     {
         public Guid PolicyId { get; set; }
@@ -163,6 +172,9 @@ namespace SmartSure.PolicyService.DTOs
         public string? Exclusions { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements SavePolicyDetailDTO.
+    /// </summary>
     public class SavePolicyDetailDTO
     {
         [Required]

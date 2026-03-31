@@ -4,8 +4,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace SmartSure.PolicyService.Data
 {
+    /// <summary>
+    /// Represent or implements PolicyDbContextFactory.
+    /// </summary>
     public class PolicyDbContextFactory : IDesignTimeDbContextFactory<PolicyDbContext>
     {
+        /// <summary>
+        /// Performs the CreateDbContext operation.
+        /// </summary>
         public PolicyDbContext CreateDbContext(string[] args)
         {
             // Load .env file from the project directory

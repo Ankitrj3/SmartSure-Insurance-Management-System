@@ -4,6 +4,9 @@ using SmartSure.Shared.Contracts.Events;
 
 namespace SmartSure.AdminService.Consumers
 {
+    /// <summary>
+    /// Represent or implements PolicyCancelledConsumer.
+    /// </summary>
     public class PolicyCancelledConsumer : IConsumer<PolicyCancelledEvent>
     {
         private readonly IAuditService _auditService;
@@ -15,6 +18,9 @@ namespace SmartSure.AdminService.Consumers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Performs the Consume operation.
+        /// </summary>
         public async Task Consume(ConsumeContext<PolicyCancelledEvent> context)
         {
             var msg = context.Message;

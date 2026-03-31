@@ -9,6 +9,9 @@ namespace SmartSure.PolicyService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    /// <summary>
+    /// Represent or implements DiscountsController.
+    /// </summary>
     public class DiscountsController : ControllerBase
     {
         private readonly IDiscountService _service;
@@ -31,6 +34,9 @@ namespace SmartSure.PolicyService.Controllers
 
         [HttpGet("/discounts/{id}")]
         [Authorize(Roles = "Admin")]
+        /// <summary>
+        /// Performs the GetById operation.
+        /// </summary>
         public async Task<IActionResult> GetById(Guid id)
         {
             var discount = await _service.GetDiscountByIdAsync(id);
@@ -40,6 +46,9 @@ namespace SmartSure.PolicyService.Controllers
 
         [HttpPost("/discounts")]
         [Authorize(Roles = "Admin")]
+        /// <summary>
+        /// Performs the Create operation.
+        /// </summary>
         public async Task<IActionResult> Create([FromBody] CreateDiscountDTO dto)
         {
             if (!ModelState.IsValid) 
@@ -52,6 +61,9 @@ namespace SmartSure.PolicyService.Controllers
 
         [HttpPut("/discounts/{id}")]
         [Authorize(Roles = "Admin")]
+        /// <summary>
+        /// Performs the Update operation.
+        /// </summary>
         public async Task<IActionResult> Update(Guid id, [FromBody] CreateDiscountDTO dto)
         {
             try
@@ -71,6 +83,9 @@ namespace SmartSure.PolicyService.Controllers
 
         [HttpDelete("/discounts/{id}")]
         [Authorize(Roles = "Admin")]
+        /// <summary>
+        /// Performs the Delete operation.
+        /// </summary>
         public async Task<IActionResult> Delete(Guid id)
         {
             await _service.DeleteDiscountAsync(id);
@@ -90,6 +105,9 @@ namespace SmartSure.PolicyService.Controllers
         }
     }
 
+    /// <summary>
+    /// Represent or implements CalculateDiscountRequest.
+    /// </summary>
     public class CalculateDiscountRequest
     {
         public decimal OriginalPremium { get; set; }

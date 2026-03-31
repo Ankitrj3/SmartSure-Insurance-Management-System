@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SmartSure.PolicyService.DTOs
 {
+    /// <summary>
+    /// Represent or implements InsuranceTypeDTO.
+    /// </summary>
     public class InsuranceTypeDTO
     {
         public Guid TypeId { get; set; }
@@ -9,6 +12,9 @@ namespace SmartSure.PolicyService.DTOs
         public string Description { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements CreateInsuranceTypeDTO.
+    /// </summary>
     public class CreateInsuranceTypeDTO
     {
         [Required(ErrorMessage = "Name is required")]
@@ -18,6 +24,9 @@ namespace SmartSure.PolicyService.DTOs
         public string Description { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements UpdateInsuranceTypeDTO.
+    /// </summary>
     public class UpdateInsuranceTypeDTO
     {
         [Required(ErrorMessage = "Name is required")]

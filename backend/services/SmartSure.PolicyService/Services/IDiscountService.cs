@@ -2,6 +2,9 @@ using SmartSure.PolicyService.DTOs;
 
 namespace SmartSure.PolicyService.Services
 {
+    /// <summary>
+    /// Represent or implements IDiscountService.
+    /// </summary>
     public interface IDiscountService
     {
         Task<List<DiscountDTO>> GetAllDiscountsAsync();

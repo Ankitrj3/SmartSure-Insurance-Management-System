@@ -3,11 +3,17 @@ using System.Net.Mail;
 
 namespace IdentityService.Services
 {
+    /// <summary>
+    /// Represent or implements EmailService.
+    /// </summary>
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _config;
         public EmailService(IConfiguration config) { _config = config; }
 
+        /// <summary>
+        /// Performs the SendEmailAsync operation.
+        /// </summary>
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             var smtpUser = _config["Email:SmtpUser"];

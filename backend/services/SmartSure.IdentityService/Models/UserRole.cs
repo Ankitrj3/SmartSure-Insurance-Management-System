@@ -2,6 +2,9 @@
 
 namespace IdentityService.Models
 {
+    /// <summary>
+    /// Represent or implements UserRole.
+    /// </summary>
     public class UserRole
     {
         [Key]

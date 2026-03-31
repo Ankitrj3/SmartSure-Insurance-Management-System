@@ -2,6 +2,9 @@ using SmartSure.PolicyService.DTOs;
 
 namespace SmartSure.PolicyService.Services
 {
+    /// <summary>
+    /// Represent or implements IInsuranceService.
+    /// </summary>
     public interface IInsuranceService
     {
         Task<List<InsuranceTypeDTO>> GetAllTypesAsync();

@@ -2,6 +2,9 @@
 
 namespace IdentityService.Models
 {
+    /// <summary>
+    /// Represent or implements Password.
+    /// </summary>
     public class Password
     {
         [Key]

@@ -10,6 +10,9 @@ namespace SmartSure.PolicyService.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
+    /// <summary>
+    /// Represent or implements PoliciesController.
+    /// </summary>
     public class PoliciesController : ControllerBase
     {
         private readonly IPolicyMgmtService _service;
@@ -28,6 +31,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpGet("/policies")]
+        /// <summary>
+        /// Performs the GetMyPolicies operation.
+        /// </summary>
         public async Task<IActionResult> GetMyPolicies()
         {
             var userId = GetUserId();
@@ -37,6 +43,9 @@ namespace SmartSure.PolicyService.Controllers
 
         [HttpGet("/policies/all")]
         [Authorize(Roles = "Admin")]
+        /// <summary>
+        /// Performs the GetAllPolicies operation.
+        /// </summary>
         public async Task<IActionResult> GetAllPolicies()
         {
             var policies = await _service.GetAllPoliciesAsync();
@@ -44,6 +53,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpGet("/policies/{policyId}")]
+        /// <summary>
+        /// Performs the GetPolicy operation.
+        /// </summary>
         public async Task<IActionResult> GetPolicy(Guid policyId)
         {
             var policy = await _service.GetPolicyByIdAsync(policyId);
@@ -75,6 +87,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpPost("/policies")]
+        /// <summary>
+        /// Performs the BuyPolicy operation.
+        /// </summary>
         public async Task<IActionResult> BuyPolicy(CreatePolicyDTO dto)
         {
             if (!ModelState.IsValid)
@@ -130,6 +145,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpPut("/policies/{policyId}/cancel")]
+        /// <summary>
+        /// Performs the CancelPolicy operation.
+        /// </summary>
         public async Task<IActionResult> CancelPolicy(Guid policyId)
         {
             await _service.CancelPolicyAsync(policyId);
@@ -137,6 +155,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpGet("/policies/{policyId}/details")]
+        /// <summary>
+        /// Performs the GetDetails operation.
+        /// </summary>
         public async Task<IActionResult> GetDetails(Guid policyId)
         {
             var detail = await _service.GetPolicyDetailsAsync(policyId);
@@ -145,6 +166,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpPost("/policies/{policyId}/details")]
+        /// <summary>
+        /// Performs the SaveDetails operation.
+        /// </summary>
         public async Task<IActionResult> SaveDetails(Guid policyId, SavePolicyDetailDTO dto)
         {
             await _service.SavePolicyDetailsAsync(policyId, dto);
@@ -152,6 +176,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpPut("/policies/{policyId}/details")]
+        /// <summary>
+        /// Performs the UpdateDetails operation.
+        /// </summary>
         public async Task<IActionResult> UpdateDetails(Guid policyId, SavePolicyDetailDTO dto)
         {
             await _service.SavePolicyDetailsAsync(policyId, dto);
@@ -159,6 +186,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpGet("/policies/{policyId}/premium")]
+        /// <summary>
+        /// Performs the GetPremium operation.
+        /// </summary>
         public async Task<IActionResult> GetPremium(Guid policyId)
         {
             var premium = await _service.GetPremiumAmountAsync(policyId);
@@ -166,6 +196,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpGet("/home-details/{policyId}")]
+        /// <summary>
+        /// Performs the GetHomeDetail operation.
+        /// </summary>
         public async Task<IActionResult> GetHomeDetail(Guid policyId)
         {
             var detail = await _service.GetHomeDetailAsync(policyId);
@@ -174,6 +207,9 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         [HttpGet("/vehicle-details/{policyId}")]
+        /// <summary>
+        /// Performs the GetVehicleDetail operation.
+        /// </summary>
         public async Task<IActionResult> GetVehicleDetail(Guid policyId)
         {
             var detail = await _service.GetVehicleDetailAsync(policyId);

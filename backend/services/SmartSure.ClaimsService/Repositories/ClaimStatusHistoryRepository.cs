@@ -4,6 +4,9 @@ using SmartSure.ClaimsService.Models;
 
 namespace SmartSure.ClaimsService.Repositories
 {
+    /// <summary>
+    /// Represent or implements ClaimStatusHistoryRepository.
+    /// </summary>
     public class ClaimStatusHistoryRepository : IClaimStatusHistoryRepository
     {
         private readonly ClaimsDbContext _context;
@@ -13,6 +16,9 @@ namespace SmartSure.ClaimsService.Repositories
             _context = context;
         }
 
+        /// <summary>
+        /// Performs the GetByClaimIdAsync operation.
+        /// </summary>
         public async Task<List<ClaimStatusHistory>> GetByClaimIdAsync(Guid claimId)
         {
             return await _context.ClaimStatusHistory
@@ -21,11 +27,17 @@ namespace SmartSure.ClaimsService.Repositories
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Performs the AddAsync operation.
+        /// </summary>
         public async Task AddAsync(ClaimStatusHistory history)
         {
             await _context.ClaimStatusHistory.AddAsync(history);
         }
 
+        /// <summary>
+        /// Performs the SaveChangesAsync operation.
+        /// </summary>
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

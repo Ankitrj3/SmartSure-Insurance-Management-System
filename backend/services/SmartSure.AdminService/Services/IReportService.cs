@@ -2,6 +2,9 @@ using SmartSure.AdminService.DTOs;
 
 namespace SmartSure.AdminService.Services
 {
+    /// <summary>
+    /// Represent or implements IReportService.
+    /// </summary>
     public interface IReportService
     {
         Task<ReportResponseDTO> GenerateReportAsync(Guid adminId, ReportRequestDTO dto, string token);

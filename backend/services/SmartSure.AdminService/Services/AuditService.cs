@@ -4,6 +4,9 @@ using SmartSure.AdminService.Repositories;
 
 namespace SmartSure.AdminService.Services
 {
+    /// <summary>
+    /// Represent or implements AuditService.
+    /// </summary>
     public class AuditService : IAuditService
     {
         private readonly IAuditLogRepository _repository;
@@ -15,6 +18,9 @@ namespace SmartSure.AdminService.Services
             _logger = logger;
         }
 
+        /// <summary>
+        /// Performs the LogAsync operation.
+        /// </summary>
         public async Task LogAsync(string action, string entityType, Guid? entityId, Guid? actorId, string? details = null)
         {
             var log = new AuditLog
@@ -33,6 +39,9 @@ namespace SmartSure.AdminService.Services
             _logger.LogInformation("Audit: {Action} on {EntityType} [{EntityId}] by {ActorId}", action, entityType, entityId, actorId);
         }
 
+        /// <summary>
+        /// Performs the GetAuditLogsAsync operation.
+        /// </summary>
         public async Task<List<AuditLogDTO>> GetAuditLogsAsync(int page, int pageSize)
         {
             var logs = await _repository.GetPagedAsync(page, pageSize);
@@ -49,6 +58,9 @@ namespace SmartSure.AdminService.Services
             }).ToList();
         }
 
+        /// <summary>
+        /// Performs the GetTotalAuditLogsCountAsync operation.
+        /// </summary>
         public async Task<int> GetTotalAuditLogsCountAsync()
         {
             return await _repository.GetTotalCountAsync();

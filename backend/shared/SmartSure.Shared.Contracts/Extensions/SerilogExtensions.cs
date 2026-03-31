@@ -4,8 +4,14 @@ using Serilog;
 
 namespace SmartSure.Shared.Contracts.Extensions;
 
+/// <summary>
+/// Represent or implements SerilogExtensions.
+/// </summary>
 public static class SerilogExtensions
 {
+    /// <summary>
+    /// Performs the AddSerilogLogging operation.
+    /// </summary>
     public static WebApplicationBuilder AddSerilogLogging(this WebApplicationBuilder builder, string serviceName)
     {
         builder.Host.UseSerilog((context, loggerConfig) =>

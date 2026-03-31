@@ -3,6 +3,9 @@ using SmartSure.AdminService.Models;
 
 namespace SmartSure.AdminService.Data
 {
+    /// <summary>
+    /// Represent or implements AdminDbContext.
+    /// </summary>
     public class AdminDbContext : DbContext
     {
         public AdminDbContext(DbContextOptions<AdminDbContext> options) : base(options) { }
@@ -10,6 +13,9 @@ namespace SmartSure.AdminService.Data
         public DbSet<Report> Reports { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
 
+        /// <summary>
+        /// Performs the OnModelCreating operation.
+        /// </summary>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -4,6 +4,9 @@ using QuestPDF.Infrastructure;
 
 namespace SmartSure.AdminService.Services
 {
+    /// <summary>
+    /// Represent or implements PdfGeneratorService.
+    /// </summary>
     public class PdfGeneratorService : IPdfGeneratorService
     {
         public PdfGeneratorService()
@@ -12,6 +15,9 @@ namespace SmartSure.AdminService.Services
             QuestPDF.Settings.License = LicenseType.Community;
         }
 
+        /// <summary>
+        /// Performs the GenerateSalesReportPdf operation.
+        /// </summary>
         public byte[] GenerateSalesReportPdf(SalesReportData data)
         {
             return Document.Create(container =>

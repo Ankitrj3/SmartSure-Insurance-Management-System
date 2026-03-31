@@ -8,6 +8,9 @@ namespace SmartSure.ClaimsService.Controllers
     [ApiController]
     [Route("claims/{claimId}/documents")]
     [Authorize]
+    /// <summary>
+    /// Represent or implements ClaimDocumentsController.
+    /// </summary>
     public class ClaimDocumentsController : ControllerBase
     {
         private readonly IDocumentService _documentService;
@@ -18,6 +21,9 @@ namespace SmartSure.ClaimsService.Controllers
         }
 
         [HttpGet]
+        /// <summary>
+        /// Performs the GetDocuments operation.
+        /// </summary>
         public async Task<IActionResult> GetDocuments(Guid claimId)
         {
             var documents = await _documentService.GetDocumentsAsync(claimId);
@@ -26,6 +32,9 @@ namespace SmartSure.ClaimsService.Controllers
 
         [HttpPost]
         [Consumes("multipart/form-data")]
+        /// <summary>
+        /// Performs the UploadDocument operation.
+        /// </summary>
         public async Task<IActionResult> UploadDocument(Guid claimId, IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -36,6 +45,9 @@ namespace SmartSure.ClaimsService.Controllers
         }
 
         [HttpDelete("{docId}")]
+        /// <summary>
+        /// Performs the DeleteDocument operation.
+        /// </summary>
         public async Task<IActionResult> DeleteDocument(Guid claimId, Guid docId)
         {
             await _documentService.DeleteDocumentAsync(claimId, docId);

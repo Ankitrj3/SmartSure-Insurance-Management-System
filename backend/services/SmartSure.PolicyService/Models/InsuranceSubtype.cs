@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SmartSure.PolicyService.Models
 {
+    /// <summary>
+    /// Represent or implements InsuranceSubtype.
+    /// </summary>
     public class InsuranceSubtype
     {
         [Key]

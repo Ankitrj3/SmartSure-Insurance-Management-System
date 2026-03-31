@@ -4,6 +4,9 @@ using SmartSure.PolicyService.Repositories;
 
 namespace SmartSure.PolicyService.Services
 {
+    /// <summary>
+    /// Represent or implements PaymentService.
+    /// </summary>
     public class PaymentService : IPaymentService
     {
         private readonly IPaymentRepository _repo;
@@ -15,6 +18,9 @@ namespace SmartSure.PolicyService.Services
             _policyService = policyService;
         }
 
+        /// <summary>
+        /// Performs the GetByPolicyIdAsync operation.
+        /// </summary>
         public async Task<List<PaymentDTO>> GetByPolicyIdAsync(Guid policyId)
         {
             var payments = await _repo.GetByPolicyIdAsync(policyId);
@@ -30,6 +36,9 @@ namespace SmartSure.PolicyService.Services
             }).ToList();
         }
 
+        /// <summary>
+        /// Performs the GetByIdAsync operation.
+        /// </summary>
         public async Task<PaymentDTO> GetByIdAsync(Guid paymentId)
         {
             var p = await _repo.GetByIdAsync(paymentId);
@@ -46,6 +55,9 @@ namespace SmartSure.PolicyService.Services
             };
         }
 
+        /// <summary>
+        /// Performs the RecordPaymentAsync operation.
+        /// </summary>
         public async Task<PaymentDTO> RecordPaymentAsync(RecordPaymentDTO dto)
         {
             var payment = new Payment

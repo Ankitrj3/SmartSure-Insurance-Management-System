@@ -6,6 +6,9 @@ using System.Text.Json;
 
 namespace SmartSure.AdminService.Services
 {
+    /// <summary>
+    /// Represent or implements ReportService.
+    /// </summary>
     public class ReportService : IReportService
     {
         private readonly IReportRepository _repository;
@@ -28,6 +31,9 @@ namespace SmartSure.AdminService.Services
             _pdfGenerator = pdfGenerator;
         }
 
+        /// <summary>
+        /// Performs the GeneratePdfReportAsync operation.
+        /// </summary>
         public async Task<byte[]> GeneratePdfReportAsync(Guid adminId, ReportRequestDTO dto, string token)
         {
             var reportData = await CollectReportDataAsync(dto, token);
@@ -350,6 +356,9 @@ namespace SmartSure.AdminService.Services
             return "Admin";
         }
 
+        /// <summary>
+        /// Performs the GenerateReportAsync operation.
+        /// </summary>
         public async Task<ReportResponseDTO> GenerateReportAsync(Guid adminId, ReportRequestDTO dto, string token)
         {
             var content = await GenerateContentAsync(dto, token);
@@ -374,12 +383,18 @@ namespace SmartSure.AdminService.Services
             return MapToDto(report);
         }
 
+        /// <summary>
+        /// Performs the GetReportsAsync operation.
+        /// </summary>
         public async Task<List<ReportResponseDTO>> GetReportsAsync()
         {
             var reports = await _repository.GetAllAsync();
             return reports.Select(MapToDto).ToList();
         }
 
+        /// <summary>
+        /// Performs the GetReportByIdAsync operation.
+        /// </summary>
         public async Task<ReportResponseDTO?> GetReportByIdAsync(Guid reportId)
         {
             var report = await _repository.GetByIdAsync(reportId);
@@ -432,6 +447,9 @@ namespace SmartSure.AdminService.Services
             };
         }
 
+        /// <summary>
+        /// Performs the DeleteReportAsync operation.
+        /// </summary>
         public async Task<bool> DeleteReportAsync(Guid reportId)
         {
             var report = await _repository.GetByIdAsync(reportId);

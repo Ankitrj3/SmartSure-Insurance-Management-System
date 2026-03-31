@@ -5,6 +5,9 @@ using SmartSure.Shared.Contracts.Events;
 
 namespace SmartSure.ClaimsService.Consumers
 {
+    /// <summary>
+    /// Represent or implements ClaimRejectedConsumer.
+    /// </summary>
     public class ClaimRejectedConsumer : IConsumer<ClaimRejectedEvent>
     {
         private readonly IClaimService _claimService;
@@ -16,6 +19,9 @@ namespace SmartSure.ClaimsService.Consumers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Performs the Consume operation.
+        /// </summary>
         public async Task Consume(ConsumeContext<ClaimRejectedEvent> context)
         {
             var msg = context.Message;

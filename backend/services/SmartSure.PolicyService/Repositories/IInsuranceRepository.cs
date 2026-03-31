@@ -2,6 +2,9 @@ using SmartSure.PolicyService.Models;
 
 namespace SmartSure.PolicyService.Repositories
 {
+    /// <summary>
+    /// Represent or implements IInsuranceRepository.
+    /// </summary>
     public interface IInsuranceRepository
     {
         Task<List<InsuranceType>> GetAllTypesAsync();

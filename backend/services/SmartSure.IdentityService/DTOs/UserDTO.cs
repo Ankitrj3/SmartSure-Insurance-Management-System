@@ -1,5 +1,8 @@
 ﻿namespace IdentityService.DTOs
 {
+    /// <summary>
+    /// Represent or implements UserDTO.
+    /// </summary>
     public class UserDTO
     {
         public Guid UserId { get; set; }

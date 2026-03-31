@@ -2,11 +2,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SmartSure.AdminService.DTOs
 {
+    /// <summary>
+    /// Represent or implements ClaimReviewDTO.
+    /// </summary>
     public class ClaimReviewDTO
     {
         public string? Notes { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements ClaimApprovalDTO.
+    /// </summary>
     public class ClaimApprovalDTO
     {
         [Range(0.01, double.MaxValue)]
@@ -14,6 +20,9 @@ namespace SmartSure.AdminService.DTOs
         public string? Notes { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements ClaimRejectionDTO.
+    /// </summary>
     public class ClaimRejectionDTO
     {
         [Required(ErrorMessage = "Rejection reason is required")]
@@ -21,6 +30,9 @@ namespace SmartSure.AdminService.DTOs
         public string Reason { get; set; } = "";
     }
 
+    /// <summary>
+    /// Represent or implements ReportRequestDTO.
+    /// </summary>
     public class ReportRequestDTO
     {
         [Required]
@@ -41,6 +53,9 @@ namespace SmartSure.AdminService.DTOs
         public DateTime DateRangeEnd { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements ReportResponseDTO.
+    /// </summary>
     public class ReportResponseDTO
     {
         public Guid ReportId { get; set; }
@@ -54,6 +69,9 @@ namespace SmartSure.AdminService.DTOs
         public DateTime CreatedAt { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements DashboardStatsDTO.
+    /// </summary>
     public class DashboardStatsDTO
     {
         public int TotalUsers { get; set; }
@@ -66,6 +84,9 @@ namespace SmartSure.AdminService.DTOs
         public decimal TotalRevenue { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements AuditLogDTO.
+    /// </summary>
     public class AuditLogDTO
     {
         public Guid Id { get; set; }
@@ -77,6 +98,9 @@ namespace SmartSure.AdminService.DTOs
         public DateTime Timestamp { get; set; }
     }
 
+    /// <summary>
+    /// Represent or implements AdminUserDTO.
+    /// </summary>
     public class AdminUserDTO
     {
         public Guid UserId { get; set; }

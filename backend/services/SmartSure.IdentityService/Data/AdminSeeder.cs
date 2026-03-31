@@ -5,8 +5,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IdentityService.Data
 {
+    /// <summary>
+    /// Represent or implements AdminSeeder.
+    /// </summary>
     public static class AdminSeeder
     {
+        /// <summary>
+        /// Performs the SeedAdminAsync operation.
+        /// </summary>
         public static async Task SeedAdminAsync(IServiceProvider serviceProvider, IConfiguration configuration)
         {
             using var scope = serviceProvider.CreateScope();

@@ -5,6 +5,9 @@ using SmartSure.Shared.Contracts.Events;
 
 namespace SmartSure.AdminService.Consumers
 {
+    /// <summary>
+    /// Represent or implements ClaimStatusChangedConsumer.
+    /// </summary>
     public class ClaimStatusChangedConsumer : IConsumer<ClaimStatusChangedEvent>
     {
         private readonly IAuditService _auditService;
@@ -16,6 +19,9 @@ namespace SmartSure.AdminService.Consumers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Performs the Consume operation.
+        /// </summary>
         public async Task Consume(ConsumeContext<ClaimStatusChangedEvent> context)
         {
             var msg = context.Message;

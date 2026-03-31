@@ -5,10 +5,16 @@ using System.Text;
 
 namespace IdentityService.Helpers
 {
+    /// <summary>
+    /// Represent or implements TokenService.
+    /// </summary>
     public class TokenService
     {
         private TimeSpan ExpiryDuration = new TimeSpan(20, 30, 0);
 
+        /// <summary>
+        /// Performs the BuildToken operation.
+        /// </summary>
         public string BuildToken(string key, string issuer, string audience, string userName, IEnumerable<string> roles)
         {
             var claims = new List<Claim>
@@ -37,6 +43,9 @@ namespace IdentityService.Helpers
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }
 
+        /// <summary>
+        /// Performs the GenerateRefreshToken operation.
+        /// </summary>
         public string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];

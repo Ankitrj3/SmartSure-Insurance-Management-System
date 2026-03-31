@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SmartSure.AdminService.Models
 {
+    /// <summary>
+    /// Represent or implements Report.
+    /// </summary>
     public class Report
     {
         [Key]

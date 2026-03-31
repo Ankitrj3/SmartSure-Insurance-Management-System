@@ -1,6 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 namespace SmartSure.AdminService.Models
 {
+    /// <summary>
+    /// Represent or implements AuditLog.
+    /// </summary>
     public class AuditLog
     {
 

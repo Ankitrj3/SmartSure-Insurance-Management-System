@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IdentityService.DTOs
 {
+    /// <summary>
+    /// Represent or implements UpdateUserDTO.
+    /// </summary>
     public class UpdateUserDTO
     {
         [Required(ErrorMessage = "Full Name is required")]
