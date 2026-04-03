@@ -33,7 +33,7 @@ namespace IdentityService.Repositories
         /// <summary>
         /// Performs the GetByEmailAsync operation.
         /// </summary>
-        public async Task<User> GetByEmailAsync(string email)
+        public async Task<User?> GetByEmailAsync(string email)
         {
             return await _context.Users
                 .Include(x => x.Password)
@@ -45,7 +45,7 @@ namespace IdentityService.Repositories
         /// <summary>
         /// Performs the GetByIdAsync operation.
         /// </summary>
-        public async Task<User> GetByIdAsync(Guid id)
+        public async Task<User?> GetByIdAsync(Guid id)
         {
             return await _context.Users
                 .Include(x => x.Password)
@@ -73,7 +73,7 @@ namespace IdentityService.Repositories
         /// <summary>
         /// Performs the GetRoleByIdAsync operation.
         /// </summary>
-        public async Task<Role> GetRoleByIdAsync(Guid roleId)
+        public async Task<Role?> GetRoleByIdAsync(Guid roleId)
         {
             return await _context.Roles.FindAsync(roleId);
         }
@@ -81,7 +81,7 @@ namespace IdentityService.Repositories
         /// <summary>
         /// Performs the GetRoleByNameAsync operation.
         /// </summary>
-        public async Task<Role> GetRoleByNameAsync(string roleName)
+        public async Task<Role?> GetRoleByNameAsync(string roleName)
         {
             return await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == roleName);
         }

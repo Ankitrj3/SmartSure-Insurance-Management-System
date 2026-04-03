@@ -192,7 +192,7 @@ namespace IdentityService.Controllers
             {
                 throw;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw new NotFoundException("Profile");
             }

@@ -130,7 +130,18 @@ export class AdminDashboard implements OnInit {
         })) : [];
         this.stats.totalUsers = this.allUsers.length;
 
-        const pList = Array.isArray(policies) ? policies : [];
+        let pList: any[] = [];
+        const policyData: any = policies;
+        if (Array.isArray(policyData)) {
+          pList = policyData;
+        } else if (policyData && typeof policyData === 'object') {
+          if (policyData.items && Array.isArray(policyData.items)) pList = policyData.items;
+          else if (policyData.items?.$values) pList = policyData.items.$values;
+          else if (policyData.Items && Array.isArray(policyData.Items)) pList = policyData.Items;
+          else if (policyData.Items?.$values) pList = policyData.Items.$values;
+          else if (policyData.$values) pList = policyData.$values;
+        }
+
         this.allPolicies = pList;
         this.recentPolicies = pList.slice(0, 5);
         this.stats.totalPolicies = pList.length;
@@ -143,12 +154,18 @@ export class AdminDashboard implements OnInit {
         if (Array.isArray(claimsData)) {
           cList = claimsData;
         } else if (claimsData && typeof claimsData === 'object') {
-          if (claimsData.$values) {
+          if (claimsData.items && Array.isArray(claimsData.items)) {
+            cList = claimsData.items;
+          } else if (claimsData.items?.$values) {
+            cList = claimsData.items.$values;
+          } else if (claimsData.Items && Array.isArray(claimsData.Items)) {
+            cList = claimsData.Items;
+          } else if (claimsData.Items?.$values) {
+            cList = claimsData.Items.$values;
+          } else if (claimsData.$values) {
             cList = claimsData.$values;
           } else if (claimsData.value) {
             cList = claimsData.value;
-          } else if (claimsData.items) {
-            cList = claimsData.items;
           }
         }
         

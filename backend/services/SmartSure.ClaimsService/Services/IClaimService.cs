@@ -1,4 +1,5 @@
 using SmartSure.ClaimsService.DTOs;
+using SmartSure.Shared.Contracts.DTOs;
 
 namespace SmartSure.ClaimsService.Services
 {
@@ -9,8 +10,8 @@ namespace SmartSure.ClaimsService.Services
     {
         Task<ClaimResponseDTO> CreateClaimAsync(Guid userId, CreateClaimDTO dto);
         Task<ClaimResponseDTO?> GetClaimByIdAsync(Guid claimId);
-        Task<List<ClaimResponseDTO>> GetUserClaimsAsync(Guid userId);
-        Task<List<ClaimResponseDTO>> GetAllClaimsAsync();
+        Task<PagedResult<ClaimResponseDTO>> GetUserClaimsAsync(Guid userId, int page = 1, int pageSize = 10);
+        Task<PagedResult<ClaimResponseDTO>> GetAllClaimsAsync(int page = 1, int pageSize = 10);
         Task<List<ClaimResponseDTO>> GetClaimsByPolicyAsync(Guid policyId);
         Task<ClaimResponseDTO> UpdateClaimAsync(Guid claimId, UpdateClaimDTO dto);
         Task SubmitClaimAsync(Guid claimId, Guid userId);

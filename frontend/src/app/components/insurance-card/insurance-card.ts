@@ -62,7 +62,7 @@ import { CommonModule } from '@angular/common';
             [class.btn-purchase-dark]="getInsuranceType() === 'home'"
             (click)="onPurchase.emit(subTypeId)"
             [disabled]="loading">
-            {{ loading ? 'Loading...' : 'Get Plan' }}
+            {{ loading ? 'Loading...' : 'Show Details' }}
           </button>
         </div>
       </div>

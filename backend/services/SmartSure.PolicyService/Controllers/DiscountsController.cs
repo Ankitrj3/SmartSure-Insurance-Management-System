@@ -99,7 +99,10 @@ namespace SmartSure.PolicyService.Controllers
         [Authorize]
         public async Task<IActionResult> Calculate([FromBody] CalculateDiscountRequest request)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdStr, out var userId))
+                return Unauthorized();
+
             var result = await _service.CalculateDiscountAsync(userId, request.OriginalPremium, request.CouponCode);
             return Ok(result);
         }

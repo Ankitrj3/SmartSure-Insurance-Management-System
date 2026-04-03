@@ -1,6 +1,7 @@
 using SmartSure.PolicyService.DTOs;
 using SmartSure.PolicyService.Models;
 using SmartSure.PolicyService.Repositories;
+using SmartSure.Shared.Contracts.DTOs;
 using MassTransit;
 using SmartSure.Shared.Contracts.Events;
 using SmartSure.Shared.Contracts.Exceptions;
@@ -155,19 +156,31 @@ namespace SmartSure.PolicyService.Services
         /// <summary>
         /// Performs the GetUserPoliciesAsync operation.
         /// </summary>
-        public async Task<List<PolicyDTO>> GetUserPoliciesAsync(Guid userId)
+        public async Task<PagedResult<PolicyDTO>> GetUserPoliciesAsync(Guid userId, int page = 1, int pageSize = 10)
         {
-            var policies = await _repo.GetByUserIdAsync(userId);
-            return policies.Select(MapToDto).ToList();
+            var pagedPolicies = await _repo.GetByUserIdAsync(userId, page, pageSize);
+            return new PagedResult<PolicyDTO>
+            {
+                Page = pagedPolicies.Page,
+                PageSize = pagedPolicies.PageSize,
+                TotalCount = pagedPolicies.TotalCount,
+                Items = pagedPolicies.Items.Select(MapToDto).ToList()
+            };
         }
 
         /// <summary>
         /// Performs the GetAllPoliciesAsync operation.
         /// </summary>
-        public async Task<List<PolicyDTO>> GetAllPoliciesAsync()
+        public async Task<PagedResult<PolicyDTO>> GetAllPoliciesAsync(int page = 1, int pageSize = 10)
         {
-            var policies = await _repo.GetAllAsync();
-            return policies.Select(MapToDto).ToList();
+            var pagedPolicies = await _repo.GetAllAsync(page, pageSize);
+            return new PagedResult<PolicyDTO>
+            {
+                Page = pagedPolicies.Page,
+                PageSize = pagedPolicies.PageSize,
+                TotalCount = pagedPolicies.TotalCount,
+                Items = pagedPolicies.Items.Select(MapToDto).ToList()
+            };
         }
 
         /// <summary>

@@ -35,7 +35,7 @@ export class AdminService {
   // ── Claims Management ────────────────────────────────────────────────────────
   // GET /claims/all → ClaimsController (Admin role required)
   getAllClaims(): Observable<any[]> {
-    return this.api.get<any[]>('claims/all');
+    return this.api.get<any[]>('claims/all?page=1&pageSize=3000');
   }
 
   // GET /admin/claims/statistics → AdminClaimsController
@@ -71,7 +71,7 @@ export class AdminService {
   // ── Policy Management ────────────────────────────────────────────────────────
   // GET /policies/all → PoliciesController (Admin role required)
   getAllPolicies(): Observable<any[]> {
-    return this.api.get<any[]>('policies/all');
+    return this.api.get<any[]>('policies/all?page=1&pageSize=3000');
   }
 
   // ── Dashboard ────────────────────────────────────────────────────────────────

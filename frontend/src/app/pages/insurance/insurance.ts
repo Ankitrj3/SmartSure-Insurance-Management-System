@@ -69,7 +69,7 @@ const INITIAL_VISIBLE = 6;
                     [insuranceTypeName]="type.name || type.Name"
                     [features]="getFeatures(subtype)"
                     [loading]="false"
-                    (onPurchase)="handlePurchase($event, type, subtype)">
+                    (onPurchase)="openPolicyDetails($event, type, subtype)">
                   </app-insurance-card>
                 }
               </div>
@@ -123,6 +123,51 @@ const INITIAL_VISIBLE = 6;
           <h2>Something went wrong</h2>
           <p>{{ error() }}</p>
           <button class="btn-retry" (click)="fetchPublicPlans()">Try Again</button>
+        </div>
+      }
+
+      <!-- Policy Details Modal -->
+      @if (selectedSubtype()) {
+        <div class="modal-overlay" (click)="closeModal()">
+          <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <div class="modal-title-group">
+                <span class="modal-badge">{{ selectedType()?.name || selectedType()?.Name }}</span>
+                <h2>{{ selectedSubtype()?.name || selectedSubtype()?.Name }}</h2>
+              </div>
+              <button class="btn-close" (click)="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+              <p class="modal-desc">{{ selectedSubtype()?.description || selectedSubtype()?.Description }}</p>
+              
+              <div class="modal-features">
+                <h3>Plan Features & Benefits</h3>
+                <ul>
+                  @for (feature of getFeatures(selectedSubtype()); track feature) {
+                    <li>
+                      <span class="feature-check">✓</span>
+                      {{ feature }}
+                    </li>
+                  }
+                </ul>
+              </div>
+              
+              <div class="modal-details-grid">
+                <div class="detail-item">
+                  <span class="detail-label">Coverage Overview</span>
+                  <span class="detail-value">Comprehensive</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Customer Support</span>
+                  <span class="detail-value">24/7 Priority</span>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-outline" (click)="closeModal()">Cancel</button>
+              <button class="btn-proceed" (click)="proceedToBuy()">Proceed to Buy</button>
+            </div>
+          </div>
         </div>
       }
     </div>
@@ -449,6 +494,225 @@ const INITIAL_VISIBLE = 6;
         font-size: 1.6rem;
       }
     }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      background: #FFFFFF;
+      width: 90%;
+      max-width: 650px;
+      padding: 0;
+      border: 1px solid #1A1A1A;
+      position: relative;
+      animation: modalSlide 0.3s ease-out;
+      border-radius: 0;
+    }
+
+    @keyframes modalSlide {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 30px 40px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      background: #FDFDE6;
+      border-bottom: 4px solid #0DB18C;
+    }
+
+    .modal-title-group .modal-badge {
+      display: inline-block;
+      background: #1A1A1A;
+      color: #F7F072;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .modal-title-group h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1A1A1A;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .btn-close {
+      background: transparent;
+      border: none;
+      font-size: 2.5rem;
+      color: #1A1A1A;
+      cursor: pointer;
+      line-height: 0.8;
+      padding: 0;
+      margin-top: -5px;
+      transition: color 0.2s;
+    }
+
+    .btn-close:hover {
+      color: #DC2626;
+    }
+
+    .modal-body {
+      padding: 30px 40px;
+    }
+
+    .modal-desc {
+      font-size: 1.1rem;
+      color: #666666;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .modal-features {
+      margin-bottom: 30px;
+    }
+
+    .modal-features h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #1A1A1A;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-left: 4px solid #0DB18C;
+      padding-left: 12px;
+    }
+
+    .modal-features ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .modal-features li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1rem;
+      color: #444444;
+      font-weight: 600;
+    }
+
+    .modal-features .feature-check {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: #0DB18C;
+      color: white;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    .modal-details-grid {
+      display: flex;
+      gap: 20px;
+      background: #F8FAFC;
+      padding: 20px;
+      border: 1px dashed #CCCCCC;
+    }
+
+    .detail-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .detail-label {
+      font-size: 0.85rem;
+      color: #666666;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-value {
+      font-size: 1.1rem;
+      color: #1A1A1A;
+      font-weight: 800;
+    }
+
+    .modal-footer {
+      padding: 24px 40px;
+      border-top: 1px solid #EEEEEE;
+      display: flex;
+      justify-content: flex-end;
+      gap: 16px;
+      background: #FAFAFA;
+    }
+
+    .btn-outline {
+      padding: 12px 24px;
+      background: transparent;
+      border: 2px solid #1A1A1A;
+      color: #1A1A1A;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+    }
+
+    .btn-outline:hover {
+      background: #1A1A1A;
+      color: #FFFFFF;
+    }
+
+    .btn-proceed {
+      padding: 12px 32px;
+      background: #0DB18C;
+      border: none;
+      color: #FFFFFF;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.25s;
+    }
+
+    .btn-proceed:hover {
+      background: #0A8E70;
+      transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+      .modal-features ul {
+        grid-template-columns: 1fr;
+      }
+      .modal-header, .modal-body, .modal-footer {
+        padding: 20px;
+      }
+      .modal-title-group h2 {
+        font-size: 1.6rem;
+      }
+      .modal-details-grid {
+        flex-direction: column;
+      }
+    }
   `]
 })
 export class Insurance implements OnInit {
@@ -459,6 +723,10 @@ export class Insurance implements OnInit {
 
   // Track expanded state per insurance type
   private expandedTypes = signal<Set<string>>(new Set());
+
+  // Track selected plan for modal
+  selectedType = signal<any>(null);
+  selectedSubtype = signal<any>(null);
 
   constructor(
     private policyService: PolicyService,
@@ -586,12 +854,35 @@ export class Insurance implements OnInit {
     return ['Premium coverage', 'Expert support', 'Quick settlement', 'Hassle-free claims'];
   }
 
-  handlePurchase(subtypeId: string, type: any, subtype: any) {
+  openPolicyDetails(subtypeId: string, type: any, subtype: any) {
+    this.selectedType.set(type);
+    this.selectedSubtype.set(subtype);
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeModal() {
+    this.selectedType.set(null);
+    this.selectedSubtype.set(null);
+    document.body.style.overflow = 'auto';
+  }
+
+  proceedToBuy() {
+    const type = this.selectedType();
+    const subtype = this.selectedSubtype();
+    
+    if (!type || !subtype) return;
+    
+    const subtypeId = subtype.insuranceSubTypeId || subtype.InsuranceSubTypeId || subtype.id || subtype.Id;
+    const typeId = type.typeId || type.TypeId || type.id || type.Id;
+
+    this.closeModal();
+
     if (this.authService.hasToken()) {
-      this.router.navigate(['/user-dashboard/buy-policy'], {
+      this.router.navigate(['/user-dashboard'], {
         queryParams: {
-          typeId: type.typeId || type.TypeId || type.id || type.Id,
-          subtypeId: subtypeId
+          typeId: typeId,
+          subtypeId: subtypeId,
+          action: 'buy'
         }
       });
     } else {

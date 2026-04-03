@@ -2,6 +2,7 @@ using MassTransit;
 using SmartSure.ClaimsService.DTOs;
 using SmartSure.ClaimsService.Models;
 using SmartSure.ClaimsService.Repositories;
+using SmartSure.Shared.Contracts.DTOs;
 using SmartSure.Shared.Contracts.Constants;
 using SmartSure.Shared.Contracts.Events;
 using SmartSure.Shared.Contracts.Exceptions;
@@ -22,6 +23,7 @@ namespace SmartSure.ClaimsService.Services
         private readonly IEmailService _emailService;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ClaimService(
             IClaimRepository claimRepository,
@@ -30,7 +32,8 @@ namespace SmartSure.ClaimsService.Services
             ILogger<ClaimService> logger,
             IEmailService emailService,
             IHttpClientFactory httpClientFactory,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IHttpContextAccessor httpContextAccessor)
         {
             _claimRepository = claimRepository;
             _historyRepository = historyRepository;
@@ -39,13 +42,28 @@ namespace SmartSure.ClaimsService.Services
             _emailService = emailService;
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        private async Task<(string Email, string FullName)> GetUserDetailsAsync(Guid userId)
+        private async Task<(string Email, string FullName)> GetUserDetailsAsync(Guid userId, string? token = null)
         {
             try
             {
                 var client = _httpClientFactory.CreateClient();
+                if (!string.IsNullOrEmpty(token))
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", token.StartsWith("Bearer ") ? token : $"Bearer {token}");
+                }
+                else
+                {
+                    // Attempt to get from current context if not provided
+                    var currentToken = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
+                    if (!string.IsNullOrEmpty(currentToken))
+                    {
+                        client.DefaultRequestHeaders.Add("Authorization", currentToken);
+                    }
+                }
+
                 var gatewayUrl = _configuration["Gateway:Url"] ?? "http://localhost:5057";
                 var response = await client.GetAsync($"{gatewayUrl}/auth/users/{userId}");
                 
@@ -139,19 +157,31 @@ namespace SmartSure.ClaimsService.Services
         /// <summary>
         /// Performs the GetUserClaimsAsync operation.
         /// </summary>
-        public async Task<List<ClaimResponseDTO>> GetUserClaimsAsync(Guid userId)
+        public async Task<PagedResult<ClaimResponseDTO>> GetUserClaimsAsync(Guid userId, int page = 1, int pageSize = 10)
         {
-            var claims = await _claimRepository.GetByUserIdAsync(userId);
-            return claims.Select(MapToDto).ToList();
+            var pagedClaims = await _claimRepository.GetByUserIdAsync(userId, page, pageSize);
+            return new PagedResult<ClaimResponseDTO>
+            {
+                Page = pagedClaims.Page,
+                PageSize = pagedClaims.PageSize,
+                TotalCount = pagedClaims.TotalCount,
+                Items = pagedClaims.Items.Select(MapToDto).ToList()
+            };
         }
 
         /// <summary>
         /// Performs the GetAllClaimsAsync operation.
         /// </summary>
-        public async Task<List<ClaimResponseDTO>> GetAllClaimsAsync()
+        public async Task<PagedResult<ClaimResponseDTO>> GetAllClaimsAsync(int page = 1, int pageSize = 10)
         {
-            var claims = await _claimRepository.GetAllAsync();
-            return claims.Select(MapToDto).ToList();
+            var pagedClaims = await _claimRepository.GetAllAsync(page, pageSize);
+            return new PagedResult<ClaimResponseDTO>
+            {
+                Page = pagedClaims.Page,
+                PageSize = pagedClaims.PageSize,
+                TotalCount = pagedClaims.TotalCount,
+                Items = pagedClaims.Items.Select(MapToDto).ToList()
+            };
         }
 
         /// <summary>
@@ -192,12 +222,14 @@ namespace SmartSure.ClaimsService.Services
             _logger.LogInformation("Claim {ClaimId} status changed from {OldStatus} to {NewStatus} by {ChangedBy}",
                 claimId, oldStatus, newStatus, changedBy);
 
+            // Get user details before spawning task as background thread is outside the request context
+            var (email, fullName) = await GetUserDetailsAsync(claim.UserId);
+
             // Send email notification asynchronously (fire-and-forget)
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    var (email, fullName) = await GetUserDetailsAsync(claim.UserId);
                     if (!string.IsNullOrEmpty(email))
                     {
                         if (newStatus == ClaimStatus.UnderReview)
@@ -370,12 +402,14 @@ namespace SmartSure.ClaimsService.Services
             await _bus.Publish(new ClaimStatusChangedEvent(
                 claimId, ClaimStatus.Submitted, ClaimStatus.Approved, adminId, DateTime.UtcNow, claim.UserId));
 
+            // Get user details before spawning task as background thread is outside the request context
+            var (email, fullName) = await GetUserDetailsAsync(claim.UserId);
+
             // Send email notification asynchronously (fire-and-forget)
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    var (email, fullName) = await GetUserDetailsAsync(claim.UserId);
                     if (!string.IsNullOrEmpty(email))
                     {
                         await _emailService.SendClaimApprovedEmailAsync(email, fullName, claimId.ToString(), approvedAmount);
@@ -414,12 +448,14 @@ namespace SmartSure.ClaimsService.Services
             await _bus.Publish(new ClaimStatusChangedEvent(
                 claimId, ClaimStatus.Submitted, ClaimStatus.Rejected, adminId, DateTime.UtcNow, claim.UserId, reason));
 
+            // Get user details before spawning task as background thread is outside the request context
+            var (email, fullName) = await GetUserDetailsAsync(claim.UserId);
+
             // Send email notification asynchronously (fire-and-forget)
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    var (email, fullName) = await GetUserDetailsAsync(claim.UserId);
                     if (!string.IsNullOrEmpty(email))
                     {
                         await _emailService.SendClaimRejectedEmailAsync(email, fullName, claimId.ToString(), reason);

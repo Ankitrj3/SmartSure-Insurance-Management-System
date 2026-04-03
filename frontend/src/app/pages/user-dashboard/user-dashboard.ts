@@ -26,6 +26,27 @@ export class UserDashboard implements OnInit {
 
   activeTab: 'overview' | 'policies' | 'claims' = 'overview';
 
+  // Pagination config
+  policyPage = 1;
+  claimPage = 1;
+  pageSize = 5;
+
+  get paginatedPolicies() {
+    const start = (this.policyPage - 1) * this.pageSize;
+    return this.policies.slice(start, start + this.pageSize);
+  }
+
+  get paginatedClaims() {
+    const start = (this.claimPage - 1) * this.pageSize;
+    return this.claims.slice(start, start + this.pageSize);
+  }
+
+  nextPolicyPage() { if (this.policyPage * this.pageSize < this.policies.length) this.policyPage++; }
+  prevPolicyPage() { if (this.policyPage > 1) this.policyPage--; }
+  
+  nextClaimPage() { if (this.claimPage * this.pageSize < this.claims.length) this.claimPage++; }
+  prevClaimPage() { if (this.claimPage > 1) this.claimPage--; }
+
   // Profile Form - removed (now in separate profile page)
   passwordData = { currentPassword: '', newPassword: '' };
   profileMessage = '';
@@ -47,6 +68,11 @@ export class UserDashboard implements OnInit {
   quoteLoading = false;
   selectedPlanName = '';
   paymentMethod = 'CreditCard';
+
+  // Pending Actions
+  pendingAction: string | null = null;
+  pendingTypeId: string | null = null;
+  pendingSubtypeId: string | null = null;
 
   // Discount
   couponCode = '';
@@ -96,6 +122,10 @@ export class UserDashboard implements OnInit {
       if (tab && ['overview', 'policies', 'claims'].includes(tab)) {
         this.activeTab = tab;
       }
+
+      this.pendingAction = params['action'] || null;
+      this.pendingTypeId = params['typeId'] || null;
+      this.pendingSubtypeId = params['subtypeId'] || null;
     });
 
     this.fetchData();
@@ -144,6 +174,22 @@ export class UserDashboard implements OnInit {
         });
         this.loading = false;
         this.cdr.detectChanges();
+
+        // Process pending action
+        if (this.pendingAction === 'buy') {
+          this.openBuyPolicyModal();
+          if (this.pendingTypeId) {
+            this.selectedType = this.pendingTypeId;
+            this.policyForm.subtypeId = this.pendingSubtypeId || '';
+            this.loadSubtypes();
+          }
+          
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { action: null, typeId: null, subtypeId: null },
+            queryParamsHandling: 'merge'
+          });
+        }
       },
       error: (err: any) => {
         console.error(err);
@@ -153,8 +199,19 @@ export class UserDashboard implements OnInit {
   }
 
   private extractData(data: any): any[] {
+    if (!data) return [];
     if (Array.isArray(data)) return data;
-    if (data && data.$values && Array.isArray(data.$values)) return data.$values;
+
+    if (data.items) {
+      if (Array.isArray(data.items)) return data.items;
+      if (data.items.$values && Array.isArray(data.items.$values)) return data.items.$values;
+    }
+    if (data.Items) {
+      if (Array.isArray(data.Items)) return data.Items;
+      if (data.Items.$values && Array.isArray(data.Items.$values)) return data.Items.$values;
+    }
+
+    if (data.$values && Array.isArray(data.$values)) return data.$values;
     return [];
   }
 

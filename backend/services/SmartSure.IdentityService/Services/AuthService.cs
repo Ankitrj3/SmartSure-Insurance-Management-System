@@ -191,10 +191,21 @@ namespace IdentityService.Services
             _cache.Set($"RegistrationOtp_{dto.Email}",  otp, TimeSpan.FromMinutes(10));
             _cache.Set($"RegistrationData_{dto.Email}", dto, TimeSpan.FromMinutes(10));
 
-            // Send Email
+            // Send Email asynchronously
             string subject = "SmartSure - Verify Your Registration";
             string body    = $"Hello {dto.FullName},<br/><br/>Your 6-digit verification code is: <b>{otp}</b>.<br/>This code will expire in 10 minutes.";
-            await _emailService.SendEmailAsync(dto.Email, subject, body);
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _emailService.SendEmailAsync(dto.Email, subject, body);
+                }
+                catch (Exception)
+                {
+                    // For local development, the OTP is also printed to the console in EmailService
+                }
+            });
 
             return "OTP sent successfully. Please check your email to verify and complete registration.";
         }
@@ -247,10 +258,21 @@ namespace IdentityService.Services
             _cache.Remove($"RegistrationOtp_{dto.Email}");
             _cache.Remove($"RegistrationData_{dto.Email}");
 
-            // Send Welcome Email
-            string subject = "Welcome to SmartSure – Registration Successful";
-            string body    = $"Hello {user.FullName},<br/><br/>Your registration was successful! Welcome to SmartSure Insurance.<br/>You can now log in and start using our services.";
-            await _emailService.SendEmailAsync(user.Email, subject, body);
+            // Send Welcome Email asynchronously
+            string welcomeSubject = "Welcome to SmartSure – Registration Successful";
+            string welcomeBody    = $"Hello {user.FullName},<br/><br/>Your registration was successful! Welcome to SmartSure Insurance.<br/>You can now log in and start using our services.";
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _emailService.SendEmailAsync(user.Email, welcomeSubject, welcomeBody);
+                }
+                catch
+                {
+                    // Not critical if welcome email fails
+                }
+            });
 
             return "Registration successful and verified";
         }

@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using SmartSure.Shared.Contracts.Extensions;
+using SmartSure.Shared.Contracts.DTOs;
 using SmartSure.PolicyService.Data;
 using SmartSure.PolicyService.Models;
 
@@ -19,24 +21,24 @@ namespace SmartSure.PolicyService.Repositories
         /// <summary>
         /// Performs the GetByUserIdAsync operation.
         /// </summary>
-        public async Task<List<Policy>> GetByUserIdAsync(Guid userId)
+        public async Task<PagedResult<Policy>> GetByUserIdAsync(Guid userId, int page = 1, int pageSize = 10)
         {
             return await _context.Policies
                 .Include(p => p.Subtype)
                     .ThenInclude(s => s.Type)
                 .Where(p => p.UserId == userId)
-                .ToListAsync();
+                .ToPagedResultAsync(page, pageSize);
         }
 
         /// <summary>
         /// Performs the GetAllAsync operation.
         /// </summary>
-        public async Task<List<Policy>> GetAllAsync()
+        public async Task<PagedResult<Policy>> GetAllAsync(int page = 1, int pageSize = 10)
         {
             return await _context.Policies
                 .Include(p => p.Subtype)
                     .ThenInclude(s => s.Type)
-                .ToListAsync();
+                .ToPagedResultAsync(page, pageSize);
         }
 
         /// <summary>

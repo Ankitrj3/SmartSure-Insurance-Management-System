@@ -1,3 +1,4 @@
+using SmartSure.Shared.Contracts.DTOs;
 using SmartSure.PolicyService.Models;
 
 namespace SmartSure.PolicyService.Repositories
@@ -7,8 +8,8 @@ namespace SmartSure.PolicyService.Repositories
     /// </summary>
     public interface IPolicyRepository
     {
-        Task<List<Policy>> GetByUserIdAsync(Guid userId);
-        Task<List<Policy>> GetAllAsync();
+        Task<PagedResult<Policy>> GetByUserIdAsync(Guid userId, int page = 1, int pageSize = 10);
+        Task<PagedResult<Policy>> GetAllAsync(int page = 1, int pageSize = 10);
         Task<Policy> GetByIdAsync(Guid policyId);
         Task AddAsync(Policy policy);
         Task UpdateAsync(Policy policy);

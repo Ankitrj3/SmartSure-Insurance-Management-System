@@ -26,18 +26,20 @@ namespace SmartSure.PolicyService.Controllers
 
         private Guid GetUserId()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return Guid.Parse(userId);
+            var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdStr, out var userId))
+                throw new UnauthorizedAccessException("User context is missing or invalid.");
+            return userId;
         }
 
         /// <summary>
         /// Performs the GetMyPolicies operation.
         /// </summary>
         [HttpGet("/policies")]
-        public async Task<IActionResult> GetMyPolicies()
+        public async Task<IActionResult> GetMyPolicies([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var userId = GetUserId();
-            var policies = await _service.GetUserPoliciesAsync(userId);
+            var policies = await _service.GetUserPoliciesAsync(userId, page, pageSize);
             return Ok(policies);
         }
 
@@ -46,9 +48,9 @@ namespace SmartSure.PolicyService.Controllers
         /// </summary>
         [HttpGet("/policies/all")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllPolicies()
+        public async Task<IActionResult> GetAllPolicies([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var policies = await _service.GetAllPoliciesAsync();
+            var policies = await _service.GetAllPoliciesAsync(page, pageSize);
             return Ok(policies);
         }
 

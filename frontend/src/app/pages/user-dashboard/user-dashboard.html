@@ -110,7 +110,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let p of policies">
+              <tr *ngFor="let p of paginatedPolicies">
                 <td><code>{{ p.policyId | slice:0:8 }}</code></td>
                 <td>{{ p.typeName || '—' }}</td>
                 <td>{{ p.subtypeName || '—' }}</td>
@@ -128,6 +128,12 @@
               </tr>
             </tbody>
           </table>
+          
+          <div class="pagination-controls" *ngIf="policies.length > pageSize" style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+            <button class="btn btn-sm btn-outline" (click)="prevPolicyPage()" [disabled]="policyPage === 1">&lt; Prev</button>
+            <span style="align-self: center;">Page {{ policyPage }}</span>
+            <button class="btn btn-sm btn-outline" (click)="nextPolicyPage()" [disabled]="policyPage * pageSize >= policies.length">Next &gt;</button>
+          </div>
         </div>
       </section>
     </ng-container>
@@ -150,7 +156,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let c of claims">
+              <tr *ngFor="let c of paginatedClaims">
                 <td><code>{{ c.claimId | slice:0:8 }}</code></td>
                 <td>{{ c.description }}</td>
                 <td>₹{{ c.claimAmount | number }}</td>
@@ -161,6 +167,12 @@
               </tr>
             </tbody>
           </table>
+          
+          <div class="pagination-controls" *ngIf="claims.length > pageSize" style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+            <button class="btn btn-sm btn-outline" (click)="prevClaimPage()" [disabled]="claimPage === 1">&lt; Prev</button>
+            <span style="align-self: center;">Page {{ claimPage }}</span>
+            <button class="btn btn-sm btn-outline" (click)="nextClaimPage()" [disabled]="claimPage * pageSize >= claims.length">Next &gt;</button>
+          </div>
         </div>
       </section>
     </ng-container>

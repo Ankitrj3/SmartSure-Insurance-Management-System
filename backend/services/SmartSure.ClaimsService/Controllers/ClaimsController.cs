@@ -29,10 +29,10 @@ namespace SmartSure.ClaimsService.Controllers
         /// Performs the GetMyClaims operation.
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetMyClaims()
+        public async Task<IActionResult> GetMyClaims([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var userId = GetUserId();
-            var claims = await _claimService.GetUserClaimsAsync(userId);
+            var claims = await _claimService.GetUserClaimsAsync(userId, page, pageSize);
             return Ok(claims);
         }
 
@@ -41,9 +41,9 @@ namespace SmartSure.ClaimsService.Controllers
         /// </summary>
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllClaims()
+        public async Task<IActionResult> GetAllClaims([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var claims = await _claimService.GetAllClaimsAsync();
+            var claims = await _claimService.GetAllClaimsAsync(page, pageSize);
             return Ok(claims);
         }
 

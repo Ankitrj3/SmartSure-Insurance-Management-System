@@ -114,6 +114,9 @@ builder.Services.AddScoped<IClaimService, ClaimService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+// Http Context Accessor
+builder.Services.AddHttpContextAccessor();
+
 // HTTP Client for cross-service calls
 builder.Services.AddHttpClient();
 

@@ -1,4 +1,5 @@
 using SmartSure.PolicyService.DTOs;
+using SmartSure.Shared.Contracts.DTOs;
 
 namespace SmartSure.PolicyService.Services
 {
@@ -7,8 +8,8 @@ namespace SmartSure.PolicyService.Services
     /// </summary>
     public interface IPolicyMgmtService
     {
-        Task<List<PolicyDTO>> GetUserPoliciesAsync(Guid userId);
-        Task<List<PolicyDTO>> GetAllPoliciesAsync();
+        Task<PagedResult<PolicyDTO>> GetUserPoliciesAsync(Guid userId, int page = 1, int pageSize = 10);
+        Task<PagedResult<PolicyDTO>> GetAllPoliciesAsync(int page = 1, int pageSize = 10);
         Task<PolicyDTO> GetPolicyByIdAsync(Guid policyId);
         Task<PolicyDTO> CreatePolicyAsync(Guid userId, CreatePolicyDTO dto);
         Task CancelPolicyAsync(Guid policyId);

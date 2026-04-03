@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using SmartSure.Shared.Contracts.DTOs;
+using SmartSure.Shared.Contracts.Extensions;
 using SmartSure.ClaimsService.Data;
 using SmartSure.ClaimsService.Models;
 
@@ -30,24 +32,24 @@ namespace SmartSure.ClaimsService.Repositories
         /// <summary>
         /// Performs the GetByUserIdAsync operation.
         /// </summary>
-        public async Task<List<Claim>> GetByUserIdAsync(Guid userId)
+        public async Task<PagedResult<Claim>> GetByUserIdAsync(Guid userId, int page = 1, int pageSize = 10)
         {
             return await _context.Claims
                 .Include(c => c.Documents)
                 .Where(c => c.UserId == userId)
                 .OrderByDescending(c => c.CreatedAt)
-                .ToListAsync();
+                .ToPagedResultAsync(page, pageSize);
         }
 
         /// <summary>
         /// Performs the GetAllAsync operation.
         /// </summary>
-        public async Task<List<Claim>> GetAllAsync()
+        public async Task<PagedResult<Claim>> GetAllAsync(int page = 1, int pageSize = 10)
         {
             return await _context.Claims
                 .Include(c => c.Documents)
                 .OrderByDescending(c => c.CreatedAt)
-                .ToListAsync();
+                .ToPagedResultAsync(page, pageSize);
         }
 
         /// <summary>

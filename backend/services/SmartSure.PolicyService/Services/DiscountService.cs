@@ -100,8 +100,8 @@ namespace SmartSure.PolicyService.Services
             string appliedCoupon         = "";
 
             // 1. First-time buyer → auto 10% discount
-            var userPolicies = await _policyRepo.GetByUserIdAsync(userId);
-            bool isFirstTime = userPolicies == null || userPolicies.Count == 0;
+            var userPolicies = await _policyRepo.GetByUserIdAsync(userId, 1, 1);
+            bool isFirstTime = userPolicies == null || userPolicies.TotalCount == 0;
 
             if (isFirstTime)
             {
