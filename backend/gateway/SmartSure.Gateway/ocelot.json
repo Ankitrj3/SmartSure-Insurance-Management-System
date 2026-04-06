@@ -444,6 +444,7 @@
   ],
 
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:5057"
+    "BaseUrl": "http://localhost:5057",
+    "RequestIdKey": "X-Correlation-Id"
   }
 }

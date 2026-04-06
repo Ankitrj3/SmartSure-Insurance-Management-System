@@ -166,6 +166,7 @@ var app = builder.Build();
 // ==============================================================================
 
 // Global Exception Handler
+app.UseCorrelationId();
 app.UseGlobalExceptionHandler();
 app.UseSerilogRequestLogging();
 

@@ -101,6 +101,11 @@ export class AdminService {
     return this.api.postBlob('admin/reports/pdf', requestData);
   }
 
+  // GET /admin/reports/:reportId/download → ReportsController (fast PDF download)
+  downloadPdfReport(reportId: string): Observable<Blob> {
+    return this.api.getBlob(`admin/reports/${reportId}/download`);
+  }
+
   // DELETE /admin/reports/:reportId → ReportsController
   deleteReport(reportId: string): Observable<void> {
     return this.api.delete<void>(`admin/reports/${reportId}`);

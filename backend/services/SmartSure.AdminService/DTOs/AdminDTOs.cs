@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SmartSure.Shared.Contracts.Utilities;
 
 namespace SmartSure.AdminService.DTOs
 {
@@ -59,6 +60,7 @@ namespace SmartSure.AdminService.DTOs
     public class ReportResponseDTO
     {
         public Guid ReportId { get; set; }
+        public string FormattedReportId => ReportId.FormatApiId("REP");
         public string Title { get; set; } = "";
         public string ReportType { get; set; } = "";
         public string Format { get; set; } = "";
@@ -93,7 +95,9 @@ namespace SmartSure.AdminService.DTOs
         public string Action { get; set; } = "";
         public string EntityType { get; set; } = "";
         public Guid? EntityId { get; set; }
+        public string FormattedEntityId => EntityId?.FormatApiId("LOG") ?? "";
         public Guid? ActorId { get; set; }
+        public string FormattedActorId => ActorId?.FormatApiId("SSUSER") ?? "";
         public string? Details { get; set; }
         public DateTime Timestamp { get; set; }
     }
@@ -104,6 +108,7 @@ namespace SmartSure.AdminService.DTOs
     public class AdminUserDTO
     {
         public Guid UserId { get; set; }
+        public string FormattedUserId => UserId.FormatApiId("SSUSER");
         public string FullName { get; set; } = "";
         public string Email { get; set; } = "";
         public List<string> Roles { get; set; } = new();

@@ -173,6 +173,7 @@ var app = builder.Build();
 
 // Global Exception Handler matches raw exceptions to standard HTTP responses.
 // Serilog tracks requests for performance and error auditing.
+app.UseCorrelationId();
 app.UseGlobalExceptionHandler();
 app.UseSerilogRequestLogging();
 

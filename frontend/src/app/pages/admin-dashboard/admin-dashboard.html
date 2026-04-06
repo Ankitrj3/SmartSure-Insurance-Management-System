@@ -65,7 +65,7 @@
                 </thead>
                 <tbody>
                   <tr *ngFor="let c of recentClaims">
-                    <td><code class="claim-id">{{ c.claimId | slice:0:8 }}…</code></td>
+                    <td><code class="claim-id" style="display:inline-flex; align-items:center; gap:0.25rem;">{{ c.formattedClaimId || (c.claimId | slice:0:8) }} <span (click)="copyToClipboard(c.formattedClaimId || c.claimId)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
                     <td><span class="status-badge" [ngClass]="getStatusClass(c.status)">{{ c.status }}</span></td>
                     <td><button class="btn btn-outline btn-sm" (click)="setActiveTab('claims')">View</button></td>
                   </tr>
@@ -93,7 +93,7 @@
                 </thead>
                 <tbody>
                   <tr *ngFor="let p of recentPolicies">
-                    <td><code class="claim-id">{{ p.policyId | slice:0:8 }}…</code></td>
+                    <td><code class="claim-id" style="display:inline-flex; align-items:center; gap:0.25rem;">{{ p.formattedPolicyId || (p.policyId | slice:0:8) }} <span (click)="copyToClipboard(p.formattedPolicyId || p.policyId)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
                     <td>₹{{ p.premiumAmount }}</td>
                     <td><span class="status-badge" [ngClass]="p.status === 'Active' ? 'status-approved' : 'status-rejected'">{{ p.status }}</span></td>
                   </tr>
@@ -130,7 +130,7 @@
               </thead>
               <tbody>
                 <tr *ngFor="let user of allUsers">
-                  <td><code class="claim-id">{{ user.id || user.userId | slice:0:8 }}…</code></td>
+                  <td><code class="claim-id" style="display:inline-flex; align-items:center; gap:0.25rem;">{{ user.formattedUserId || user.id || user.userId }} <span (click)="copyToClipboard(user.formattedUserId || user.id || user.userId)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
                   <td><strong>{{ user.fullName || user.firstName + ' ' + user.lastName }}</strong></td>
                   <td>{{ user.email }}</td>
                   <td>{{ user.phoneNumber || 'Not provided' }}</td>
@@ -175,7 +175,7 @@
               </thead>
               <tbody>
                 <tr *ngFor="let t of insuranceTypesList">
-                  <td><code class="claim-id">{{ t.insuranceTypeId || t.typeId || t.id | slice:0:8 }}…</code></td>
+                  <td><code class="claim-id" style="display:inline-flex; align-items:center; gap:0.25rem;">{{ t.formattedTypeId || t.insuranceTypeId || t.typeId || t.id }} <span (click)="copyToClipboard(t.formattedTypeId || t.insuranceTypeId || t.typeId || t.id)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
                   <td><strong>{{ t.name }}</strong></td>
                   <td>{{ t.description || 'No description provided' }}</td>
                   <td><span class="status-badge status-approved">Active</span></td>
@@ -210,8 +210,8 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let s of insuranceSubtypesList">
-                  <td><code class="claim-id">{{ s.subtypeId || s.id | slice:0:8 }}…</code></td>
+                <tr *ngFor="let s of visibleSubtypes">
+                  <td><code class="claim-id" style="display:inline-flex; align-items:center; gap:0.25rem;">{{ s.formattedSubtypeId || s.subtypeId || s.id }} <span (click)="copyToClipboard(s.formattedSubtypeId || s.subtypeId || s.id)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
                   <td><strong>{{ s.typeName }}</strong></td>
                   <td><strong>{{ s.name }}</strong></td>
                   <td>{{ s.description || 'No description provided' }}</td>
@@ -226,6 +226,11 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div *ngIf="insuranceSubtypesList.length > 6" style="text-align: center; margin-top: 1rem;">
+            <button class="btn btn-outline" (click)="toggleShowMoreSubtypes()" style="padding: 0.5rem 2rem; font-size: 0.9rem;">
+              {{ showAllSubtypes ? 'Show Less ▲' : 'Show More (' + (insuranceSubtypesList.length - 6) + ' more) ▼' }}
+            </button>
           </div>
         </section>
 
@@ -249,8 +254,8 @@
               </thead>
               <tbody>
                 <tr *ngFor="let p of allPolicies">
-                  <td><code class="claim-id">{{ p.policyId | slice:0:8 }}…</code></td>
-                  <td><code class="claim-id">{{ p.userId | slice:0:8 }}…</code></td>
+                  <td><code class="claim-id" style="display:inline-flex; align-items:center; gap:0.25rem;">{{ p.formattedPolicyId || (p.policyId | slice:0:8) }} <span (click)="copyToClipboard(p.formattedPolicyId || p.policyId)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
+                  <td><code class="claim-id" style="display:inline-flex; align-items:center; gap:0.25rem;">{{ p.formattedUserId || (p.userId | slice:0:8) }} <span (click)="copyToClipboard(p.formattedUserId || p.userId)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
                   <td>{{ formatDate(p.startDate) }}</td>
                   <td>{{ formatDate(p.endDate) }}</td>
                   <td>₹{{ p.premiumAmount }}</td>
@@ -336,9 +341,9 @@
               </thead>
               <tbody>
                 <tr *ngFor="let claim of visibleClaims">
-                  <td><code class="claim-id">{{ claim.claimId | slice:0:8 }}…</code></td>
-                  <td><code class="claim-id">{{ claim.policyId | slice:0:8 }}…</code></td>
-                  <td>{{ formatDate(claim.incidentDate || claim.dateFiled) }}</td>
+                  <td><code class="claim-id" style="display:inline-flex; align-items:center; gap:0.25rem;">{{ claim.formattedClaimId || (claim.claimId | slice:0:8) }} <span (click)="copyToClipboard(claim.formattedClaimId || claim.claimId)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
+                  <td><code class="claim-id" style="display:inline-flex; align-items:center; gap:0.25rem;">{{ claim.formattedPolicyId || (claim.policyId | slice:0:8) }} <span (click)="copyToClipboard(claim.formattedPolicyId || claim.policyId)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
+                  <td>{{ formatDate(claim.createdAt || claim.incidentDate || claim.dateFiled) }}</td>
                   <td><strong>₹{{ claim.claimAmount }}</strong></td>
                   <td><span class="status-badge" [ngClass]="getStatusClass(claim.status)">{{ claim.status }}</span></td>
                   <td>
@@ -400,11 +405,11 @@
               </thead>
               <tbody>
                 <tr *ngFor="let r of visibleReports">
-                  <td><code class="claim-id">{{ r.reportId | slice:0:8 }}…</code></td>
+                  <td><code class="claim-id" style="display:inline-flex; align-items:center; gap:0.25rem;">{{ r.formattedReportId || (r.reportId | slice:0:8) }} <span (click)="copyToClipboard(r.formattedReportId || r.reportId)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
                   <td><strong>{{ r.title }}</strong></td>
                   <td>{{ r.reportType }}</td>
                   <td>System Admin</td>
-                  <td>{{ formatDate(r.generatedAt) }}</td>
+                  <td>{{ formatDate(r.createdAt || r.generatedAt) }}</td>
                   <td><span class="status-badge" style="background:#e8eaf6; color:#3f51b5;">{{ r.format }}</span></td>
                   <td style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <button class="btn btn-primary btn-sm" (click)="viewReport(r)">View PDF</button>
@@ -435,16 +440,16 @@
                 <tr>
                   <th>Event ID</th>
                   <th>Timestamp</th>
-                  <th>Action Source / IP</th>
+                  <th>Action Source</th>
                   <th>Action Performed</th>
                   <th>Impacted Resource</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let log of auditLogs">
-                  <td><code class="claim-id">{{ log.id || log.logId | slice:0:8 }}…</code></td>
+                <tr *ngFor="let log of visibleLogs">
+                  <td><code class="claim-id" style="display:inline-flex; align-items:center; gap:0.25rem;">{{ log.formattedEntityId || (log.id || log.logId | slice:0:8) }} <span (click)="copyToClipboard(log.formattedEntityId || log.id || log.logId)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
                   <td>{{ formatDate(log.timestamp) }}</td>
-                  <td>{{ log.userId || 'System' }} / {{ log.ipAddress }}</td>
+                  <td>{{ log.formattedActorId || log.actorId || log.userId || 'System' }}</td>
                   <td><strong>{{ log.action }}</strong></td>
                   <td>{{ log.resourceName || log.resourceId || 'Global' }}</td>
                 </tr>
@@ -453,6 +458,11 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div *ngIf="auditLogs.length > 6" style="text-align: center; margin-top: 1rem;">
+            <button class="btn btn-outline" (click)="toggleShowMoreLogs()" style="padding: 0.5rem 2rem; font-size: 0.9rem;">
+              {{ showAllLogs ? 'Show Less ▲' : 'Show More (' + (auditLogs.length - 6) + ' more) ▼' }}
+            </button>
           </div>
         </section>
       </div>

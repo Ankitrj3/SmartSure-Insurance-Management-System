@@ -111,7 +111,7 @@
             </thead>
             <tbody>
               <tr *ngFor="let p of paginatedPolicies">
-                <td><code>{{ p.policyId | slice:0:8 }}</code></td>
+                <td><code style="display:inline-flex; align-items:center; gap:0.25rem;">{{ p.formattedPolicyId || (p.policyId | slice:0:8) }} <span (click)="copyToClipboard(p.formattedPolicyId || p.policyId)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
                 <td>{{ p.typeName || '—' }}</td>
                 <td>{{ p.subtypeName || '—' }}</td>
                 <td>₹{{ p.insuredDeclaredValue | number }}</td>
@@ -157,7 +157,7 @@
             </thead>
             <tbody>
               <tr *ngFor="let c of paginatedClaims">
-                <td><code>{{ c.claimId | slice:0:8 }}</code></td>
+                <td><code style="display:inline-flex; align-items:center; gap:0.25rem;">{{ c.formattedClaimId || (c.claimId | slice:0:8) }} <span (click)="copyToClipboard(c.formattedClaimId || c.claimId)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
                 <td>{{ c.description }}</td>
                 <td>₹{{ c.claimAmount | number }}</td>
                 <td><span class="status-pill" [ngClass]="c.status?.toLowerCase()">{{ c.status }}</span></td>
@@ -408,7 +408,7 @@
       <label>Select Policy</label>
       <select class="input-base" [(ngModel)]="claimForm.policyId" (change)="onClaimPolicyChange()">
         <option value="" disabled>Choose an active policy</option>
-        <option *ngFor="let p of policies" [value]="p.policyId" [disabled]="p.status !== 'Active'">{{ p.typeName || 'Policy' }} - {{ p.policyId | slice:0:8 }} ({{ p.status }})</option>
+        <option *ngFor="let p of policies" [value]="p.policyId" [disabled]="p.status !== 'Active'">{{ p.typeName || 'Policy' }} - {{ p.formattedPolicyId || (p.policyId | slice:0:8) }} ({{ p.status }})</option>
       </select>
     </div>
 

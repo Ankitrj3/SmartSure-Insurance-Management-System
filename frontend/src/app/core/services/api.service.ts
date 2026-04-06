@@ -42,4 +42,8 @@ export class ApiService {
   postBlob(endpoint: string, body: any): Observable<Blob> {
     return this.http.post(`${this.baseUrl}/${endpoint}`, body, { responseType: 'blob' });
   }
+
+  getBlob(endpoint: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${endpoint}`, { responseType: 'blob' });
+  }
 }

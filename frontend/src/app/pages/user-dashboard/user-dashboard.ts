@@ -142,6 +142,15 @@ export class UserDashboard implements OnInit {
     });
   }
 
+  copyToClipboard(text: string) {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      this.toastService.success(`Copied ID to clipboard: ${text}`);
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+    });
+  }
+
   fetchData() {
     this.loading = true;
 

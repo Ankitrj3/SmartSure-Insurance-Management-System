@@ -152,6 +152,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseHttpsRedirection(); // Disabled – gateway calls this service via HTTP
+app.UseCorrelationId();
 app.UseGlobalExceptionHandler();
 app.UseSerilogRequestLogging();
 app.UseCors("AllowGateway");

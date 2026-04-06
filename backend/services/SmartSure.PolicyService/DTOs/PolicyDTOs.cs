@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SmartSure.Shared.Contracts.Utilities;
 
 namespace SmartSure.PolicyService.DTOs
 {
@@ -8,8 +9,14 @@ namespace SmartSure.PolicyService.DTOs
     public class PolicyDTO
     {
         public Guid PolicyId { get; set; }
+        public string FormattedPolicyId => PolicyId.FormatApiId("POL");
+        
         public Guid UserId { get; set; }
+        public string FormattedUserId => UserId.FormatApiId("SSUSER");
+        
         public Guid SubtypeId { get; set; }
+        public string FormattedSubtypeId => SubtypeId.FormatApiId("PLAN");
+        
         public string? SubtypeName { get; set; }
         public string? TypeName { get; set; }
         public DateTime StartDate { get; set; }

@@ -54,6 +54,16 @@ import { CommonModule } from '@angular/common';
           </div>
         </div>
 
+        <!-- Price Section -->
+        <div class="price-section" *ngIf="basePremium">
+          <span class="price-label">Starting from</span>
+          <div class="price-value" [class.price-dark]="getInsuranceType() === 'home'">
+            <span class="price-currency">₹</span>
+            <span class="price-amount">{{ basePremium | number:'1.0-0' }}</span>
+            <span class="price-period">/yr</span>
+          </div>
+        </div>
+
         <!-- Footer Section -->
         <div class="footer-section">
           <div class="badge" [class.badge-yellow]="getInsuranceType() === 'home'">Active Plan</div>
@@ -190,6 +200,56 @@ import { CommonModule } from '@angular/common';
       flex-shrink: 0;
     }
 
+    /* Price Section */
+    .price-section {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 14px 16px;
+      background: #F0FBF7;
+      border-left: 4px solid #0DB18C;
+      margin-bottom: 20px;
+    }
+
+    .price-label {
+      font-size: 0.78rem;
+      color: #666666;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .price-value {
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+      color: #0DB18C;
+    }
+
+    .price-value.price-dark {
+      color: #1A1A1A;
+    }
+
+    .price-currency {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .price-amount {
+      font-size: 1.75rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .price-period {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #888888;
+      margin-left: 2px;
+    }
+
     /* Footer */
     .footer-section {
       display: flex;
@@ -273,6 +333,7 @@ export class InsuranceCardComponent {
   @Input() subTypeId: string = '';
   @Input() loading: boolean = false;
   @Input() insuranceTypeName: string = '';
+  @Input() basePremium: number | null = null;
   @Output() onPurchase = new EventEmitter<string>();
 
   getInsuranceType(): string {

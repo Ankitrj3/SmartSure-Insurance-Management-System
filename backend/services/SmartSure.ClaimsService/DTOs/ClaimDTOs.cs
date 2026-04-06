@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SmartSure.Shared.Contracts.Utilities;
 
 namespace SmartSure.ClaimsService.DTOs
 {
@@ -40,8 +41,13 @@ namespace SmartSure.ClaimsService.DTOs
     public class ClaimResponseDTO
     {
         public Guid ClaimId { get; set; }
+        public string FormattedClaimId => ClaimId.FormatApiId("CLM");
+        
         public Guid PolicyId { get; set; }
+        public string FormattedPolicyId => PolicyId.FormatApiId("POL");
+        
         public Guid UserId { get; set; }
+        public string FormattedUserId => UserId.FormatApiId("SSUSER");
         public string Description { get; set; } = "";
         public string Status { get; set; } = "";
         public decimal ClaimAmount { get; set; }

@@ -68,6 +68,7 @@ const INITIAL_VISIBLE = 6;
                     [subTypeId]="subtype.insuranceSubTypeId || subtype.InsuranceSubTypeId || subtype.id || subtype.Id"
                     [insuranceTypeName]="type.name || type.Name"
                     [features]="getFeatures(subtype)"
+                    [basePremium]="subtype.basePremium || subtype.BasePremium"
                     [loading]="false"
                     (onPurchase)="openPolicyDetails($event, type, subtype)">
                   </app-insurance-card>
@@ -161,6 +162,12 @@ const INITIAL_VISIBLE = 6;
                   <span class="detail-label">Customer Support</span>
                   <span class="detail-value">24/7 Priority</span>
                 </div>
+                @if (selectedSubtype()?.basePremium || selectedSubtype()?.BasePremium) {
+                  <div class="detail-item">
+                    <span class="detail-label">Starting Premium</span>
+                    <span class="detail-value" style="color:#0DB18C; font-size:1.4rem;">₹{{ (selectedSubtype()?.basePremium || selectedSubtype()?.BasePremium) | number:'1.0-0' }}<small style="font-size:0.75rem;color:#888;font-weight:600;">/yr</small></span>
+                  </div>
+                }
               </div>
             </div>
             <div class="modal-footer">

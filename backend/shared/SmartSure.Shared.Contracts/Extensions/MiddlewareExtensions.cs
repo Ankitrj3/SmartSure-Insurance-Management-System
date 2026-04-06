@@ -15,4 +15,12 @@ public static class MiddlewareExtensions
     {
         return app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
     }
+
+    /// <summary>
+    /// Adds CorrelationId injection to the HTTP Request Pipeline.
+    /// </summary>
+    public static IApplicationBuilder UseCorrelationId(this IApplicationBuilder app)
+    {
+        return app.UseMiddleware<CorrelationIdMiddleware>();
+    }
 }

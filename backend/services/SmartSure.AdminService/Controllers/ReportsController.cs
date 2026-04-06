@@ -96,6 +96,33 @@ namespace SmartSure.AdminService.Controllers
         }
 
         /// <summary>
+        /// Performs the DownloadReport operation.
+        /// </summary>
+        [HttpGet("{reportId}/download")]
+        public async Task<IActionResult> DownloadReport(Guid reportId)
+        {
+            var report = await _reportService.GetReportByIdAsync(reportId);
+            if (report == null) return NotFound(new { message = "Report not found" });
+            
+            byte[] bytes;
+            // First try Base64 if it's there
+            if (!string.IsNullOrEmpty(report.Content) && !report.Content.StartsWith("PDF Report") && !report.Content.StartsWith("{"))
+            {
+                try
+                {
+                    bytes = Convert.FromBase64String(report.Content);
+                    return File(bytes, "application/pdf", $"Report_{report.Title.Replace(" ", "_")}.pdf");
+                }
+                catch { } // Ignore and fallback
+            }
+
+            // Fallback for old reports
+            string token = Request.Headers["Authorization"].ToString();
+            bytes = await _reportService.RegeneratePdfAsync(reportId, token);
+            return File(bytes, "application/pdf", $"Report_{report.Title.Replace(" ", "_")}.pdf");
+        }
+
+        /// <summary>
         /// Performs the DeleteReport operation.
         /// </summary>
         [HttpDelete("{reportId}")]

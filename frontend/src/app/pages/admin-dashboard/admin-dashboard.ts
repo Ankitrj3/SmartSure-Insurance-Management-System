@@ -6,6 +6,7 @@ import { AdminService } from '../../core/services/admin.service';
 import { ClaimService } from '../../core/services/claim.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PolicyService } from '../../core/services/policy.service';
+import { ToastService } from '../../core/services/toast.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
 
@@ -61,6 +62,8 @@ export class AdminDashboard implements OnInit {
   // Show More pagination state
   showAllClaims = false;
   showAllReports = false;
+  showAllLogs = false;
+  showAllSubtypes = false;
 
   get visibleClaims(): any[] {
     return this.showAllClaims ? this.allClaims : this.allClaims.slice(0, 6);
@@ -68,6 +71,14 @@ export class AdminDashboard implements OnInit {
 
   get visibleReports(): any[] {
     return this.showAllReports ? this.reports : this.reports.slice(0, 6);
+  }
+
+  get visibleLogs(): any[] {
+    return this.showAllLogs ? this.auditLogs : this.auditLogs.slice(0, 6);
+  }
+
+  get visibleSubtypes(): any[] {
+    return this.showAllSubtypes ? this.insuranceSubtypesList : this.insuranceSubtypesList.slice(0, 6);
   }
 
   constructor(
@@ -78,7 +89,8 @@ export class AdminDashboard implements OnInit {
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     private router: Router,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private toastService: ToastService
   ) {}
 
   ngOnInit() {
@@ -103,6 +115,15 @@ export class AdminDashboard implements OnInit {
       relativeTo: this.route,
       queryParams: { tab: tab },
       queryParamsHandling: 'merge'
+    });
+  }
+  
+  copyToClipboard(text: string) {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      this.toastService.success(`Copied ID to clipboard: ${text}`);
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
     });
   }
 
@@ -681,14 +702,13 @@ export class AdminDashboard implements OnInit {
   }
 
   viewReport(report: any) {
+    if (!report.reportId) {
+      alert('Cannot view report: Missing Report ID');
+      return;
+    }
+    
     this.actionProcessing = true;
-    this.adminService.generatePdfReport({
-      title: report.title,
-      reportType: report.reportType || report.type || 'Financial',
-      format: 'PDF',
-      dateRangeStart: report.dateRangeStart || new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString(),
-      dateRangeEnd: report.dateRangeEnd || new Date().toISOString()
-    }).subscribe({
+    this.adminService.downloadPdfReport(report.reportId).subscribe({
       next: (blob: Blob) => {
         this.actionProcessing = false;
         const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
@@ -701,9 +721,9 @@ export class AdminDashboard implements OnInit {
           err.error.text().then((text: string) => {
             try {
               const errorObj = JSON.parse(text);
-              alert('Failed to generate PDF: ' + (errorObj.message || errorObj.title || 'Internal Server Error'));
+              alert('Failed to fetch PDF: ' + (errorObj.message || errorObj.title || 'Internal Server Error'));
             } catch (e) {
-              alert('Failed to generate PDF: ' + text);
+              alert('Failed to fetch PDF: ' + text);
             }
           });
         } else {
@@ -719,6 +739,14 @@ export class AdminDashboard implements OnInit {
 
   toggleShowMoreReports() {
     this.showAllReports = !this.showAllReports;
+  }
+
+  toggleShowMoreLogs() {
+    this.showAllLogs = !this.showAllLogs;
+  }
+
+  toggleShowMoreSubtypes() {
+    this.showAllSubtypes = !this.showAllSubtypes;
   }
 
   deleteReport(report: any) {

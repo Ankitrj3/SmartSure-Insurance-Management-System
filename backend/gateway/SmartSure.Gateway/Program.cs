@@ -47,6 +47,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // ── Global Exception Handler + Serilog request logging ────────────────────
+app.UseCorrelationId();
 app.UseGlobalExceptionHandler();
 app.UseSerilogRequestLogging();
 
