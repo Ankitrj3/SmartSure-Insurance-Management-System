@@ -12,17 +12,29 @@
       </div>
     }
 
-    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate>
       <div class="form-group">
         <label for="email">Email Address</label>
         <input 
           type="email" 
           id="email" 
           name="email" 
-          class="input-base" 
+          class="input-base"
+          [class.input-error]="emailRef.invalid && emailRef.touched"
           [(ngModel)]="credentials.email" 
-          required 
+          required
+          email
+          #emailRef="ngModel"
           placeholder="your@email.com">
+        @if (emailRef.invalid && emailRef.touched) {
+          <div class="validation-error">
+            @if (emailRef.errors?.['required']) {
+              <span>Email address is required.</span>
+            } @else if (emailRef.errors?.['email']) {
+              <span>Please enter a valid email address.</span>
+            }
+          </div>
+        }
       </div>
 
       <div class="form-group">
@@ -34,10 +46,22 @@
           type="password" 
           id="password" 
           name="password" 
-          class="input-base" 
+          class="input-base"
+          [class.input-error]="passwordRef.invalid && passwordRef.touched"
           [(ngModel)]="credentials.password" 
-          required 
+          required
+          minlength="6"
+          #passwordRef="ngModel"
           placeholder="Enter your password">
+        @if (passwordRef.invalid && passwordRef.touched) {
+          <div class="validation-error">
+            @if (passwordRef.errors?.['required']) {
+              <span>Password is required.</span>
+            } @else if (passwordRef.errors?.['minlength']) {
+              <span>Password must be at least 6 characters.</span>
+            }
+          </div>
+        }
       </div>
 
       <button type="submit" class="btn-primary" [disabled]="!loginForm.valid || isLoading" style="width: 100%; margin-top: 16px;">

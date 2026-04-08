@@ -15,10 +15,12 @@ namespace SmartSure.PolicyService.Controllers
     public class PaymentsController : ControllerBase
     {
         private readonly IPaymentService _service;
+        private readonly IRazorpayService _razorpayService;
 
-        public PaymentsController(IPaymentService service)
+        public PaymentsController(IPaymentService service, IRazorpayService razorpayService)
         {
             _service = service;
+            _razorpayService = razorpayService;
         }
 
         /// <summary>
@@ -43,7 +45,29 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         /// <summary>
-        /// Performs the RecordPayment operation.
+        /// Creates a Razorpay order for payment.
+        /// </summary>
+        [HttpPost("/policies/{policyId}/payments/razorpay/create-order")]
+        public async Task<IActionResult> CreateRazorpayOrder(Guid policyId, [FromBody] CreateRazorpayOrderDTO dto)
+        {
+            dto.PolicyId = policyId;
+            var orderResponse = await _service.CreateRazorpayOrderAsync(dto);
+            return Ok(orderResponse);
+        }
+
+        /// <summary>
+        /// Verifies and records Razorpay payment.
+        /// </summary>
+        [HttpPost("/policies/{policyId}/payments/razorpay/verify")]
+        public async Task<IActionResult> VerifyRazorpayPayment(Guid policyId, [FromBody] VerifyRazorpayPaymentDTO dto)
+        {
+            dto.PolicyId = policyId;
+            var payment = await _service.VerifyAndRecordRazorpayPaymentAsync(dto);
+            return Ok(payment);
+        }
+
+        /// <summary>
+        /// Performs the RecordPayment operation (legacy endpoint).
         /// </summary>
         [HttpPost("/policies/{policyId}/payments")]
         public async Task<IActionResult> RecordPayment(Guid policyId, [FromBody] RecordPaymentDTO dto)

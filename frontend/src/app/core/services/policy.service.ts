@@ -136,6 +136,15 @@ export class PolicyService {
     return this.api.post<any>(`policies/${policyId}/payments`, paymentDetails);
   }
 
+  // Razorpay Integration
+  createRazorpayOrder(policyId: string, amount: number, currency: string = 'INR'): Observable<any> {
+    return this.api.post<any>(`policies/${policyId}/payments/razorpay/create-order`, { amount, currency });
+  }
+
+  verifyRazorpayPayment(policyId: string, paymentData: any): Observable<any> {
+    return this.api.post<any>(`policies/${policyId}/payments/razorpay/verify`, paymentData);
+  }
+
   // Discounts
   getDiscounts(): Observable<any[]> {
     return this.api.get<any[]>('discounts');

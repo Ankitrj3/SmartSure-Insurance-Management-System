@@ -67,6 +67,26 @@
   background-color: #FAFAFA;
 }
 
+.input-error {
+  border-color: #E53E3E !important;
+  background-color: #FFF5F5;
+}
+
+.validation-error {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: #E53E3E;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.validation-error::before {
+  content: '⚠';
+  font-size: 0.8rem;
+}
+
 .btn-primary {
   width: 100%;
   padding: 16px;

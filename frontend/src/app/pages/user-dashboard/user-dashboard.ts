@@ -7,6 +7,7 @@ import { ClaimService } from '../../core/services/claim.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { PdfService } from '../../core/services/pdf.service';
+import { RazorpayService } from '../../core/services/razorpay.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -107,7 +108,8 @@ export class UserDashboard implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private toastService: ToastService,
-    private pdfService: PdfService
+    private pdfService: PdfService,
+    private razorpayService: RazorpayService
   ) {
     const currentYear = new Date().getFullYear();
     for (let i = 0; i <= 30; i++) {
@@ -418,7 +420,7 @@ export class UserDashboard implements OnInit {
 
   submitPolicy() {
     this.paymentProcessing = true;
-    this.policyMessage = 'Creating policy and processing payment...';
+    this.policyMessage = 'Creating policy...';
 
     const payload: any = {
       subtypeId: this.policyForm.subtypeId,
@@ -453,32 +455,21 @@ export class UserDashboard implements OnInit {
     // Step 1: Create the policy (status = Pending)
     this.policyService.buyPolicy(payload).subscribe({
       next: (res: any) => {
-        this.policyMessage = 'Policy created! Processing payment...';
         const pId = res.policyId || res.PolicyId;
         const pAmount = res.premiumAmount || res.PremiumAmount;
-        const createdPolicy = res; // Store the created policy
+        const createdPolicy = res;
         
-        // Step 2: Process payment (this will also activate the policy in backend)
-        this.policyService.processPayment(pId, {
-          policyId: pId,
-          amount: pAmount,
-          paymentMethod: this.paymentMethod
-        }).subscribe({
-          next: () => {
-            this.paymentProcessing = false;
-            this.buyPolicyStep = 5; // Success Step
-            this.toastService.success('Policy purchased successfully!');
-            
-            // Generate and download PDF invoice
-            const policyDetails = this.isVehicleType() ? this.vehicleDetails : this.homeDetails;
-            this.pdfService.generatePolicyInvoice(createdPolicy, policyDetails);
-            
-            this.fetchData();
+        // Step 2: Create Razorpay order
+        this.policyMessage = 'Policy created! Initiating payment...';
+        this.policyService.createRazorpayOrder(pId, pAmount).subscribe({
+          next: (orderData: any) => {
+            // Step 3: Open Razorpay payment modal
+            this.openRazorpayPayment(orderData, createdPolicy);
           },
           error: (err) => {
             this.paymentProcessing = false;
-            this.policyMessage = 'Policy created, but payment failed: ' + (err.error?.message || err.message);
-            this.toastService.error('Payment failed: ' + (err.error?.message || err.message));
+            this.policyMessage = 'Failed to initiate payment: ' + (err.error?.message || err.message);
+            this.toastService.error('Payment initiation failed: ' + (err.error?.message || err.message));
           }
         });
       },
@@ -486,6 +477,68 @@ export class UserDashboard implements OnInit {
         this.paymentProcessing = false;
         this.policyMessage = 'Failed to create policy: ' + (err.error?.message || err.message);
         this.toastService.error('Failed to create policy: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
+  openRazorpayPayment(orderData: any, createdPolicy: any) {
+    const options = {
+      key: orderData.keyId,
+      amount: orderData.amount * 100, // Amount in paise
+      currency: orderData.currency,
+      name: 'SmartSure Insurance',
+      description: `Insurance Premium Payment - Policy ${orderData.policyId}`,
+      order_id: orderData.orderId,
+      handler: (response: any) => {
+        // Payment successful - verify and record
+        this.verifyRazorpayPayment(response, orderData.policyId, createdPolicy);
+      },
+      prefill: {
+        name: this.profile.fullName,
+        email: this.profile.email,
+        contact: this.profile.phoneNumber
+      },
+      theme: {
+        color: '#6366f1'
+      },
+      modal: {
+        ondismiss: () => {
+          this.paymentProcessing = false;
+          this.policyMessage = 'Payment cancelled by user';
+          this.toastService.warning('Payment was cancelled');
+        }
+      }
+    };
+
+    this.razorpayService.openPaymentModal(options);
+  }
+
+  verifyRazorpayPayment(response: any, policyId: string, createdPolicy: any) {
+    this.policyMessage = 'Verifying payment...';
+    
+    const verificationData = {
+      razorpayOrderId: response.razorpay_order_id,
+      razorpayPaymentId: response.razorpay_payment_id,
+      razorpaySignature: response.razorpay_signature,
+      paymentMethod: this.paymentMethod
+    };
+
+    this.policyService.verifyRazorpayPayment(policyId, verificationData).subscribe({
+      next: () => {
+        this.paymentProcessing = false;
+        this.buyPolicyStep = 5; // Success Step
+        this.toastService.success('Payment successful! Policy activated.');
+        
+        // Generate and download PDF invoice
+        const policyDetails = this.isVehicleType() ? this.vehicleDetails : this.homeDetails;
+        this.pdfService.generatePolicyInvoice(createdPolicy, policyDetails);
+        
+        this.fetchData();
+      },
+      error: (err) => {
+        this.paymentProcessing = false;
+        this.policyMessage = 'Payment verification failed: ' + (err.error?.message || err.message);
+        this.toastService.error('Payment verification failed: ' + (err.error?.message || err.message));
       }
     });
   }
@@ -499,17 +552,72 @@ export class UserDashboard implements OnInit {
   }
 
   submitPayment() {
-    this.policyService.processPayment(this.paymentPolicyId, {
-      policyId: this.paymentPolicyId,
-      amount: this.paymentForm.amount,
+    const policyId = this.paymentPolicyId;
+    const amount = this.paymentForm.amount;
+    
+    this.paymentMessage = 'Initiating payment...';
+    
+    // Create Razorpay order
+    this.policyService.createRazorpayOrder(policyId, amount).subscribe({
+      next: (orderData: any) => {
+        // Open Razorpay payment modal
+        const options = {
+          key: orderData.keyId,
+          amount: orderData.amount * 100, // Amount in paise
+          currency: orderData.currency,
+          name: 'SmartSure Insurance',
+          description: `Policy Payment - ${policyId}`,
+          order_id: orderData.orderId,
+          handler: (response: any) => {
+            // Payment successful - verify and record
+            this.verifyStandalonePayment(response, policyId);
+          },
+          prefill: {
+            name: this.profile.fullName,
+            email: this.profile.email,
+            contact: this.profile.phoneNumber
+          },
+          theme: {
+            color: '#6366f1'
+          },
+          modal: {
+            ondismiss: () => {
+              this.paymentMessage = 'Payment cancelled';
+              this.toastService.warning('Payment was cancelled');
+            }
+          }
+        };
+
+        this.razorpayService.openPaymentModal(options);
+      },
+      error: (err) => {
+        this.paymentMessage = 'Failed to initiate payment: ' + (err.error?.message || err.message);
+        this.toastService.error('Payment initiation failed');
+      }
+    });
+  }
+
+  verifyStandalonePayment(response: any, policyId: string) {
+    this.paymentMessage = 'Verifying payment...';
+    
+    const verificationData = {
+      razorpayOrderId: response.razorpay_order_id,
+      razorpayPaymentId: response.razorpay_payment_id,
+      razorpaySignature: response.razorpay_signature,
       paymentMethod: this.paymentForm.paymentMethod
-    }).subscribe({
+    };
+
+    this.policyService.verifyRazorpayPayment(policyId, verificationData).subscribe({
       next: () => {
         this.paymentMessage = 'Success: Payment processed & policy activated.';
+        this.toastService.success('Payment successful!');
         this.fetchData();
         setTimeout(() => this.showPaymentModal = false, 1500);
       },
-      error: (err) => this.paymentMessage = 'Failed: ' + (err.error?.message || err.message)
+      error: (err) => {
+        this.paymentMessage = 'Payment verification failed: ' + (err.error?.message || err.message);
+        this.toastService.error('Payment verification failed');
+      }
     });
   }
 

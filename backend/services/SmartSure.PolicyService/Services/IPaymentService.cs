@@ -10,5 +10,7 @@ namespace SmartSure.PolicyService.Services
         Task<List<PaymentDTO>> GetByPolicyIdAsync(Guid policyId);
         Task<PaymentDTO> GetByIdAsync(Guid paymentId);
         Task<PaymentDTO> RecordPaymentAsync(RecordPaymentDTO dto);
+        Task<RazorpayOrderResponseDTO> CreateRazorpayOrderAsync(CreateRazorpayOrderDTO dto);
+        Task<PaymentDTO> VerifyAndRecordRazorpayPaymentAsync(VerifyRazorpayPaymentDTO dto);
     }
 }

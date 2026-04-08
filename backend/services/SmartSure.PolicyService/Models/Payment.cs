@@ -32,5 +32,11 @@ namespace SmartSure.PolicyService.Models
         public string PaymentMethod { get; set; } // "Credit Card", "Debit Card", "Net Banking", etc.
 
         public string TransactionReference { get; set; }
+
+        [StringLength(100)]
+        public string? RazorpayOrderId { get; set; }
+
+        [StringLength(100)]
+        public string? RazorpayPaymentId { get; set; }
     }
 }

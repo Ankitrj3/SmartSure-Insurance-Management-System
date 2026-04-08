@@ -11,11 +11,22 @@ namespace SmartSure.PolicyService.Services
     {
         private readonly IPaymentRepository _repo;
         private readonly IPolicyMgmtService _policyService;
+        private readonly IRazorpayService _razorpayService;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<PaymentService> _logger;
 
-        public PaymentService(IPaymentRepository repo, IPolicyMgmtService policyService)
+        public PaymentService(
+            IPaymentRepository repo, 
+            IPolicyMgmtService policyService,
+            IRazorpayService razorpayService,
+            IConfiguration configuration,
+            ILogger<PaymentService> logger)
         {
             _repo = repo;
             _policyService = policyService;
+            _razorpayService = razorpayService;
+            _configuration = configuration;
+            _logger = logger;
         }
 
         /// <summary>
@@ -56,7 +67,97 @@ namespace SmartSure.PolicyService.Services
         }
 
         /// <summary>
-        /// Performs the RecordPaymentAsync operation.
+        /// Creates a Razorpay order for payment.
+        /// </summary>
+        public async Task<RazorpayOrderResponseDTO> CreateRazorpayOrderAsync(CreateRazorpayOrderDTO dto)
+        {
+            // Generate short receipt (max 40 chars)
+            var receipt = $"pol_{dto.PolicyId.ToString().Substring(0, 8)}_{DateTime.UtcNow.Ticks % 1000000}";
+            var notes = new Dictionary<string, object>
+            {
+                { "policy_id", dto.PolicyId.ToString() },
+                { "type", "insurance_premium" }
+            };
+
+            var order = await _razorpayService.CreateOrderAsync(dto.Amount, dto.Currency, receipt, notes);
+
+            return new RazorpayOrderResponseDTO
+            {
+                OrderId = order["id"].ToString(),
+                Amount = dto.Amount,
+                Currency = dto.Currency,
+                KeyId = _configuration["Razorpay:KeyId"],
+                PolicyId = dto.PolicyId
+            };
+        }
+
+        /// <summary>
+        /// Verifies Razorpay payment signature and records the payment.
+        /// </summary>
+        public async Task<PaymentDTO> VerifyAndRecordRazorpayPaymentAsync(VerifyRazorpayPaymentDTO dto)
+        {
+            // Verify signature
+            var isValid = _razorpayService.VerifyPaymentSignature(
+                dto.RazorpayOrderId, 
+                dto.RazorpayPaymentId, 
+                dto.RazorpaySignature);
+
+            if (!isValid)
+            {
+                _logger.LogWarning("Invalid Razorpay signature for policy {PolicyId}", dto.PolicyId);
+                throw new UnauthorizedAccessException("Invalid payment signature");
+            }
+
+            // Fetch payment details from Razorpay
+            var razorpayPayment = await _razorpayService.GetPaymentDetailsAsync(dto.RazorpayPaymentId);
+            var amount = Convert.ToDecimal(razorpayPayment["amount"]) / 100; // Convert from paise to rupees
+            var status = razorpayPayment["status"].ToString();
+
+            // Record payment in database
+            var payment = new Payment
+            {
+                PaymentId = Guid.NewGuid(),
+                PolicyId = dto.PolicyId,
+                Amount = amount,
+                PaymentDate = DateTime.UtcNow,
+                Status = status == "captured" ? "Success" : "Failed",
+                PaymentMethod = dto.PaymentMethod,
+                TransactionReference = dto.RazorpayPaymentId,
+                RazorpayOrderId = dto.RazorpayOrderId,
+                RazorpayPaymentId = dto.RazorpayPaymentId
+            };
+
+            await _repo.AddAsync(payment);
+            await _repo.SaveChangesAsync();
+
+            // Activate policy if payment successful
+            if (payment.Status == "Success")
+            {
+                try
+                {
+                    await _policyService.ActivatePolicyAsync(dto.PolicyId);
+                    _logger.LogInformation("Policy {PolicyId} activated after successful payment", dto.PolicyId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to activate policy {PolicyId}, might already be active", dto.PolicyId);
+                }
+            }
+
+            return new PaymentDTO
+            {
+                PaymentId = payment.PaymentId,
+                PolicyId = payment.PolicyId,
+                Amount = payment.Amount,
+                PaymentDate = payment.PaymentDate,
+                Status = payment.Status,
+                PaymentMethod = payment.PaymentMethod,
+                TransactionReference = payment.TransactionReference
+            };
+        }
+
+        /// <summary>
+        /// Performs the RecordPaymentAsync operation (legacy method).
         /// </summary>
         public async Task<PaymentDTO> RecordPaymentAsync(RecordPaymentDTO dto)
         {

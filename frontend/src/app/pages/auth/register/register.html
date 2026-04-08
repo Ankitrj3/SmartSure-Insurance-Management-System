@@ -11,17 +11,29 @@
         <div class="alert alert-error">{{ errorMessage }}</div>
       }
 
-      <form (ngSubmit)="onRegister()" #registerForm="ngForm">
+      <form (ngSubmit)="onRegister()" #registerForm="ngForm" novalidate>
         <div class="form-group">
           <label for="fullName">Full Name</label>
           <input 
             type="text" 
             id="fullName" 
             name="fullName" 
-            class="input-base" 
+            class="input-base"
+            [class.input-error]="fullNameRef.invalid && fullNameRef.touched"
             [(ngModel)]="registerData.fullName" 
-            required 
+            required
+            minlength="2"
+            #fullNameRef="ngModel"
             placeholder="John Doe">
+          @if (fullNameRef.invalid && fullNameRef.touched) {
+            <div class="validation-error">
+              @if (fullNameRef.errors?.['required']) {
+                <span>Full name is required.</span>
+              } @else if (fullNameRef.errors?.['minlength']) {
+                <span>Name must be at least 2 characters.</span>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-group">
@@ -30,10 +42,22 @@
             type="email" 
             id="email" 
             name="email" 
-            class="input-base" 
+            class="input-base"
+            [class.input-error]="emailRef.invalid && emailRef.touched"
             [(ngModel)]="registerData.email" 
-            required 
+            required
+            email
+            #emailRef="ngModel"
             placeholder="john@example.com">
+          @if (emailRef.invalid && emailRef.touched) {
+            <div class="validation-error">
+              @if (emailRef.errors?.['required']) {
+                <span>Email address is required.</span>
+              } @else if (emailRef.errors?.['email']) {
+                <span>Please enter a valid email address.</span>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-group">
@@ -42,10 +66,22 @@
             type="tel" 
             id="phoneNumber" 
             name="phoneNumber" 
-            class="input-base" 
+            class="input-base"
+            [class.input-error]="phoneRef.invalid && phoneRef.touched"
             [(ngModel)]="registerData.phoneNumber" 
-            required 
+            required
+            pattern="^[+]?[0-9\s\-]{7,15}$"
+            #phoneRef="ngModel"
             placeholder="+91-XXXXXXXXXX">
+          @if (phoneRef.invalid && phoneRef.touched) {
+            <div class="validation-error">
+              @if (phoneRef.errors?.['required']) {
+                <span>Phone number is required.</span>
+              } @else if (phoneRef.errors?.['pattern']) {
+                <span>Please enter a valid phone number.</span>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-group">
@@ -54,10 +90,22 @@
             type="password" 
             id="password" 
             name="password" 
-            class="input-base" 
+            class="input-base"
+            [class.input-error]="passwordRef.invalid && passwordRef.touched"
             [(ngModel)]="registerData.password" 
-            required 
+            required
+            minlength="8"
+            #passwordRef="ngModel"
             placeholder="Minimum 8 characters">
+          @if (passwordRef.invalid && passwordRef.touched) {
+            <div class="validation-error">
+              @if (passwordRef.errors?.['required']) {
+                <span>Password is required.</span>
+              } @else if (passwordRef.errors?.['minlength']) {
+                <span>Password must be at least 8 characters.</span>
+              }
+            </div>
+          }
         </div>
 
         <button type="submit" class="btn btn-primary" [disabled]="!registerForm.valid || isLoading" style="width: 100%; margin-top: 16px;">

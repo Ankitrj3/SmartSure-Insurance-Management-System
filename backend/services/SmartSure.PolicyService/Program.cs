@@ -115,6 +115,7 @@ builder.Services.AddScoped<IInsuranceService, InsuranceService>();
 builder.Services.AddScoped<IPolicyMgmtService, PolicyMgmtService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IDiscountService, DiscountService>();
+builder.Services.AddScoped<IRazorpayService, RazorpayService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
