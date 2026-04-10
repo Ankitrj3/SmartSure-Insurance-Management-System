@@ -47,7 +47,7 @@ namespace SmartSure.PolicyService.Tests
             {
                 SubtypeId = Guid.NewGuid(),
                 Duration = 12, // 1 year
-                VehicleDetail = new CreateVehicleDetailDTO
+                VehicleDetail = new PolicyVehicleDetailDTO
                 {
                     EstimatedValue = 500000,
                     ManufactureYear = DateTime.UtcNow.Year // New car, 5% depreciation
@@ -65,9 +65,11 @@ namespace SmartSure.PolicyService.Tests
 
             // Assert
             // IDV = 500,000 * 0.95 = 475,000
-            // Premium = 2000 * (12/12) + (475,000 * 0.025 * 1) = 2000 + 11875 = 13875
+            // Base Premium = 2000 * 1 + (475,000 * 0.025 * 1) = 13875
+            // GST (18%) = 13875 * 0.18 = 2497.5
+            // Total Premium = 13875 + 2497.5 = 16372.5
             Assert.Equal(475000m, result.InsuredDeclaredValue);
-            Assert.Equal(13875m, result.PremiumAmount);
+            Assert.Equal(16372.50m, result.PremiumAmount);
         }
 
         [Fact]

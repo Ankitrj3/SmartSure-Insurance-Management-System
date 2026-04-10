@@ -97,13 +97,17 @@ namespace SmartSure.PolicyService.Services
         /// <summary>
         /// Fetches payment details from Razorpay.
         /// </summary>
-        public async Task<Payment> GetPaymentDetailsAsync(string paymentId)
+        public async Task<Dictionary<string, object>> GetPaymentDetailsAsync(string paymentId)
         {
             try
             {
                 var payment = _client.Payment.Fetch(paymentId);
                 _logger.LogInformation("Fetched payment details: {PaymentId}", paymentId);
-                return payment;
+                return new Dictionary<string, object>
+                {
+                    { "amount", payment["amount"] },
+                    { "status", payment["status"] }
+                };
             }
             catch (Exception ex)
             {

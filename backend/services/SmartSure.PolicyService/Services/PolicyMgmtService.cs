@@ -83,6 +83,19 @@ namespace SmartSure.PolicyService.Services
         {
             decimal years = durationMonths / 12.0m;
             decimal baseAmount = basePremium * years;
+            
+            if (idv > 0)
+            {
+                if (isVehicle)
+                {
+                    baseAmount += (idv * 0.025m * years);
+                }
+                else
+                {
+                    baseAmount += (idv * 0.005m * years); // 0.5% for home
+                }
+            }
+            
             // Add 18% GST
             decimal premiumWithGst = baseAmount * 1.18m;
             return Math.Round(premiumWithGst, 2);

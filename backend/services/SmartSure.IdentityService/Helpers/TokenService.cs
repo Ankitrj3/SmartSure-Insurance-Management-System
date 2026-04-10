@@ -15,7 +15,7 @@ namespace IdentityService.Helpers
         /// <summary>
         /// Performs the BuildToken operation.
         /// </summary>
-        public string BuildToken(string key, string issuer, IEnumerable<string> audiences, string userName, IEnumerable<string> roles)
+        public virtual string BuildToken(string key, string issuer, IEnumerable<string> audiences, string userName, IEnumerable<string> roles)
         {
             var claims = new List<Claim>
             {
@@ -54,7 +54,7 @@ namespace IdentityService.Helpers
         /// <summary>
         /// Performs the GenerateRefreshToken operation.
         /// </summary>
-        public string GenerateRefreshToken()
+        public virtual string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
             using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();

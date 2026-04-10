@@ -9,7 +9,7 @@ namespace SmartSure.PolicyService.Services
     {
         Task<Dictionary<string, object>> CreateOrderAsync(decimal amount, string currency, string receipt, Dictionary<string, object>? notes = null);
         bool VerifyPaymentSignature(string orderId, string paymentId, string signature);
-        Task<Payment> GetPaymentDetailsAsync(string paymentId);
+        Task<Dictionary<string, object>> GetPaymentDetailsAsync(string paymentId);
         Task<Refund> RefundPaymentAsync(string paymentId, decimal? amount = null);
     }
 }
