@@ -51,7 +51,7 @@ export class PolicyService {
 
   // Policies
   getUserPolicies(): Observable<any[]> {
-    return this.api.get<any[]>('policies');
+    return this.api.get<any[]>('policies?page=1&pageSize=3000');
   }
 
   getPolicyById(policyId: string): Observable<any> {
@@ -60,6 +60,14 @@ export class PolicyService {
 
   cancelPolicy(policyId: string): Observable<any> {
     return this.api.put<any>(`policies/${policyId}/cancel`, {});
+  }
+
+  deletePolicy(policyId: string): Observable<any> {
+    return this.api.delete<any>(`policies/${policyId}`);
+  }
+
+  failPolicy(policyId: string): Observable<any> {
+    return this.api.put<any>(`policies/${policyId}/fail`, {});
   }
 
   getPolicyDetails(policyId: string): Observable<any> {
@@ -126,6 +134,14 @@ export class PolicyService {
   // Payments
   getPayments(policyId: string): Observable<any[]> {
     return this.api.get<any[]>(`policies/${policyId}/payments`);
+  }
+
+  getUserPayments(): Observable<any[]> {
+    return this.api.get<any[]>('payments?page=1&pageSize=3000');
+  }
+
+  recordFailedPayment(policyId: string, amount: number, reason?: string): Observable<any> {
+    return this.api.post<any>(`policies/${policyId}/payments/failed`, { amount, reason });
   }
 
   getPaymentDetails(paymentId: string): Observable<any> {

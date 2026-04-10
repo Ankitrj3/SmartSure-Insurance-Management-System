@@ -9,6 +9,8 @@
    NO GRADIENTS.
    ============================================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
+
 :root {
   --primary:          #0DB18C;
   --primary-dark:     #0A8E70;
@@ -44,7 +46,7 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
 
-  --nav-height: 90px;
+  --nav-height: 72px;
   --transition: all 0.25s ease;
 }
 
@@ -55,13 +57,14 @@
 }
 
 html {
+  font-size: 87.5%; /* 1rem = 14px — reduces overall zoom level */
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
@@ -70,17 +73,18 @@ body {
 
 /* ── Typography ── */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
   line-height: 1.2;
   color: var(--text-primary);
   letter-spacing: -0.02em;
 }
 
-h1 { font-size: 3.5rem; }
-h2 { font-size: 2.5rem; }
-h3 { font-size: 2rem; }
-h4 { font-size: 1.5rem; }
-h5 { font-size: 1.25rem; }
+h1 { font-size: 3rem; }
+h2 { font-size: 2.1rem; }
+h3 { font-size: 1.7rem; }
+h4 { font-size: 1.3rem; }
+h5 { font-size: 1.1rem; }
 h6 { font-size: 1rem; }
 
 p {
@@ -307,9 +311,9 @@ a {
 
 /* ── Responsive Typography ── */
 @media (max-width: 1024px) {
-  h1 { font-size: 2.5rem; }
-  h2 { font-size: 2rem; }
-  h3 { font-size: 1.75rem; }
+  h1 { font-size: 2.2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.5rem; }
 }
 
 @media (max-width: 768px) {

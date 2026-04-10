@@ -157,6 +157,26 @@ namespace SmartSure.PolicyService.Controllers
         }
 
         /// <summary>
+        /// Performs the FailPolicy operation.
+        /// </summary>
+        [HttpPut("/policies/{policyId}/fail")]
+        public async Task<IActionResult> FailPolicy(Guid policyId)
+        {
+            await _service.FailPolicyAsync(policyId);
+            return Ok(new { message = "Policy marked as failed" });
+        }
+
+        /// <summary>
+        /// Performs the DeletePolicy operation.
+        /// </summary>
+        [HttpDelete("/policies/{policyId}")]
+        public async Task<IActionResult> DeletePolicy(Guid policyId)
+        {
+            await _service.DeletePolicyAsync(policyId);
+            return Ok(new { message = "Policy deleted successfully" });
+        }
+
+        /// <summary>
         /// Performs the GetDetails operation.
         /// </summary>
         [HttpGet("/policies/{policyId}/details")]

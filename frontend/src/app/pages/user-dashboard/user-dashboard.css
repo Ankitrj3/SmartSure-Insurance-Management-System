@@ -369,7 +369,7 @@
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
   max-height: 90vh;
   overflow-y: auto;
-  border-top: 6px solid #F7F072;
+  border-top: 6px solid #0DB18C;
 }
 
 .modal-header {
@@ -419,6 +419,121 @@
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
 .empty-state { text-align: center; padding: 60px 40px; border: 2px dashed #EEEEEE; margin-top: 20px; color: #666666; font-size: 1.1rem; }
+
+/* ── Plan Tier Picker ── */
+.plan-list {
+  max-height: 220px;
+  overflow-y: auto;
+  border: 2px solid #EEEEEE;
+  margin-top: 8px;
+}
+
+.plan-list::-webkit-scrollbar { width: 6px; }
+.plan-list::-webkit-scrollbar-track { background: #F8FAFC; }
+.plan-list::-webkit-scrollbar-thumb { background: #CBD5E1; }
+
+.plan-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  cursor: pointer;
+  border-bottom: 1px solid #F0F0F0;
+  transition: background 0.15s;
+}
+
+.plan-item:last-child { border-bottom: none; }
+.plan-item:hover { background: #F0FEF9; }
+
+.plan-item-selected {
+  background: #EFFFFA !important;
+  border-left: 4px solid #0DB18C;
+}
+
+.plan-name {
+  font-weight: 600;
+  color: #1A1A1A;
+  font-size: 0.95rem;
+}
+
+.plan-price {
+  font-weight: 800;
+  color: #0DB18C;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  margin-left: 12px;
+}
+
+/* ── Calculated IDV Box ── */
+.calc-idv-box {
+  display: flex;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.idv-box-left {
+  background: white;
+  padding: 20px 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px dashed #CBD5E1;
+}
+
+.idv-subtitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #64748B;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.idv-main-amount {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #0DB18C;
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.idv-box-right {
+  padding: 20px 24px;
+  background: #F8FAFC;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.idv-formula {
+  font-size: 1.1rem;
+  color: #334155;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.idv-formula span {
+  color: #0F172A;
+  font-weight: 800;
+}
+
+.idv-formula .cross-icon {
+  color: #94A3B8;
+  font-size: 0.9rem;
+  margin: 0 4px;
+}
+
+.idv-disclaimer {
+  font-size: 0.8rem;
+  color: #94A3B8;
+  font-style: italic;
+}
 
 /* ── Responsive Mobile View ── */
 @media (max-width: 991px) {

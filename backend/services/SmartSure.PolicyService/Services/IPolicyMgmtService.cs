@@ -13,6 +13,8 @@ namespace SmartSure.PolicyService.Services
         Task<PolicyDTO> GetPolicyByIdAsync(Guid policyId);
         Task<PolicyDTO> CreatePolicyAsync(Guid userId, CreatePolicyDTO dto);
         Task CancelPolicyAsync(Guid policyId);
+        Task DeletePolicyAsync(Guid policyId);
+        Task FailPolicyAsync(Guid policyId);
         
         Task<PolicyDetailDTO> GetPolicyDetailsAsync(Guid policyId);
         Task SavePolicyDetailsAsync(Guid policyId, SavePolicyDetailDTO dto);

@@ -14,6 +14,7 @@ namespace SmartSure.PolicyService.Repositories
         Task AddAsync(Policy policy);
         Task UpdateAsync(Policy policy);
         Task CancelAsync(Guid policyId);
+        Task DeleteAsync(Guid policyId);
         
         Task<PolicyDetail> GetDetailByPolicyIdAsync(Guid policyId);
         Task AddOrUpdateDetailAsync(PolicyDetail detail);
@@ -24,6 +25,8 @@ namespace SmartSure.PolicyService.Repositories
         Task<VehicleDetail> GetVehicleDetailByPolicyIdAsync(Guid policyId);
         Task AddOrUpdateVehicleDetailAsync(VehicleDetail detail);
         
+        Task AddPaymentAsync(Payment payment);
+
         Task SaveChangesAsync();
     }
 }

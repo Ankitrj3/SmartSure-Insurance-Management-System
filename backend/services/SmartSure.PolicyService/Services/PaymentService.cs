@@ -48,6 +48,24 @@ namespace SmartSure.PolicyService.Services
         }
 
         /// <summary>
+        /// Performs the GetUserPaymentsAsync operation.
+        /// </summary>
+        public async Task<List<PaymentDTO>> GetUserPaymentsAsync(Guid userId)
+        {
+            var payments = await _repo.GetByUserIdAsync(userId);
+            return payments.Select(p => new PaymentDTO
+            {
+                PaymentId = p.PaymentId,
+                PolicyId = p.PolicyId,
+                Amount = p.Amount,
+                PaymentDate = p.PaymentDate,
+                Status = p.Status,
+                PaymentMethod = p.PaymentMethod,
+                TransactionReference = p.TransactionReference
+            }).ToList();
+        }
+
+        /// <summary>
         /// Performs the GetByIdAsync operation.
         /// </summary>
         public async Task<PaymentDTO> GetByIdAsync(Guid paymentId)
@@ -184,6 +202,37 @@ namespace SmartSure.PolicyService.Services
             {
                 // Policy might already be active – that's OK
             }
+
+            return new PaymentDTO
+            {
+                PaymentId = payment.PaymentId,
+                PolicyId = payment.PolicyId,
+                Amount = payment.Amount,
+                PaymentDate = payment.PaymentDate,
+                Status = payment.Status,
+                PaymentMethod = payment.PaymentMethod,
+                TransactionReference = payment.TransactionReference
+            };
+        }
+
+        /// <summary>
+        /// Records a failed payment transaction without modifying the policy status.
+        /// </summary>
+        public async Task<PaymentDTO> RecordFailedPaymentAsync(Guid policyId, decimal amount, string reason)
+        {
+            var payment = new Payment
+            {
+                PaymentId = Guid.NewGuid(),
+                PolicyId = policyId,
+                Amount = amount,
+                PaymentDate = DateTime.UtcNow,
+                Status = "Failed",
+                PaymentMethod = "Razorpay",
+                TransactionReference = "FAILED_" + Guid.NewGuid().ToString().Substring(0, 8)
+            };
+
+            await _repo.AddAsync(payment);
+            await _repo.SaveChangesAsync();
 
             return new PaymentDTO
             {

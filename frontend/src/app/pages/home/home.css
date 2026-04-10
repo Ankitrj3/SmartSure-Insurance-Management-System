@@ -22,271 +22,208 @@
   padding: 0 1.5rem;
 }
 
-/* ── Hero Section ── */
-.smartsure-hero {
+/* ── Professional Insurance Hero Section ── */
+.smartsure-hero-professional {
   background: #1A1A1A;
-  padding: 80px 0 70px;
+  padding: 100px 0;
+  position: relative;
   overflow: hidden;
+  font-family: 'Inter', sans-serif;
 }
 
-.hero-container {
+/* Background subtle pattern or clean solid */
+.smartsure-hero-professional::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 50%;
+  background: #222222;
+  z-index: 0;
+  border-top-left-radius: 60px;
+  border-bottom-left-radius: 60px;
+}
+
+.hero-container-pro {
+  position: relative;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 60px;
+  gap: 80px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px;
 }
 
-.hero-content {
-  flex: 1;
-  max-width: 560px;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.hero-content-pro {
+  flex: 1.1;
+  max-width: 600px;
 }
 
-.hero-title {
-  font-size: 3.6rem;
-  font-weight: 800;
-  line-height: 1.05;
-  margin-bottom: 24px;
-  color: #FFFFFF;
-  letter-spacing: -0.03em;
-}
-
-.hero-title .highlight-bg {
-  background-color: #F7F072;
-  color: #1A1A1A;
-  padding: 4px 14px;
-  display: inline-block;
-}
-
-.hero-text {
-  font-size: 1.1rem;
-  line-height: 1.7;
-  color: #AAAAAA;
-  margin-bottom: 36px;
-  max-width: 460px;
-}
-
-.btn-quote {
-  background-color: #0DB18C;
-  color: white;
-  padding: 18px 36px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  border-radius: 0;
-  font-size: 0.95rem;
+.reviews-badge {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
-  text-decoration: none;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 8px 16px;
+  border-radius: 4px;
+  margin-bottom: 24px;
 }
 
-.btn-quote:hover {
-  background-color: #0A8E70;
-}
-
-.arrow {
-  font-size: 1.3rem;
-  line-height: 1;
-}
-
-/* Hero Visual */
-.hero-visual {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.insurance-visual-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  max-width: 530px;
-  width: 100%;
-}
-
-.insurance-visual-card {
-  background: #262626;
-  border-radius: 8px;
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid #333333;
-}
-
-.insurance-visual-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
-}
-
-.car-card {
-  grid-column: 1 / 2;
-}
-
-.home-card {
-  grid-column: 2 / 3;
-  margin-top: 36px;
-}
-
-.stats-card {
-  grid-column: 1 / -1;
-  background: #262626;
-  border: 1px solid #333333;
-}
-
-.stats-grid {
+.stars {
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  padding: 28px 32px;
-  gap: 32px;
+  gap: 2px;
 }
 
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  flex: 1;
+.reviews-text {
+  color: #CCCCCC;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
-.stat-icon-wrapper {
-  background: #0DB18C;
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background 0.25s ease;
-}
-
-.insurance-visual-card:hover .stat-icon-wrapper {
-  background: #0A8E70;
-}
-
-.stat-icon-wrapper svg {
-  width: 28px;
-  height: 28px;
-  color: white;
-}
-
-.stat-details {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-value {
-  font-size: 2rem;
+.hero-title-pro {
+  font-size: 4rem;
   font-weight: 800;
   color: #FFFFFF;
-  line-height: 1;
-  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
 }
 
-.stat-title {
-  font-size: 0.85rem;
-  color: #888888;
-  font-weight: 600;
-  line-height: 1.3;
+.text-yellow {
+  color: #F7F072;
 }
 
-.stat-divider {
-  width: 1px;
-  height: 50px;
-  background: #444444;
-  flex-shrink: 0;
+.hero-text-pro {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: #AAAAAA;
+  margin-bottom: 36px;
+  max-width: 540px;
 }
 
-.card-image-wrapper {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-}
-
-.card-image-wrapper img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.insurance-visual-card:hover .card-image-wrapper img {
-  transform: scale(1.06);
-}
-
-.card-overlay {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.45);
+.hero-features-pro {
   display: flex;
-  align-items: flex-end;
-  padding: 18px;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.card-badge {
-  background: #0DB18C;
-  width: 50px;
-  height: 50px;
+.feat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #FFFFFF;
+  font-weight: 500;
+  font-size: 1.05rem;
+}
+
+.hero-visual-pro {
+  flex: 0.9;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.quote-widget {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+}
+
+.widget-header h3 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1A1A1A;
+  margin: 0 0 8px 0;
+}
+
+.widget-header p {
+  color: #666666;
+  font-size: 1rem;
+  margin: 0 0 32px 0;
+}
+
+.insurance-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.ins-option {
+  border: 2px solid #EEEEEE;
+  border-radius: 8px;
+  padding: 20px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ins-option:hover {
+  border-color: #0DB18C;
+  background: #F4FAF8;
+}
+
+.ins-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px auto;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.card-badge svg {
+.vehicle-icon { background: rgba(13, 177, 140, 0.1); color: #0DB18C; }
+.home-icon { background: rgba(247, 240, 114, 0.2); color: #1A1A1A; }
+
+.ins-icon svg {
   width: 24px;
   height: 24px;
-  color: white;
 }
 
-.home-card .card-badge {
-  background: #F7F072;
-}
-
-.home-card .card-badge svg {
+.ins-option span {
+  display: block;
+  font-weight: 700;
   color: #1A1A1A;
+  font-size: 1.05rem;
 }
 
-.card-content {
-  padding: 18px 20px;
-}
-
-.card-content h4 {
-  font-size: 1.15rem;
+.btn-quote-pro {
+  width: 100%;
+  background: #0DB18C;
+  color: white;
+  border: none;
+  padding: 18px;
+  border-radius: 6px;
+  font-size: 1.1rem;
   font-weight: 800;
-  color: #FFFFFF;
-  margin-bottom: 6px;
-  line-height: 1.2;
-}
-
-.card-content p {
-  font-size: 0.85rem;
-  color: #888888;
-  line-height: 1.5;
-  margin-bottom: 12px;
-}
-
-.card-features {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
-.card-features span {
-  font-size: 0.8rem;
-  color: #0DB18C;
+.btn-quote-pro:hover {
+  background: #0A8E70;
+}
+
+.widget-footer {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #888888;
+  font-size: 0.85rem;
   font-weight: 500;
 }
 
@@ -702,15 +639,43 @@
     max-width: 600px;
   }
 
-  .hero-container,
+  .hero-container-pro {
+    flex-direction: column;
+    padding: 60px 30px;
+    gap: 50px;
+  }
+  
+  .smartsure-hero-professional::before {
+    width: 100%;
+    height: 60%;
+    top: auto;
+    bottom: 0;
+    border-radius: 0;
+    border-top-left-radius: 40px;
+    border-top-right-radius: 40px;
+  }
+
+  .hero-content-pro {
+    max-width: 100%;
+    align-items: center;
+  }
+  
+  .hero-features-pro {
+    align-items: flex-start;
+  }
+
   .about-container,
   .cta-container {
     flex-direction: column;
     gap: 40px;
   }
 
-  .hero-title {
-    font-size: 3rem;
+  .main-policy-card {
+    left: 0;
+  }
+
+  .side-feature-card {
+    right: 0;
   }
 
   .about-title,
@@ -719,11 +684,7 @@
     font-size: 2.4rem;
   }
 
-  .hero-visual {
-    width: 100%;
-  }
-
-  .smartsure-hero {
+  .smartsure-hero-professional {
     padding: 60px 0;
   }
 
@@ -739,65 +700,21 @@
 }
 
 @media (max-width: 768px) {
-  .smartsure-hero {
-    padding: 50px 0;
+  .smartsure-hero-professional {
+    padding: 60px 0;
   }
 
-  .hero-container {
+  .hero-title-pro {
+    font-size: 2.8rem;
+  }
+
+  .quote-widget {
+    padding: 30px 20px;
+  }
+
+  .hero-visual-pro {
     flex-direction: column;
-    gap: 32px;
-    align-items: flex-start;
-  }
-
-  .hero-content {
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .hero-title {
-    font-size: 2.2rem;
-    line-height: 1.15;
-    margin-bottom: 18px;
-  }
-
-  .hero-text {
-    font-size: 0.97rem;
-    margin-bottom: 24px;
-  }
-
-  .btn-quote {
-    padding: 14px 26px;
-    font-size: 0.85rem;
-  }
-
-  .hero-visual {
-    width: 100%;
-  }
-
-  .insurance-visual-grid {
-    max-width: 100%;
-    gap: 14px;
-    grid-template-columns: 1fr;
-  }
-
-  .car-card,
-  .home-card {
-    grid-column: 1;
-    margin-top: 0;
-  }
-
-  .stats-card {
-    grid-column: 1;
-    margin-top: 0;
-  }
-
-  .stats-grid {
-    padding: 20px 16px;
-    gap: 16px;
-  }
-
-  .card-image-wrapper {
-    height: 160px;
+    margin-top: 10px;
   }
 
   .card-content {
@@ -884,35 +801,16 @@
 }
 
 @media (max-width: 480px) {
-  .smartsure-hero {
+  .smartsure-hero-professional {
     padding: 40px 0;
   }
 
-  .hero-title {
-    font-size: 1.8rem;
-    line-height: 1.2;
-    margin-bottom: 14px;
+  .hero-title-pro {
+    font-size: 2.2rem;
   }
-
-  .hero-text {
-    font-size: 0.9rem;
-    margin-bottom: 20px;
-  }
-
-  .btn-quote {
-    padding: 12px 22px;
-    font-size: 0.8rem;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .insurance-visual-grid {
+  
+  .insurance-options {
     grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .card-image-wrapper {
-    height: 140px;
   }
 
   .stats-grid {

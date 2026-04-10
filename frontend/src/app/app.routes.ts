@@ -8,6 +8,7 @@ import { GoogleCallback } from './pages/auth/google-callback/google-callback';
 import { VerifyOtp } from './pages/auth/verify-otp/verify-otp';
 import { ForgotPassword } from './pages/auth/forgot-password/forgot-password';
 import { Profile } from './pages/profile/profile';
+import { NotFound } from './pages/not-found/not-found';
 
 import { AboutUs } from './pages/about-us/about-us';
 import { ContactUs } from './pages/contact-us/contact-us';
@@ -30,5 +31,7 @@ export const routes: Routes = [
   { path: 'user/dashboard', component: UserDashboard, canActivate: [userGuard] },
   { path: 'user-dashboard', redirectTo: 'user/dashboard', pathMatch: 'full' },
   { path: 'admin/dashboard', component: AdminDashboard, canActivate: [adminGuard] },
-  { path: 'auth/google/callback', component: GoogleCallback }
+  { path: 'auth/google/callback', component: GoogleCallback },
+  { path: '404', component: NotFound },
+  { path: '**', redirectTo: '/404' }
 ];

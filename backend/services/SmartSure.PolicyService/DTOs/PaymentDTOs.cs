@@ -81,4 +81,18 @@ namespace SmartSure.PolicyService.DTOs
         public string KeyId { get; set; }
         public Guid PolicyId { get; set; }
     }
+
+    /// <summary>
+    /// DTO for recording a failed payment attempt.
+    /// </summary>
+    public class RecordFailedPaymentDTO
+    {
+        public Guid PolicyId { get; set; }
+
+        [Required]
+        [Range(0, double.MaxValue)]
+        public decimal Amount { get; set; }
+
+        public string? Reason { get; set; }
+    }
 }

@@ -67,29 +67,13 @@ namespace SmartSure.PolicyService.Services
         }
 
         /// <summary>
-        /// Home Insurance Value = Rebuild cost estimation.
-        /// Formula: Current market value adjusted by age depreciation and property-type multiplier.
-        ///   - Apartment → 0.90
-        ///   - House     → 1.00
-        ///   - Villa     → 1.10
-        /// Age depreciation: 1% per year after construction, capped at 40%.
+        /// Home IDV = Area (sq.ft) × Reconstruction cost per sq.ft.
+        /// Land value is NOT included. Only rebuilding cost is considered.
         /// </summary>
         private static decimal CalculateHomeInsuranceValue(PolicyHomeDetailDTO h)
         {
-            int currentYear = DateTime.UtcNow.Year;
-            int age = currentYear - h.YearBuilt;
-            if (age < 0) age = 0;
-
-            decimal ageDepreciation    = Math.Min(age * 0.01m, 0.40m);
-            decimal propertyMultiplier = h.PropertyType?.ToLower() switch
-            {
-                "apartment" => 0.90m,
-                "villa"     => 1.10m,
-                _           => 1.00m
-            };
-
-            decimal insuranceValue = h.EstimatedValue * (1 - ageDepreciation) * propertyMultiplier;
-            return Math.Max(insuranceValue, 50000); // Minimum insured value ₹50,000
+            decimal idv = h.AreaSqFt * h.ConstructionCostPerSqFt;
+            return Math.Max(idv, 50000); // Minimum insured value ₹50,000
         }
 
         /// <summary>
@@ -130,8 +114,7 @@ namespace SmartSure.PolicyService.Services
             else if (isHome && dto.HomeDetail != null)
             {
                 idv = CalculateHomeInsuranceValue(dto.HomeDetail);
-                int age   = DateTime.UtcNow.Year - dto.HomeDetail.YearBuilt;
-                breakdown = $"Home Insurance Value: Market Value ₹{dto.HomeDetail.EstimatedValue:N0} | Age {age} yrs | Insured Value ₹{idv:N0}";
+                breakdown = $"Home IDV: {dto.HomeDetail.AreaSqFt:N0} sq.ft × ₹{dto.HomeDetail.ConstructionCostPerSqFt:N0}/sq.ft = ₹{idv:N0} (reconstruction cost, land excluded)";
             }
 
             decimal premium = CalculatePremium(subtype.BasePremium, dto.Duration, idv, isVehicle);
@@ -239,13 +222,15 @@ namespace SmartSure.PolicyService.Services
             {
                 await _repo.AddOrUpdateHomeDetailAsync(new HomeDetail
                 {
-                    HomeDetailId     = Guid.NewGuid(),
-                    PolicyId         = policy.PolicyId,
-                    Address          = dto.HomeDetail.Address,
-                    PropertyType     = dto.HomeDetail.PropertyType,
-                    YearBuilt        = dto.HomeDetail.YearBuilt,
-                    EstimatedValue   = dto.HomeDetail.EstimatedValue,
-                    SecurityFeatures = dto.HomeDetail.SecurityFeatures
+                    HomeDetailId              = Guid.NewGuid(),
+                    PolicyId                  = policy.PolicyId,
+                    Address                   = dto.HomeDetail.Address,
+                    PropertyType              = dto.HomeDetail.PropertyType,
+                    YearBuilt                 = dto.HomeDetail.YearBuilt,
+                    AreaSqFt                  = dto.HomeDetail.AreaSqFt,
+                    ConstructionCostPerSqFt   = dto.HomeDetail.ConstructionCostPerSqFt,
+                    EstimatedValue            = dto.HomeDetail.AreaSqFt * dto.HomeDetail.ConstructionCostPerSqFt,
+                    SecurityFeatures          = dto.HomeDetail.SecurityFeatures
                 });
             }
 
@@ -318,6 +303,44 @@ namespace SmartSure.PolicyService.Services
 
             await _repo.CancelAsync(policyId);
             await _bus.Publish(new PolicyCancelledEvent(policyId, policy.UserId, "Cancelled by user", DateTime.UtcNow));
+        }
+
+        /// <summary>
+        /// Performs the FailPolicyAsync operation.
+        /// </summary>
+        public async Task FailPolicyAsync(Guid policyId)
+        {
+            var policy = await _repo.GetByIdAsync(policyId);
+            if (policy == null) return;
+
+            // Create a failed payment record so that it appears in transaction history.
+            var payment = new Payment
+            {
+                PaymentId = Guid.NewGuid(),
+                PolicyId = policy.PolicyId,
+                Amount = policy.PremiumAmount,
+                PaymentDate = DateTime.UtcNow,
+                Status = "Failed",
+                PaymentMethod = "Unknown", // Can be specified if known
+                TransactionReference = "FAILED_" + Guid.NewGuid().ToString().Substring(0, 8)
+            };
+
+            await _repo.AddPaymentAsync(payment);
+            
+            policy.Status = "Failed";
+            await _repo.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Performs the DeletePolicyAsync operation.
+        /// </summary>
+        public async Task DeletePolicyAsync(Guid policyId)
+        {
+            var policy = await _repo.GetByIdAsync(policyId);
+            if (policy == null) return;
+
+            await _repo.DeleteAsync(policyId);
+            // Optionally publish an event, but since it's unpurchased it's fine.
         }
 
         /// <summary>

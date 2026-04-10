@@ -8,6 +8,7 @@ namespace SmartSure.PolicyService.Repositories
     public interface IPaymentRepository
     {
         Task<List<Payment>> GetByPolicyIdAsync(Guid policyId);
+        Task<List<Payment>> GetByUserIdAsync(Guid userId);
         Task<Payment> GetByIdAsync(Guid paymentId);
         Task AddAsync(Payment payment);
         Task SaveChangesAsync();

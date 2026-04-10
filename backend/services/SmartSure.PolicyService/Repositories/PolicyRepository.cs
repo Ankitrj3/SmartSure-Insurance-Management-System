@@ -85,6 +85,19 @@ namespace SmartSure.PolicyService.Repositories
         }
 
         /// <summary>
+        /// Performs the DeleteAsync operation.
+        /// </summary>
+        public async Task DeleteAsync(Guid policyId)
+        {
+            var policy = await _context.Policies.FindAsync(policyId);
+            if (policy != null)
+            {
+                _context.Policies.Remove(policy);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        /// <summary>
         /// Performs the GetDetailByPolicyIdAsync operation.
         /// </summary>
         public async Task<PolicyDetail> GetDetailByPolicyIdAsync(Guid policyId)
@@ -166,6 +179,14 @@ namespace SmartSure.PolicyService.Repositories
                 existing.ChassisNumber = detail.ChassisNumber;
                 existing.EngineNumber = detail.EngineNumber;
             }
+        }
+
+        /// <summary>
+        /// Performs the AddPaymentAsync operation.
+        /// </summary>
+        public async Task AddPaymentAsync(Payment payment)
+        {
+            await _context.Payments.AddAsync(payment);
         }
 
         /// <summary>

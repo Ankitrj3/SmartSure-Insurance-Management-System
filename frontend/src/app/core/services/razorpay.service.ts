@@ -32,8 +32,13 @@ export class RazorpayService {
   /**
    * Opens Razorpay payment modal
    */
-  openPaymentModal(options: RazorpayOptions): void {
+  openPaymentModal(options: RazorpayOptions, onPaymentFailed?: (response: any, rzp: any) => void): void {
     const rzp = new Razorpay(options);
+    if (onPaymentFailed) {
+      rzp.on('payment.failed', (response: any) => {
+        if (onPaymentFailed) onPaymentFailed(response, rzp);
+      });
+    }
     rzp.open();
   }
 
@@ -44,3 +49,4 @@ export class RazorpayService {
     return typeof Razorpay !== 'undefined';
   }
 }
+

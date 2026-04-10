@@ -66,9 +66,15 @@ namespace SmartSure.PolicyService.DTOs
 
         public int YearBuilt { get; set; }
 
-        [Required]
-        [Range(0, double.MaxValue)]
-        public decimal EstimatedValue { get; set; }
+        /// <summary>Area of the house/flat in sq.ft (used in IDV = Area × Cost/sqft).</summary>
+        [Required(ErrorMessage = "Area in sq.ft is required")]
+        [Range(1, 1000000, ErrorMessage = "Area must be a positive number")]
+        public decimal AreaSqFt { get; set; }
+
+        /// <summary>Reconstruction cost per sq.ft in INR.</summary>
+        [Required(ErrorMessage = "Construction cost per sq.ft is required")]
+        [Range(1, double.MaxValue, ErrorMessage = "Construction cost must be positive")]
+        public decimal ConstructionCostPerSqFt { get; set; }
 
         public string? SecurityFeatures { get; set; }
     }
@@ -117,8 +123,17 @@ namespace SmartSure.PolicyService.DTOs
 
         public int YearBuilt { get; set; }
 
-        [Required]
-        [Range(0, double.MaxValue)]
+        /// <summary>Area of the house/flat in sq.ft.</summary>
+        [Required(ErrorMessage = "Area in sq.ft is required")]
+        [Range(1, 1000000)]
+        public decimal AreaSqFt { get; set; }
+
+        /// <summary>Reconstruction cost per sq.ft in INR.</summary>
+        [Required(ErrorMessage = "Construction cost per sq.ft is required")]
+        [Range(1, double.MaxValue)]
+        public decimal ConstructionCostPerSqFt { get; set; }
+
+        /// <summary>Kept for backwards compat; will be auto-set to AreaSqFt × ConstructionCostPerSqFt.</summary>
         public decimal EstimatedValue { get; set; }
 
         public string? SecurityFeatures { get; set; }

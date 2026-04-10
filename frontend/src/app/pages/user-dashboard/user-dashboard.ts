@@ -8,8 +8,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { PdfService } from '../../core/services/pdf.service';
 import { RazorpayService } from '../../core/services/razorpay.service';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { forkJoin, of, throwError } from 'rxjs';
+import { catchError, timeout, finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -21,15 +21,17 @@ import { catchError } from 'rxjs/operators';
 export class UserDashboard implements OnInit {
   policies: any[] = [];
   claims: any[] = [];
+  transactions: any[] = [];
   insuranceTypes: any[] = [];
   profile: any = {};
   loading = true;
 
-  activeTab: 'overview' | 'policies' | 'claims' = 'overview';
+  activeTab: 'overview' | 'policies' | 'claims' | 'transactions' = 'overview';
 
   // Pagination config
   policyPage = 1;
   claimPage = 1;
+  transactionPage = 1;
   pageSize = 5;
 
   get paginatedPolicies() {
@@ -42,11 +44,19 @@ export class UserDashboard implements OnInit {
     return this.claims.slice(start, start + this.pageSize);
   }
 
+  get paginatedTransactions() {
+    const start = (this.transactionPage - 1) * this.pageSize;
+    return this.transactions.slice(start, start + this.pageSize);
+  }
+
   nextPolicyPage() { if (this.policyPage * this.pageSize < this.policies.length) this.policyPage++; }
   prevPolicyPage() { if (this.policyPage > 1) this.policyPage--; }
   
   nextClaimPage() { if (this.claimPage * this.pageSize < this.claims.length) this.claimPage++; }
   prevClaimPage() { if (this.claimPage > 1) this.claimPage--; }
+
+  nextTransactionPage() { if (this.transactionPage * this.pageSize < this.transactions.length) this.transactionPage++; }
+  prevTransactionPage() { if (this.transactionPage > 1) this.transactionPage--; }
 
   // Profile Form - removed (now in separate profile page)
   passwordData = { currentPassword: '', newPassword: '' };
@@ -59,7 +69,7 @@ export class UserDashboard implements OnInit {
   selectedType: string = '';
   subtypes: any[] = [];
   policyForm: any = { subtypeId: '', duration: 12 };
-  homeDetails: any = { address: '', propertyType: 'House', yearBuilt: new Date().getFullYear(), estimatedValue: 0, securityFeatures: '' };
+  homeDetails: any = { address: '', propertyType: 'House', yearBuilt: new Date().getFullYear(), estimatedValue: 0, securityFeatures: '', areaSqFt: null, constructionCostPerSqFt: null };
   vehicleDetails: any = { registrationNumber: '', make: '', model: '', manufactureYear: new Date().getFullYear(), estimatedValue: 0, chassisNumber: '', engineNumber: '' };
   policyMessage = '';
   calculatedPremium = 0;
@@ -68,7 +78,7 @@ export class UserDashboard implements OnInit {
   paymentProcessing = false;
   quoteLoading = false;
   selectedPlanName = '';
-  paymentMethod = 'CreditCard';
+  paymentMethod = 'Razorpay';
 
   // Pending Actions
   pendingAction: string | null = null;
@@ -79,6 +89,8 @@ export class UserDashboard implements OnInit {
   couponCode = '';
   discountResult: any = null;
   applyingDiscount = false;
+  couponMessage = '';
+  isCouponError = false;
   
   // filtering
   vehicleMakeFilter = '';
@@ -121,7 +133,7 @@ export class UserDashboard implements OnInit {
     // Restore active tab from URL query params
     this.route.queryParams.subscribe(params => {
       const tab = params['tab'];
-      if (tab && ['overview', 'policies', 'claims'].includes(tab)) {
+      if (tab && ['overview', 'policies', 'claims', 'transactions'].includes(tab)) {
         this.activeTab = tab;
       }
 
@@ -134,7 +146,7 @@ export class UserDashboard implements OnInit {
   }
 
   // Method to change tab and update URL
-  setActiveTab(tab: 'overview' | 'policies' | 'claims') {
+  setActiveTab(tab: 'overview' | 'policies' | 'claims' | 'transactions') {
     this.activeTab = tab;
     // Update URL without reloading the page
     this.router.navigate([], {
@@ -160,7 +172,8 @@ export class UserDashboard implements OnInit {
       profile: this.authService.getProfile().pipe(catchError(() => of({}))),
       policies: this.policyService.getUserPolicies().pipe(catchError(() => of([]))),
       claims: this.claimService.getUserClaims().pipe(catchError(() => of([]))),
-      types: this.policyService.getInsuranceTypes().pipe(catchError(() => of([])))
+      types: this.policyService.getInsuranceTypes().pipe(catchError(() => of([]))),
+      transactions: this.policyService.getUserPayments().pipe(catchError(() => of([])))
     }).subscribe({
       next: (result: any) => {
         const profileData = result.profile || {};
@@ -176,8 +189,17 @@ export class UserDashboard implements OnInit {
         const nameParts = this.profile.fullName.trim().split(' ');
         this.profile.firstName = nameParts[0] || '';
         
-        this.policies = this.extractData(result.policies);
+        this.policies = this.extractData(result.policies).sort((a: any, b: any) => {
+          const dateA = new Date(a.createdAt || a.CreatedAt || a.startDate || a.StartDate || 0).getTime();
+          const dateB = new Date(b.createdAt || b.CreatedAt || b.startDate || b.StartDate || 0).getTime();
+          return dateB - dateA;
+        });
         this.claims = this.extractData(result.claims);
+        this.transactions = this.extractData(result.transactions).sort((a: any, b: any) => {
+          const dateA = new Date(a.paymentDate || a.PaymentDate || a.createdAt || a.CreatedAt || 0).getTime();
+          const dateB = new Date(b.paymentDate || b.PaymentDate || b.createdAt || b.CreatedAt || 0).getTime();
+          return dateB - dateA;
+        });
         const rawTypes = this.extractData(result.types);
         this.insuranceTypes = rawTypes.filter((t: any) => {
           const name = t.name || t.Name || '';
@@ -233,7 +255,7 @@ export class UserDashboard implements OnInit {
     this.buyPolicyStep = 1;
     this.policyMessage = '';
     this.policyForm = { subtypeId: '', duration: 12, nomineeName: '', nomineeRelation: '' };
-    this.homeDetails = { address: '', propertyType: 'House', yearBuilt: new Date().getFullYear(), estimatedValue: 0, securityFeatures: '' };
+    this.homeDetails = { address: '', propertyType: 'House', yearBuilt: new Date().getFullYear(), estimatedValue: 0, securityFeatures: '', areaSqFt: null, constructionCostPerSqFt: null };
     this.vehicleDetails = { registrationNumber: '', make: '', model: '', manufactureYear: new Date().getFullYear(), estimatedValue: 0, chassisNumber: '', engineNumber: '' };
     this.calculatedPremium = 0;
     this.calculatedIdv = 0;
@@ -251,6 +273,13 @@ export class UserDashboard implements OnInit {
         this.extractUniqueVehicleMakes();
         this.filterSubtypes();
         this.updateSelectedPlanName();
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.subtypes = [];
+        this.filteredSubtypes = [];
+        this.uniqueVehicleMakes = [];
+        this.cdr.detectChanges();
       }
     });
   }
@@ -258,9 +287,13 @@ export class UserDashboard implements OnInit {
   filterSubtypes() {
     if (this.isVehicleType() && this.vehicleMakeFilter) {
       const filterLower = this.vehicleMakeFilter.toLowerCase().trim();
-      this.filteredSubtypes = this.subtypes.filter(s => (s.name || s.Name || '').toLowerCase().startsWith(filterLower) || (s.name || s.Name || '').toLowerCase().includes(filterLower));
+      this.filteredSubtypes = this.subtypes.filter(s =>
+        (s.name || s.Name || '').toLowerCase().startsWith(filterLower) ||
+        (s.name || s.Name || '').toLowerCase().includes(filterLower)
+      );
     } else {
-      this.filteredSubtypes = this.subtypes;
+      // Spread creates a NEW array reference — triggers Angular change detection
+      this.filteredSubtypes = [...this.subtypes];
     }
   }
 
@@ -283,21 +316,65 @@ export class UserDashboard implements OnInit {
 
   onVehicleMakeChange() {
      this.vehicleDetails.make = this.vehicleMakeFilter;
+     this.policyForm.subtypeId = ''; // clear previous plan selection when brand changes
      this.filterSubtypes();
-     this.updateSelectedPlanName();
+     
+     // Auto-select if there is only 1 plan tier available
+     if (this.filteredSubtypes.length === 1) {
+       this.selectSubtype(this.filteredSubtypes[0]);
+     } else {
+       this.updateSelectedPlanName();
+     }
+     
+     this.cdr.detectChanges();
   }
 
   updateSelectedPlanName() {
     const subtype = this.subtypes.find(s => (s.subtypeId || s.SubtypeId) === this.policyForm.subtypeId);
     if (subtype) {
       this.selectedPlanName = subtype.name || subtype.Name;
+      // Auto-map plan name to property type for home insurance
+      if (this.isHomeType()) {
+        const nameLower = (subtype.name || subtype.Name || '').toLowerCase();
+        if (nameLower.includes('apartment')) this.homeDetails.propertyType = 'Apartment';
+        else if (nameLower.includes('villa')) this.homeDetails.propertyType = 'Villa';
+        else if (nameLower.includes('bungalow')) this.homeDetails.propertyType = 'Bungalow';
+        else if (nameLower.includes('penthouse')) this.homeDetails.propertyType = 'Penthouse';
+        else if (nameLower.includes('studio')) this.homeDetails.propertyType = 'Studio';
+        else if (nameLower.includes('duplex')) this.homeDetails.propertyType = 'Duplex';
+        else if (nameLower.includes('farmhouse')) this.homeDetails.propertyType = 'Farmhouse';
+        else this.homeDetails.propertyType = 'House'; // Default for Independent House, etc.
+      }
     }
+  }
+
+  selectSubtype(s: any) {
+    if (!s) return;
+    const id = s.subtypeId || s.id || s.SubtypeId || s.Id;
+    console.log('[DEBUG] Selected Subtype:', s, 'Extracted ID:', id);
+    this.policyForm.subtypeId = id || '';
+    this.updateSelectedPlanName();
+    this.cdr.detectChanges();
   }
 
   isVehicleType(): boolean {
     const typeObj = this.insuranceTypes.find(t => (t.id || t.typeId || t.TypeId) === this.selectedType);
     const name = typeObj?.name || typeObj?.Name || '';
     return name.toLowerCase().includes('vehicle') || false;
+  }
+
+  isEligibleForRenewal(policy: any): boolean {
+    const endDateStr = policy.endDate || policy.EndDate;
+    if (!endDateStr) return false;
+    
+    const endDate = new Date(endDateStr);
+    const currentDate = new Date();
+    
+    // Policy renewal window opens 3 months before expiry
+    const threeMonthsBeforeEnd = new Date(endDate);
+    threeMonthsBeforeEnd.setMonth(endDate.getMonth() - 3);
+    
+    return currentDate >= threeMonthsBeforeEnd;
   }
 
   isHomeType(): boolean {
@@ -312,11 +389,9 @@ export class UserDashboard implements OnInit {
   proceedToReview() {
     this.formSubmitted = true;
     
-    // Nominee fields are now optional, so remove this validation
-    // if (!this.policyForm.nomineeName || !this.policyForm.nomineeRelation) {
-    //   this.policyMessage = 'Please enter nominee details.';
-    //   return;
-    // }
+    if (this.isHomeType()) {
+      this.homeDetails.estimatedValue = (this.homeDetails.areaSqFt || 0) * (this.homeDetails.constructionCostPerSqFt || 0);
+    }
     
     if (this.isHomeType() && (!this.homeDetails.address || !this.homeDetails.propertyType || !this.homeDetails.estimatedValue || this.homeDetails.estimatedValue <= 0)) {
       this.policyMessage = 'Please fill all required home details.';
@@ -369,8 +444,21 @@ export class UserDashboard implements OnInit {
 
     this.policyService.calculateQuote(quotePayload).subscribe({
       next: (quote) => {
-        this.calculatedIdv = quote.insuredDeclaredValue || quote.InsuredDeclaredValue || 0;
-        this.calculatedPremium = quote.premiumAmount || quote.PremiumAmount || 0;
+        let apiIdv = Number(quote.insuredDeclaredValue || quote.InsuredDeclaredValue || 0);
+        let apiPremium = Number(quote.premiumAmount || quote.PremiumAmount || 0);
+        
+        if (apiIdv <= 0) {
+           apiIdv = this.isVehicleType() ? this.vehicleDetails.estimatedValue : this.homeDetails.estimatedValue;
+        }
+        if (apiPremium <= 0) {
+           const subtypeId = this.policyForm.subtypeId;
+           const subtype = this.subtypes.find(s => (s.subtypeId || s.SubtypeId) === subtypeId);
+           const basePremium = subtype?.basePremium || subtype?.BasePremium || 0;
+           apiPremium = basePremium * (this.policyForm.duration / 12);
+        }
+        
+        this.calculatedIdv = apiIdv || 0;
+        this.calculatedPremium = apiPremium || 0;
         this.quoteBreakdown = quote.breakdown || quote.Breakdown || '';
         
         // After getting original premium, get the discount!
@@ -391,27 +479,57 @@ export class UserDashboard implements OnInit {
     });
   }
 
-  fetchDiscountData() {
-    this.applyingDiscount = true;
-    this.policyService.calculateDiscount(this.calculatedPremium, this.couponCode).subscribe({
+  fetchDiscountData(isManualApply: boolean = false) {
+    if (isManualApply && this.couponCode) {
+        this.applyingDiscount = true;
+        this.couponMessage = 'Applying coupon...';
+        this.isCouponError = false;
+    } else {
+        this.applyingDiscount = true;
+    }
+
+    this.policyService.calculateDiscount(this.calculatedPremium, this.couponCode)
+      .pipe(
+         timeout(4000), // Wait maximum 4 seconds for discount to apply
+         finalize(() => {
+           this.applyingDiscount = false;
+           this.quoteLoading = false;
+           this.cdr.detectChanges();
+         }),
+         catchError(err => throwError(() => err))
+      )
+      .subscribe({
        next: (res) => {
          this.discountResult = res;
-         this.applyingDiscount = false;
-         this.quoteLoading = false;
-         this.cdr.detectChanges();
+         if (this.couponCode) {
+             if (res.finalPremium < this.calculatedPremium) {
+                 this.couponMessage = 'Coupon applied successfully!';
+                 this.isCouponError = false;
+             } else {
+                 this.couponMessage = 'Coupon is invalid or expired.';
+                 this.isCouponError = true;
+             }
+         } else {
+             this.couponMessage = '';
+         }
        },
        error: (err) => {
-         this.applyingDiscount = false;
-         this.quoteLoading = false;
-         this.policyMessage = 'Error calculating discounts. Check if coupon is valid.';
-         this.cdr.detectChanges();
+         // finalize handles resetting applyingDiscount/quoteLoading states safely
+         if (this.couponCode) {
+             this.couponMessage = 'Coupon is invalid or expired.';
+             this.isCouponError = true;
+         }
        }
     });
   }
 
   applyCoupon() {
-    if (!this.couponCode) return;
-    this.fetchDiscountData();
+    if (!this.couponCode) {
+        this.couponMessage = 'Please enter a coupon code';
+        this.isCouponError = true;
+        return;
+    }
+    this.fetchDiscountData(true);
   }
 
   proceedToPayment() {
@@ -436,7 +554,9 @@ export class UserDashboard implements OnInit {
         propertyType: this.homeDetails.propertyType || 'Residential',
         yearBuilt: this.homeDetails.yearBuilt || 2020,
         estimatedValue: this.homeDetails.estimatedValue,
-        securityFeatures: this.homeDetails.securityFeatures || 'Standard'
+        securityFeatures: this.homeDetails.securityFeatures || 'Standard',
+        areaSqFt: this.homeDetails.areaSqFt || 0,
+        constructionCostPerSqFt: this.homeDetails.constructionCostPerSqFt || 0
       };
     }
 
@@ -467,6 +587,7 @@ export class UserDashboard implements OnInit {
             this.openRazorpayPayment(orderData, createdPolicy);
           },
           error: (err) => {
+            this.policyService.failPolicy(pId).subscribe();
             this.paymentProcessing = false;
             this.policyMessage = 'Failed to initiate payment: ' + (err.error?.message || err.message);
             this.toastService.error('Payment initiation failed: ' + (err.error?.message || err.message));
@@ -482,6 +603,7 @@ export class UserDashboard implements OnInit {
   }
 
   openRazorpayPayment(orderData: any, createdPolicy: any) {
+    let isFailureHandled = false;
     const options = {
       key: orderData.keyId,
       amount: orderData.amount * 100, // Amount in paise
@@ -490,6 +612,7 @@ export class UserDashboard implements OnInit {
       description: `Insurance Premium Payment - Policy ${orderData.policyId}`,
       order_id: orderData.orderId,
       handler: (response: any) => {
+        isFailureHandled = true; // prevent ondismiss from firing
         // Payment successful - verify and record
         this.verifyRazorpayPayment(response, orderData.policyId, createdPolicy);
       },
@@ -503,14 +626,29 @@ export class UserDashboard implements OnInit {
       },
       modal: {
         ondismiss: () => {
+          if (isFailureHandled) return;
+          this.policyService.failPolicy(orderData.policyId).subscribe(() => this.fetchData());
           this.paymentProcessing = false;
-          this.policyMessage = 'Payment cancelled by user';
-          this.toastService.warning('Payment was cancelled');
+          this.policyMessage = 'Payment failed/cancelled. Policy not purchased.';
+          this.toastService.error('Payment failed. Policy purchase aborted.');
+          this.cdr.detectChanges();
         }
       }
     };
 
-    this.razorpayService.openPaymentModal(options);
+    this.razorpayService.openPaymentModal(options, (response, rzp) => {
+      isFailureHandled = true;
+      if (rzp) {
+        try { rzp.close(); } catch(e) {}
+      }
+      this.policyService.failPolicy(orderData.policyId).subscribe(() => this.fetchData());
+      this.paymentProcessing = false;
+      this.policyMessage = 'Payment failed. Policy not purchased.';
+      this.toastService.error('Payment failed: ' + (response.error?.description || 'Purchase aborted.'));
+      this.showBuyPolicyModal = false;
+      this.fetchData();
+      this.cdr.detectChanges();
+    });
   }
 
   verifyRazorpayPayment(response: any, policyId: string, createdPolicy: any) {
@@ -536,6 +674,7 @@ export class UserDashboard implements OnInit {
         this.fetchData();
       },
       error: (err) => {
+        this.policyService.failPolicy(policyId).subscribe(() => this.fetchData());
         this.paymentProcessing = false;
         this.policyMessage = 'Payment verification failed: ' + (err.error?.message || err.message);
         this.toastService.error('Payment verification failed: ' + (err.error?.message || err.message));
@@ -561,6 +700,7 @@ export class UserDashboard implements OnInit {
     this.policyService.createRazorpayOrder(policyId, amount).subscribe({
       next: (orderData: any) => {
         // Open Razorpay payment modal
+        let isFailureHandled = false;
         const options = {
           key: orderData.keyId,
           amount: orderData.amount * 100, // Amount in paise
@@ -569,6 +709,7 @@ export class UserDashboard implements OnInit {
           description: `Policy Payment - ${policyId}`,
           order_id: orderData.orderId,
           handler: (response: any) => {
+            isFailureHandled = true;
             // Payment successful - verify and record
             this.verifyStandalonePayment(response, policyId);
           },
@@ -582,13 +723,30 @@ export class UserDashboard implements OnInit {
           },
           modal: {
             ondismiss: () => {
+              if (isFailureHandled) return;
+              isFailureHandled = true;
+              this.policyService.recordFailedPayment(policyId, amount, 'Payment cancelled by user')
+                .subscribe(() => this.fetchData());
               this.paymentMessage = 'Payment cancelled';
               this.toastService.warning('Payment was cancelled');
+              this.cdr.detectChanges();
             }
           }
         };
 
-        this.razorpayService.openPaymentModal(options);
+        this.razorpayService.openPaymentModal(options, (response, rzp) => {
+          isFailureHandled = true;
+          if (rzp) {
+            try { rzp.close(); } catch(e) {}
+          }
+          const reason = response.error?.description || 'Payment declined';
+          this.policyService.recordFailedPayment(policyId, amount, reason)
+            .subscribe(() => this.fetchData());
+          this.paymentMessage = 'Payment failed.';
+          this.toastService.error('Payment failed: ' + reason);
+          this.showPaymentModal = false;
+          this.cdr.detectChanges();
+        });
       },
       error: (err) => {
         this.paymentMessage = 'Failed to initiate payment: ' + (err.error?.message || err.message);
@@ -775,6 +933,7 @@ export class UserDashboard implements OnInit {
       case 'pending': return 'status-pending';
       case 'cancelled': return 'status-cancelled';
       case 'expired': return 'status-expired';
+      case 'failed': return 'status-cancelled'; // reusing red status class
       default: return '';
     }
   }

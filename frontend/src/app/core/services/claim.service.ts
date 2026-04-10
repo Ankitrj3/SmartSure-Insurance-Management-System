@@ -21,7 +21,7 @@ export class ClaimService {
   }
 
   getUserClaims(): Observable<any[]> {
-    return this.api.get<any[]>('claims');
+    return this.api.get<any[]>('claims?page=1&pageSize=3000');
   }
 
   getClaimDetails(claimId: string): Observable<any> {

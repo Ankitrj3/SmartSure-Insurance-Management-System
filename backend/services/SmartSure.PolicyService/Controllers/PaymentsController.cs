@@ -23,6 +23,25 @@ namespace SmartSure.PolicyService.Controllers
             _razorpayService = razorpayService;
         }
 
+        private Guid GetUserId()
+        {
+            var userIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdStr, out var userId))
+                throw new UnauthorizedAccessException("User context is missing or invalid.");
+            return userId;
+        }
+
+        /// <summary>
+        /// Performs the GetMyPayments operation.
+        /// </summary>
+        [HttpGet("/payments")]
+        public async Task<IActionResult> GetMyPayments()
+        {
+            var userId = GetUserId();
+            var payments = await _service.GetUserPaymentsAsync(userId);
+            return Ok(payments);
+        }
+
         /// <summary>
         /// Performs the GetPayments operation.
         /// </summary>
@@ -32,6 +51,19 @@ namespace SmartSure.PolicyService.Controllers
             var payments = await _service.GetByPolicyIdAsync(policyId);
             return Ok(payments);
         }
+
+        /// <summary>
+        /// Records a failed payment attempt without modifying the policy status.
+        /// Called from the frontend when a Razorpay payment is cancelled or declined.
+        /// </summary>
+        [HttpPost("/policies/{policyId}/payments/failed")]
+        public async Task<IActionResult> RecordFailedPayment(Guid policyId, [FromBody] RecordFailedPaymentDTO dto)
+        {
+            dto.PolicyId = policyId;
+            var payment = await _service.RecordFailedPaymentAsync(dto.PolicyId, dto.Amount, dto.Reason ?? "Payment cancelled or declined");
+            return Ok(payment);
+        }
+
 
         /// <summary>
         /// Performs the GetPayment operation.

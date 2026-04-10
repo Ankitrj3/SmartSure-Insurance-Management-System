@@ -9,8 +9,8 @@ export const adminGuard: CanActivateFn = (route, state) => {
   const token = authService.getToken();
   
   if (!token) {
-    // Not logged in, redirect to login
-    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+    // Not logged in, redirect to 404
+    router.navigate(['/404']);
     return false;
   }
 
@@ -26,7 +26,7 @@ export const adminGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
-  // Unknown role, redirect to login
-  router.navigate(['/login']);
+  // Unknown role, redirect to 404
+  router.navigate(['/404']);
   return false;
 };

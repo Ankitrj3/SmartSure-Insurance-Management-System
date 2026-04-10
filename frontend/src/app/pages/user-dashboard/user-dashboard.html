@@ -21,6 +21,7 @@
       <button class="nav-tab" [class.active-tab]="activeTab === 'overview'" (click)="setActiveTab('overview')">Overview</button>
       <button class="nav-tab" [class.active-tab]="activeTab === 'policies'" (click)="setActiveTab('policies')">Policies</button>
       <button class="nav-tab" [class.active-tab]="activeTab === 'claims'" (click)="setActiveTab('claims')">Claims</button>
+      <button class="nav-tab" [class.active-tab]="activeTab === 'transactions'" (click)="setActiveTab('transactions')">Transactions</button>
     </div>
   </div>
 
@@ -119,7 +120,8 @@
                 <td><span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ p.status || 'Pending' }}</span></td>
                 <td>
                   <button class="btn btn-pill-outline btn-xs" (click)="openPaymentModal(p)" *ngIf="p.status === 'Pending'" style="margin-right: 5px;">Pay & Activate</button>
-                  <button class="btn btn-pill-outline btn-xs" (click)="openPaymentModal(p)" *ngIf="p.status === 'Active'" style="margin-right: 5px;">Pay Premium</button>
+                  <button class="btn btn-pill-outline btn-xs" (click)="openPaymentModal(p)" *ngIf="p.status === 'Failed'" style="margin-right: 5px;">Retry Payment</button>
+                  <button class="btn btn-pill-outline btn-xs" (click)="openPaymentModal(p)" *ngIf="p.status === 'Active' && isEligibleForRenewal(p)" style="margin-right: 5px;">Pay Premium</button>
                   <button class="btn btn-pill-outline btn-xs" (click)="downloadPolicyInvoice(p)">Download Invoice</button>
                 </td>
               </tr>
@@ -176,6 +178,48 @@
         </div>
       </section>
     </ng-container>
+
+    <!-- TRANSACTIONS TAB -->
+    <ng-container *ngIf="activeTab === 'transactions'">
+      <section class="dashboard-section full-width transactions-manage">
+        <div class="section-header">
+          <h2>Payment History</h2>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Transaction ID</th>
+                <th>Payment Date</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Policy ID</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let t of paginatedTransactions">
+                <td><code style="display:inline-flex; align-items:center; gap:0.25rem;">{{ (t.transactionReference || t.paymentId) | slice:0:15 }}... <span (click)="copyToClipboard(t.transactionReference || t.paymentId)" title="Copy ID" style="cursor:pointer; font-size:1.1em; color:var(--primary-color); padding: 0 2px;">&#x2398;</span></code></td>
+                <td>{{ t.paymentDate | date:'medium' }}</td>
+                <td>₹{{ t.amount | number }}</td>
+                <td>{{ t.paymentMethod }}</td>
+                <td><code>{{ t.policyId | slice:0:8 }}</code></td>
+                <td><span class="status-badge" [ngClass]="getStatusClass(t.status)">{{ t.status }}</span></td>
+              </tr>
+              <tr *ngIf="transactions.length === 0">
+                <td colspan="6" class="text-center">No transactions found.</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div class="pagination-controls" *ngIf="transactions.length > pageSize" style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+            <button class="btn btn-sm btn-outline" (click)="prevTransactionPage()" [disabled]="transactionPage === 1">&lt; Prev</button>
+            <span style="align-self: center;">Page {{ transactionPage }}</span>
+            <button class="btn btn-sm btn-outline" (click)="nextTransactionPage()" [disabled]="transactionPage * pageSize >= transactions.length">Next &gt;</button>
+          </div>
+        </div>
+      </section>
+    </ng-container>
   </div>
 
   <div class="loading-state" *ngIf="loading">
@@ -202,25 +246,39 @@
     <div *ngIf="buyPolicyStep === 1">
       <div class="form-group">
         <label>Insurance Category</label>
-        <select class="input-base" [(ngModel)]="selectedType" (change)="loadSubtypes()">
+        <select class="input-base" [(ngModel)]="selectedType" (change)="filteredSubtypes = []; subtypes = []; vehicleMakeFilter = ''; policyForm.subtypeId = ''; loadSubtypes()">
           <option value="">Select Category</option>
           <option *ngFor="let t of insuranceTypes" [value]="t.typeId || t.id">{{ t.name }}</option>
         </select>
       </div>
       <div class="form-group" *ngIf="isVehicleType() && selectedType">
         <label>Select Vehicle Make (Company)</label>
-        <select class="input-base" [(ngModel)]="vehicleMakeFilter" (change)="onVehicleMakeChange()">
-          <option value="">-- Choose Company --</option>
-          <option *ngFor="let make of uniqueVehicleMakes" [value]="make">{{ make }}</option>
-        </select>
+        <small *ngIf="uniqueVehicleMakes.length === 0" style="color:#999; font-size:0.85rem; display:block; margin-top:6px;">Loading brands...</small>
+        <div class="plan-list" *ngIf="uniqueVehicleMakes.length > 0">
+          <div
+            *ngFor="let make of uniqueVehicleMakes"
+            class="plan-item"
+            [class.plan-item-selected]="vehicleMakeFilter === make"
+            (click)="vehicleMakeFilter = make; onVehicleMakeChange()">
+            <span class="plan-name">{{ make }}</span>
+            <span class="plan-price" style="font-size:0.8rem; opacity:0.6;">Select →</span>
+          </div>
+        </div>
       </div>
 
-      <div class="form-group" *ngIf="filteredSubtypes.length > 0 && (!isVehicleType() || vehicleMakeFilter)">
+      <div class="form-group" *ngIf="selectedType && (!isVehicleType() || vehicleMakeFilter)">
         <label>Choose Plan Tier</label>
-        <select class="input-base" [(ngModel)]="policyForm.subtypeId" (change)="updateSelectedPlanName()">
-          <option value="">Choose Subtype</option>
-          <option *ngFor="let s of filteredSubtypes" [value]="s.subtypeId">{{ s.name }} - Premium start with rate: ₹{{ s.basePremium | number }}</option>
-        </select>
+        <small *ngIf="filteredSubtypes.length === 0 && selectedType" style="color:#999; font-size:0.85rem; display:block; margin-top:6px;">Loading plans...</small>
+        <div class="plan-list" *ngIf="filteredSubtypes.length > 0">
+          <div
+            *ngFor="let s of filteredSubtypes"
+            class="plan-item"
+            [class.plan-item-selected]="policyForm.subtypeId === (s.subtypeId || s.id || s.SubtypeId || s.Id)"
+            (click)="selectSubtype(s)">
+            <span class="plan-name">{{ s.name || s.Name }}</span>
+            <span class="plan-price" style="font-size:0.8rem; opacity:0.6;">Select →</span>
+          </div>
+        </div>
       </div>
       <div class="form-group">
         <label>Duration</label>
@@ -241,18 +299,33 @@
           <input type="text" class="input-base" [(ngModel)]="homeDetails.address" placeholder="e.g. 123 Emerald Ave" required />
           <span *ngIf="!homeDetails.address && formSubmitted" style="color: red; font-size: 0.85rem;">Property address is required</span>
         </div>
-        <div class="form-group">
-          <label>Property Type <span style="color: red;">*</span></label>
-          <select class="input-base" [(ngModel)]="homeDetails.propertyType" required>
-            <option value="House">Independent House</option>
-            <option value="Apartment">Apartment</option>
-            <option value="Villa">Villa</option>
-          </select>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Area of Property (sq.ft) <span style="color: red;">*</span></label>
+            <input type="number" class="input-base" [(ngModel)]="homeDetails.areaSqFt" placeholder="e.g. 1000" required min="1" />
+            <span *ngIf="(!homeDetails.areaSqFt || homeDetails.areaSqFt <= 0) && formSubmitted" style="color: red; font-size: 0.85rem;">Area is required</span>
+            <small style="color: var(--text-muted); font-size:0.8rem;">Total built-up area in square feet</small>
+          </div>
+          <div class="form-group">
+            <label>Construction Cost per sq.ft (₹) <span style="color: red;">*</span></label>
+            <input type="number" class="input-base" [(ngModel)]="homeDetails.constructionCostPerSqFt" placeholder="e.g. 2000" required min="1" />
+            <span *ngIf="(!homeDetails.constructionCostPerSqFt || homeDetails.constructionCostPerSqFt <= 0) && formSubmitted" style="color: red; font-size: 0.85rem;">Construction cost is required</span>
+            <small style="color: var(--text-muted); font-size:0.8rem;">Current rebuilding cost per sq.ft (not market/land value)</small>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Current Market Value (₹) <span style="color: red;">*</span></label>
-          <input type="number" class="input-base" [(ngModel)]="homeDetails.estimatedValue" required />
-          <span *ngIf="(!homeDetails.estimatedValue || homeDetails.estimatedValue <= 0) && formSubmitted" style="color: red; font-size: 0.85rem;">Property value is required</span>
+        <div class="form-group" *ngIf="homeDetails.areaSqFt > 0 && homeDetails.constructionCostPerSqFt > 0">
+           <div class="calc-idv-box">
+              <div class="idv-box-left">
+                  <div class="idv-subtitle">Calculated Estimated Value</div>
+                  <div class="idv-main-amount">₹{{ (homeDetails.areaSqFt * homeDetails.constructionCostPerSqFt) | number }}</div>
+              </div>
+              <div class="idv-box-right">
+                  <div class="idv-formula">
+                      <span>{{ homeDetails.areaSqFt | number }}</span> sq.ft <span class="cross-icon">×</span> <span>₹{{ homeDetails.constructionCostPerSqFt | number }}</span> /sq.ft
+                  </div>
+                  <div class="idv-disclaimer">* Land value excluded</div>
+              </div>
+           </div>
         </div>
         <div class="form-group">
           <label>Year Built <span style="color: red;">*</span></label>
@@ -260,6 +333,7 @@
             <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
           </select>
         </div>
+
       </div>
 
       <div *ngIf="isVehicleType()">
@@ -339,23 +413,26 @@
            </div>
            <div class="premium-box">
               <span class="label">Total Premium</span>
-              <span class="premium-value" [style.textDecoration]="discountResult ? 'line-through' : 'none'">₹{{ calculatedPremium | number }}</span>
+              <span class="premium-value" [style.textDecoration]="discountResult && discountResult.finalPremium < calculatedPremium ? 'line-through' : 'none'">₹{{ calculatedPremium | number }}</span>
            </div>
 
            <div class="form-group" style="margin-top: 15px;">
               <label>Discount Coupon</label>
               <div style="display:flex;gap:10px;">
                  <input type="text" class="input-base" [(ngModel)]="couponCode" placeholder="Enter coupon code" />
-                 <button class="btn btn-outline" (click)="applyCoupon()" [disabled]="applyingDiscount">Apply</button>
+                 <button class="btn btn-outline" (click)="applyCoupon()" [disabled]="applyingDiscount">
+                   {{ applyingDiscount ? 'Applying...' : 'Apply' }}
+                 </button>
               </div>
+              <div *ngIf="couponMessage" [style.color]="isCouponError ? '#e11d48' : '#059669'" style="margin-top: 8px; font-size: 0.85rem; font-weight: 600;">{{ couponMessage }}</div>
            </div>
 
-           <div class="summary-lite" *ngIf="discountResult" style="color: var(--status-active-color); margin-top: 10px;">
+           <div class="summary-lite" *ngIf="discountResult && discountResult.finalPremium < calculatedPremium" style="color: var(--status-active-color); margin-top: 10px;">
               <span>Discount Applied: </span>
               <strong>-₹{{ (calculatedPremium - discountResult.finalPremium) | number }}</strong>
            </div>
            
-           <div class="premium-box" *ngIf="discountResult" style="background: var(--status-active-bg); margin-top: 10px;">
+           <div class="premium-box" *ngIf="discountResult && discountResult.finalPremium < calculatedPremium" style="background: var(--status-active-bg); margin-top: 10px;">
               <span class="label">Final Premium (After Discount)</span>
               <span class="premium-value">₹{{ discountResult.finalPremium | number }}</span>
            </div>
@@ -376,8 +453,7 @@
         <div class="form-group">
            <label>Payment Method</label>
            <select class="input-base" [(ngModel)]="paymentMethod">
-              <option value="CreditCard">Credit Card</option>
-              <option value="UPI">UPI Payment</option>
+              <option value="Razorpay">Razorpay Secure Payment</option>
            </select>
         </div>
         <button class="btn btn-primary full-width" (click)="submitPolicy()" [disabled]="paymentProcessing">

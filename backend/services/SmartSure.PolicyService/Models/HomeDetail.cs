@@ -22,10 +22,19 @@ namespace SmartSure.PolicyService.Models
         public string Address { get; set; }
 
         [Required]
-        public string PropertyType { get; set; } // Apartment, House, etc.
+        public string PropertyType { get; set; } // Apartment, House, Villa, etc.
 
         public int YearBuilt { get; set; }
 
+        /// <summary>Area of the house/flat in square feet.</summary>
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal AreaSqFt { get; set; }
+
+        /// <summary>Current reconstruction / construction cost per sq.ft in INR.</summary>
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal ConstructionCostPerSqFt { get; set; }
+
+        /// <summary>Legacy / computed field: AreaSqFt × ConstructionCostPerSqFt.</summary>
         [Column(TypeName = "decimal(18,2)")]
         public decimal EstimatedValue { get; set; }
 

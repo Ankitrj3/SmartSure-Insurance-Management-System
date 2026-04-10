@@ -1,101 +1,54 @@
 <div class="smartsure-home">
-  <!-- ── Hero Section ── -->
-  <section class="smartsure-hero">
-    <div class="container hero-container">
-      <div class="hero-content">
-        <h1 class="hero-title">
-          <span class="highlight-bg">All insurance</span><br>
-          in one place
+  <!-- ── Professional Insurance Hero Section ── -->
+  <section class="smartsure-hero-professional">
+    <div class="container hero-container-pro">
+      <!-- Left Content -->
+      <div class="hero-content-pro">
+        <h1 class="hero-title-pro">
+          Reliable Coverage for your <span class="text-yellow">Future.</span>
         </h1>
-        <p class="hero-text">
-          Explore our tailored insurance solutions and experience the peace of mind that comes with knowing you're covered.
+        <p class="hero-text-pro">
+          Get comprehensive insurance for your home and vehicle. Experience a 100% digital process with lightning-fast claims settlement.
         </p>
-        <button class="btn-quote" (click)="onHeroAction()">GET A QUOTE <span class="arrow">→</span></button>
-      </div>
-
-      <div class="hero-visual">
-        <div class="insurance-visual-grid">
-          <!-- Car Insurance Card -->
-          <div class="insurance-visual-card car-card">
-            <div class="card-image-wrapper">
-              <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=600&h=400&fit=crop&q=90" alt="Car Insurance" />
-              <div class="card-overlay">
-                <div class="card-badge">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 17h14v-5l-1.5-4.5h-11L5 12v5z"></path>
-                    <circle cx="7.5" cy="17.5" r="1.5"></circle>
-                    <circle cx="16.5" cy="17.5" r="1.5"></circle>
-                  </svg>
-                </div>
-              </div>
-            </div>
-            <div class="card-content">
-              <h4>Vehicle Insurance</h4>
-              <p>Complete protection for your automobile</p>
-              <div class="card-features">
-                <span>✓ Collision Coverage</span>
-                <span>✓ Theft Protection</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Home Insurance Card -->
-          <div class="insurance-visual-card home-card">
-            <div class="card-image-wrapper">
-              <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&h=400&fit=crop&q=90" alt="Home Insurance" />
-              <div class="card-overlay">
-                <div class="card-badge">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                  </svg>
-                </div>
-              </div>
-            </div>
-            <div class="card-content">
-              <h4>Home Protection</h4>
-              <p>Safeguard your property and belongings</p>
-              <div class="card-features">
-                <span>✓ Property Damage</span>
-                <span>✓ Natural Disasters</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Stats Card -->
-          <div class="insurance-visual-card stats-card">
-            <div class="stats-grid">
-              <div class="stat-item">
-                <div class="stat-icon-wrapper">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                  </svg>
-                </div>
-                <div class="stat-details">
-                  <span class="stat-value">100%</span>
-                  <span class="stat-title">Digital Process</span>
-                </div>
-              </div>
-              <div class="stat-divider"></div>
-              <div class="stat-item">
-                <div class="stat-icon-wrapper">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    <path d="M9 12l2 2 4-4"></path>
-                  </svg>
-                </div>
-                <div class="stat-details">
-                  <span class="stat-value">Zero</span>
-                  <span class="stat-title">Paperwork Needed</span>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="hero-features-pro">
+           <div class="feat-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0DB18C" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> 100% Digital Process</div>
+           <div class="feat-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0DB18C" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Zero Paperwork Needed</div>
+           <div class="feat-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0DB18C" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Transparent Pricing</div>
         </div>
       </div>
+
+      <!-- Right Content - Quote Widget -->
+      <div class="hero-visual-pro">
+        <div class="quote-widget">
+           <div class="widget-header">
+             <h3>Get Your Quick Quote</h3>
+             <p>Select your insurance type to start</p>
+           </div>
+           <div class="insurance-options">
+             <div class="ins-option" (click)="onHeroAction()">
+               <div class="ins-icon vehicle-icon">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17h14v-5l-1.5-4.5h-11L5 12v5z"></path><circle cx="7.5" cy="17.5" r="1.5"></circle><circle cx="16.5" cy="17.5" r="1.5"></circle></svg>
+               </div>
+               <span>Vehicle</span>
+             </div>
+             <div class="ins-option" (click)="onHeroAction()">
+               <div class="ins-icon home-icon">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+               </div>
+               <span>Home</span>
+             </div>
+           </div>
+           
+           <div class="widget-action">
+             <button class="btn-quote-pro" (click)="onHeroAction()">Start Now <span style="margin-left: 5px;">→</span></button>
+           </div>
+           <div class="widget-footer">
+             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+             Your data is 256-bit encrypted
+           </div>
+        </div>
+      </div>
+      
     </div>
   </section>
 

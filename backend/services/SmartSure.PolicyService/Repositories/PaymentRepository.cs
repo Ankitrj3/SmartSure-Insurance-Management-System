@@ -27,6 +27,18 @@ namespace SmartSure.PolicyService.Repositories
         }
 
         /// <summary>
+        /// Performs the GetByUserIdAsync operation.
+        /// </summary>
+        public async Task<List<Payment>> GetByUserIdAsync(Guid userId)
+        {
+            return await _context.Payments
+                .Include(p => p.Policy) // Include policy to navigate to User
+                .Where(p => p.Policy.UserId == userId)
+                .OrderByDescending(p => p.PaymentDate)
+                .ToListAsync();
+        }
+
+        /// <summary>
         /// Performs the GetByIdAsync operation.
         /// </summary>
         public async Task<Payment> GetByIdAsync(Guid paymentId)
