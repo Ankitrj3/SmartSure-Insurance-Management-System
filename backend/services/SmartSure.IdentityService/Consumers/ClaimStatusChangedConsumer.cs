@@ -26,19 +26,45 @@ namespace IdentityService.Consumers
         public async Task Consume(ConsumeContext<ClaimStatusChangedEvent> context)
         {
             var msg = context.Message;
-            if (msg.NewStatus == ClaimStatus.Approved || msg.NewStatus == ClaimStatus.Rejected)
+
+            bool shouldNotify = msg.NewStatus == ClaimStatus.Approved
+                             || msg.NewStatus == ClaimStatus.Rejected
+                             || msg.NewStatus == ClaimStatus.UnderReview;
+
+            if (shouldNotify)
             {
                 var user = await _userRepository.GetByIdAsync(msg.UserId);
                 if (user != null && !string.IsNullOrEmpty(user.Email))
                 {
-                    string subject = $"Your Claim {msg.ClaimId} was {msg.NewStatus.ToUpper()}";
-                    string body = $"Hello {user.FullName},<br/><br/>Your insurance claim with ID <b>{msg.ClaimId}</b> has been <b>{msg.NewStatus}</b>.";
-                    if (msg.NewStatus == ClaimStatus.Rejected && !string.IsNullOrEmpty(msg.Reason))
+                    string subject;
+                    string body;
+
+                    if (msg.NewStatus == ClaimStatus.UnderReview)
                     {
-                        body += $"<br/><br/><b>Reason for Rejection:</b> {msg.Reason}";
+                        subject = $"Your Claim {msg.ClaimId} is Under Review";
+                        body = $"Hello {user.FullName},<br/><br/>"
+                             + $"Your insurance claim with ID <b>{msg.ClaimId}</b> is now <b>Under Review</b>.<br/><br/>"
+                             + "Our team is currently reviewing your claim. We will notify you once a decision has been made.";
                     }
+                    else if (msg.NewStatus == ClaimStatus.Approved)
+                    {
+                        subject = $"Your Claim {msg.ClaimId} has been Approved";
+                        body = $"Hello {user.FullName},<br/><br/>"
+                             + $"Great news! Your insurance claim with ID <b>{msg.ClaimId}</b> has been <b>Approved</b>.";
+                    }
+                    else // Rejected
+                    {
+                        subject = $"Your Claim {msg.ClaimId} has been Rejected";
+                        body = $"Hello {user.FullName},<br/><br/>"
+                             + $"We regret to inform you that your insurance claim with ID <b>{msg.ClaimId}</b> has been <b>Rejected</b>.";
+                        if (!string.IsNullOrEmpty(msg.Reason))
+                        {
+                            body += $"<br/><br/><b>Reason for Rejection:</b> {msg.Reason}";
+                        }
+                    }
+
                     body += "<br/><br/>If you have any questions, please contact our support team.";
-                    
+
                     await _emailService.SendEmailAsync(user.Email, subject, body);
                 }
             }
