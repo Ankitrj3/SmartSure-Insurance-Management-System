@@ -17,12 +17,13 @@ services:
   # Optional: If you don't already have SQL Server installed locally
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
     container_name: smartsure_sql
     ports:
       - "1433:1433"
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "Your_Super_Secret_Password_123!"
+      MSSQL_SA_PASSWORD: "YourStrong@Pass123"
     volumes:
       - sqlserver_data:/var/opt/mssql
 

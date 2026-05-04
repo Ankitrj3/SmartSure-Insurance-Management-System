@@ -8,7 +8,7 @@ namespace IdentityService.Controllers
 {
     /// <summary>
     /// Administrator endpoints for managing application users, role assignments, and deletions.
-    /// Restricted entirely to users holding the 'Admin' role.
+    /// Includes an internal endpoint for inter-service user lookup (used by ClaimsService for email notifications).
     /// </summary>
     [Route("auth/users")]
     [ApiController]
@@ -22,6 +22,31 @@ namespace IdentityService.Controllers
         }
 
         #region User Administration
+
+        /// <summary>
+        /// Retrieves a single user by their unique identifier.
+        /// Used internally by other microservices (e.g. ClaimsService) to look up user email for notifications.
+        /// </summary>
+        [Authorize]
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetUserById(Guid userId)
+        {
+            try
+            {
+                var user = await _userService.GetUserById(userId);
+                if (user == null) return NotFound(new { message = "User not found" });
+                return Ok(user);
+            }
+            catch (SmartSureException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new BusinessRuleException(ex.Message);
+            }
+        }
+
 
         /// <summary>
         /// Retrieves a complete list of all registered users.

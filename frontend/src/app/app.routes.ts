@@ -1,18 +1,5 @@
 import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
-import { Login } from './pages/auth/login/login';
-import { Register } from './pages/auth/register/register';
-import { UserDashboard } from './pages/user-dashboard/user-dashboard';
-import { AdminDashboard } from './pages/admin-dashboard/admin-dashboard';
-import { GoogleCallback } from './pages/auth/google-callback/google-callback';
-import { VerifyOtp } from './pages/auth/verify-otp/verify-otp';
-import { ForgotPassword } from './pages/auth/forgot-password/forgot-password';
-import { Profile } from './pages/profile/profile';
-import { NotFound } from './pages/not-found/not-found';
-
-import { AboutUs } from './pages/about-us/about-us';
-import { ContactUs } from './pages/contact-us/contact-us';
-import { Insurance } from './pages/insurance/insurance';
 
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
@@ -20,18 +7,18 @@ import { userGuard } from './core/guards/user.guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
-  { path: 'about-us', component: AboutUs },
-  { path: 'contact-us', component: ContactUs },
-  { path: 'insurance', component: Insurance },
-  { path: 'login', component: Login },
-  { path: 'forgot-password', component: ForgotPassword },
-  { path: 'register', component: Register },
-  { path: 'verify-otp', component: VerifyOtp },
-  { path: 'profile', component: Profile, canActivate: [authGuard] },
-  { path: 'user/dashboard', component: UserDashboard, canActivate: [userGuard] },
+  { path: 'about-us', loadComponent: () => import('./pages/about-us/about-us').then(m => m.AboutUs) },
+  { path: 'contact-us', loadComponent: () => import('./pages/contact-us/contact-us').then(m => m.ContactUs) },
+  { path: 'insurance', loadComponent: () => import('./pages/insurance/insurance').then(m => m.Insurance) },
+  { path: 'login', loadComponent: () => import('./pages/auth/login/login').then(m => m.Login) },
+  { path: 'forgot-password', loadComponent: () => import('./pages/auth/forgot-password/forgot-password').then(m => m.ForgotPassword) },
+  { path: 'register', loadComponent: () => import('./pages/auth/register/register').then(m => m.Register) },
+  { path: 'verify-otp', loadComponent: () => import('./pages/auth/verify-otp/verify-otp').then(m => m.VerifyOtp) },
+  { path: 'profile', loadComponent: () => import('./pages/profile/profile').then(m => m.Profile), canActivate: [authGuard] },
+  { path: 'user/dashboard', loadComponent: () => import('./pages/user-dashboard/user-dashboard').then(m => m.UserDashboard), canActivate: [userGuard] },
   { path: 'user-dashboard', redirectTo: 'user/dashboard', pathMatch: 'full' },
-  { path: 'admin/dashboard', component: AdminDashboard, canActivate: [adminGuard] },
-  { path: 'auth/google/callback', component: GoogleCallback },
-  { path: '404', component: NotFound },
+  { path: 'admin/dashboard', loadComponent: () => import('./pages/admin-dashboard/admin-dashboard').then(m => m.AdminDashboard), canActivate: [adminGuard] },
+  { path: 'auth/google/callback', loadComponent: () => import('./pages/auth/google-callback/google-callback').then(m => m.GoogleCallback) },
+  { path: '404', loadComponent: () => import('./pages/not-found/not-found').then(m => m.NotFound) },
   { path: '**', redirectTo: '/404' }
 ];

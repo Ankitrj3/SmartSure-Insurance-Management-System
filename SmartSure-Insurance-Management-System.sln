@@ -1,0 +1,104 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{C9F2D317-4826-407B-F8B2-698283998959}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSure.PolicyService.Tests", "backend\test\SmartSure.PolicyService.Tests\SmartSure.PolicyService.Tests.csproj", "{F7C574CC-1D87-9CD0-21FA-0661E77AE3BD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSure.IdentityService.Tests", "backend\test\SmartSure.IdentityService.Tests\SmartSure.IdentityService.Tests.csproj", "{A6841D00-FBB7-9F3C-1276-3BEF72FF9F38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSure.AdminService.Tests", "backend\test\SmartSure.AdminService.Tests\SmartSure.AdminService.Tests.csproj", "{2FA3492C-D320-59D5-A097-7B55B4424C67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSure.ClaimsService.Tests", "backend\test\SmartSure.ClaimsService.Tests\SmartSure.ClaimsService.Tests.csproj", "{DC791C1D-498F-5DAC-4087-9E2DC0BF6DD3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{B9B6650B-7025-C9C0-BCFD-BDEDF1640D80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSure.Shared.Contracts", "backend\shared\SmartSure.Shared.Contracts\SmartSure.Shared.Contracts.csproj", "{F139BFD3-2F91-B46D-ECB7-5771F601C3F3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{3C755975-A7BD-44BC-C8F9-5B13F14529BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSure.ClaimsService", "backend\services\SmartSure.ClaimsService\SmartSure.ClaimsService.csproj", "{EF6EF2D1-D9D7-0206-1B0B-28FD0D805FB0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSure.PolicyService", "backend\services\SmartSure.PolicyService\SmartSure.PolicyService.csproj", "{080DC6C9-EC4A-9AAB-9174-BF2F72B6CE64}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSure.IdentityService", "backend\services\SmartSure.IdentityService\SmartSure.IdentityService.csproj", "{3F714B92-D0C7-5C20-54B3-C6D25EB65F88}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSure.AdminService", "backend\services\SmartSure.AdminService\SmartSure.AdminService.csproj", "{1A07CA74-C127-6435-4BE1-3CA20E34821C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gateway", "gateway", "{C1DD1228-602D-EDB8-34A7-988CF3C6ABE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartSure.Gateway", "backend\gateway\SmartSure.Gateway\SmartSure.Gateway.csproj", "{43DBA405-D072-9033-9AA3-AEE438BE185F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F7C574CC-1D87-9CD0-21FA-0661E77AE3BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7C574CC-1D87-9CD0-21FA-0661E77AE3BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7C574CC-1D87-9CD0-21FA-0661E77AE3BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7C574CC-1D87-9CD0-21FA-0661E77AE3BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6841D00-FBB7-9F3C-1276-3BEF72FF9F38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6841D00-FBB7-9F3C-1276-3BEF72FF9F38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6841D00-FBB7-9F3C-1276-3BEF72FF9F38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6841D00-FBB7-9F3C-1276-3BEF72FF9F38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FA3492C-D320-59D5-A097-7B55B4424C67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FA3492C-D320-59D5-A097-7B55B4424C67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FA3492C-D320-59D5-A097-7B55B4424C67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FA3492C-D320-59D5-A097-7B55B4424C67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC791C1D-498F-5DAC-4087-9E2DC0BF6DD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC791C1D-498F-5DAC-4087-9E2DC0BF6DD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC791C1D-498F-5DAC-4087-9E2DC0BF6DD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC791C1D-498F-5DAC-4087-9E2DC0BF6DD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F139BFD3-2F91-B46D-ECB7-5771F601C3F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F139BFD3-2F91-B46D-ECB7-5771F601C3F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F139BFD3-2F91-B46D-ECB7-5771F601C3F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F139BFD3-2F91-B46D-ECB7-5771F601C3F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF6EF2D1-D9D7-0206-1B0B-28FD0D805FB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF6EF2D1-D9D7-0206-1B0B-28FD0D805FB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF6EF2D1-D9D7-0206-1B0B-28FD0D805FB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF6EF2D1-D9D7-0206-1B0B-28FD0D805FB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{080DC6C9-EC4A-9AAB-9174-BF2F72B6CE64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{080DC6C9-EC4A-9AAB-9174-BF2F72B6CE64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{080DC6C9-EC4A-9AAB-9174-BF2F72B6CE64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{080DC6C9-EC4A-9AAB-9174-BF2F72B6CE64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F714B92-D0C7-5C20-54B3-C6D25EB65F88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F714B92-D0C7-5C20-54B3-C6D25EB65F88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F714B92-D0C7-5C20-54B3-C6D25EB65F88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F714B92-D0C7-5C20-54B3-C6D25EB65F88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A07CA74-C127-6435-4BE1-3CA20E34821C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A07CA74-C127-6435-4BE1-3CA20E34821C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A07CA74-C127-6435-4BE1-3CA20E34821C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A07CA74-C127-6435-4BE1-3CA20E34821C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43DBA405-D072-9033-9AA3-AEE438BE185F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43DBA405-D072-9033-9AA3-AEE438BE185F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43DBA405-D072-9033-9AA3-AEE438BE185F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43DBA405-D072-9033-9AA3-AEE438BE185F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C9F2D317-4826-407B-F8B2-698283998959} = {1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}
+		{F7C574CC-1D87-9CD0-21FA-0661E77AE3BD} = {C9F2D317-4826-407B-F8B2-698283998959}
+		{A6841D00-FBB7-9F3C-1276-3BEF72FF9F38} = {C9F2D317-4826-407B-F8B2-698283998959}
+		{2FA3492C-D320-59D5-A097-7B55B4424C67} = {C9F2D317-4826-407B-F8B2-698283998959}
+		{DC791C1D-498F-5DAC-4087-9E2DC0BF6DD3} = {C9F2D317-4826-407B-F8B2-698283998959}
+		{B9B6650B-7025-C9C0-BCFD-BDEDF1640D80} = {1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}
+		{F139BFD3-2F91-B46D-ECB7-5771F601C3F3} = {B9B6650B-7025-C9C0-BCFD-BDEDF1640D80}
+		{3C755975-A7BD-44BC-C8F9-5B13F14529BF} = {1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}
+		{EF6EF2D1-D9D7-0206-1B0B-28FD0D805FB0} = {3C755975-A7BD-44BC-C8F9-5B13F14529BF}
+		{080DC6C9-EC4A-9AAB-9174-BF2F72B6CE64} = {3C755975-A7BD-44BC-C8F9-5B13F14529BF}
+		{3F714B92-D0C7-5C20-54B3-C6D25EB65F88} = {3C755975-A7BD-44BC-C8F9-5B13F14529BF}
+		{1A07CA74-C127-6435-4BE1-3CA20E34821C} = {3C755975-A7BD-44BC-C8F9-5B13F14529BF}
+		{C1DD1228-602D-EDB8-34A7-988CF3C6ABE9} = {1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}
+		{43DBA405-D072-9033-9AA3-AEE438BE185F} = {C1DD1228-602D-EDB8-34A7-988CF3C6ABE9}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FDA4FEC8-7FC1-4331-829C-061AE3E9675B}
+	EndGlobalSection
+EndGlobal

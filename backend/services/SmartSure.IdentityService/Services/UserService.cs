@@ -48,6 +48,26 @@ namespace IdentityService.Services
         }
 
         /// <summary>
+        /// Retrieves a single user by ID. Used by inter-service calls for email lookups.
+        /// </summary>
+        public async Task<UserDTO?> GetUserById(Guid userId)
+        {
+            var user = await _repo.GetByIdAsync(userId);
+            if (user == null) return null;
+            return new UserDTO
+            {
+                UserId      = user.UserId,
+                Email       = user.Email,
+                FullName    = user.FullName,
+                PhoneNumber = user.PhoneNumber,
+                Address     = user.Address,
+                Roles       = user.UserRoles?.Where(ur => ur.Role != null)
+                                             .Select(ur => ur.Role.RoleName)
+                                             .ToList() ?? new List<string>()
+            };
+        }
+
+        /// <summary>
         /// Retrieves a comprehensive list of all registered users in the system.
         /// Includes standard profile data and flattens associated roles into a simplified string list.
         /// </summary>
